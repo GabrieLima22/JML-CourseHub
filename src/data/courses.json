@@ -1,0 +1,382 @@
+[
+  {
+    "id": 1,
+    "title": "Contratação Direta: Dispensa e Inexigibilidade",
+    "slug": "contratacao-direta",
+    "area": "Agenda JML",
+    "modality": ["EAD", "In Company"],
+    "tags": ["contratação direta", "dispensa", "inexigibilidade", "sistema s", "estatais"],
+    "summary": "Entenda quando e como contratar sem licitar, respeitando limites legais e reduzindo riscos.",
+    "description": "Módulo 1: Fundamentos da contratação direta | Módulo 2: Dispensas de licitação (arts. 75 e 76) | Módulo 3: Inexigibilidade de licitação | Módulo 4: Procedimentos e documentação | Módulo 5: Controles e riscos",
+    "duration_hours": 12,
+    "level": "Intermediário",
+    "target_audience": "Gestores de contratos, pregoeiros, agentes de contratação",
+    "deliverables": ["Certificado digital", "Apostila completa", "Modelos de documentos"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/contratacao-direta",
+      "pdf": "https://jml.com.br/ementas/contratacao-direta.pdf"
+    },
+    "related_ids": [2, 7, 15]
+  },
+  {
+    "id": 2,
+    "title": "Nova Lei de Licitações (14.133/21): Visão Completa",
+    "slug": "nova-lei-licitacoes",
+    "area": "Agenda JML",
+    "modality": ["EAD", "Presencial", "In Company"],
+    "tags": ["lei 14.133", "licitações", "pregão", "modalidades", "estatais"],
+    "summary": "Domine todos os aspectos da nova lei de licitações e contratos administrativos.",
+    "description": "Módulo 1: Princípios e novidades | Módulo 2: Modalidades de licitação | Módulo 3: Fases do procedimento | Módulo 4: Gestão e fiscalização de contratos | Módulo 5: Infrações e sanções",
+    "duration_hours": 20,
+    "level": "Intermediário",
+    "target_audience": "Gestores públicos, advogados, agentes de contratação",
+    "deliverables": ["Certificado digital", "Apostila completa", "Checklist prático"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/lei-14133",
+      "pdf": "https://jml.com.br/ementas/lei-14133.pdf"
+    },
+    "related_ids": [1, 3, 4]
+  },
+  {
+    "id": 3,
+    "title": "Pregão Eletrônico: Da Elaboração ao Encerramento",
+    "slug": "pregao-eletronico",
+    "area": "Agenda JML",
+    "modality": ["EAD", "Conecta"],
+    "tags": ["pregão eletrônico", "termo de referência", "habilitação", "recursos"],
+    "summary": "Domine todas as fases do pregão eletrônico com segurança e eficiência.",
+    "description": "Módulo 1: Planejamento e estudos técnicos preliminares | Módulo 2: Elaboração do termo de referência | Módulo 3: Condução da sessão pública | Módulo 4: Habilitação e recursos | Módulo 5: Homologação e formalização",
+    "duration_hours": 16,
+    "level": "Intermediário",
+    "target_audience": "Pregoeiros, equipes de apoio, gestores de compras",
+    "deliverables": ["Certificado digital", "Modelos de editais", "Fluxogramas"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/pregao-eletronico",
+      "pdf": "https://jml.com.br/ementas/pregao-eletronico.pdf"
+    },
+    "related_ids": [2, 5, 6]
+  },
+  {
+    "id": 4,
+    "title": "Gestão e Fiscalização de Contratos Administrativos",
+    "slug": "gestao-contratos",
+    "area": "Agenda JML",
+    "modality": ["EAD", "Presencial", "In Company"],
+    "tags": ["gestão de contratos", "fiscalização", "glosas", "aditivos"],
+    "summary": "Aprenda a gerir e fiscalizar contratos com segurança jurídica e eficiência operacional.",
+    "description": "Módulo 1: Papéis e responsabilidades | Módulo 2: Execução contratual | Módulo 3: Alterações e aditivos | Módulo 4: Glosas e sanções | Módulo 5: Extinção e prestação de contas",
+    "duration_hours": 12,
+    "level": "Básico",
+    "target_audience": "Fiscais de contrato, gestores, servidores públicos",
+    "deliverables": ["Certificado digital", "Checklist de fiscalização", "Modelos de relatórios"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/gestao-contratos",
+      "pdf": "https://jml.com.br/ementas/gestao-contratos.pdf"
+    },
+    "related_ids": [2, 7, 10]
+  },
+  {
+    "id": 5,
+    "title": "Planejamento de Contratações Públicas",
+    "slug": "planejamento-contratacoes",
+    "area": "Agenda JML",
+    "modality": ["EAD", "In Company"],
+    "tags": ["planejamento", "PCA", "estudos técnicos", "ETP"],
+    "summary": "Estruture contratações mais eficientes com planejamento estratégico e estudos técnicos.",
+    "description": "Módulo 1: Plano de Contratações Anual (PCA) | Módulo 2: Estudos técnicos preliminares (ETP) | Módulo 3: Análise de riscos | Módulo 4: Gestão de demanda | Módulo 5: Alinhamento orçamentário",
+    "duration_hours": 8,
+    "level": "Básico",
+    "target_audience": "Gestores públicos, equipes de compras, planejadores",
+    "deliverables": ["Certificado digital", "Templates de ETP", "Guia de boas práticas"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/planejamento-contratacoes",
+      "pdf": "https://jml.com.br/ementas/planejamento-contratacoes.pdf"
+    },
+    "related_ids": [3, 11, 13]
+  },
+  {
+    "id": 6,
+    "title": "Elaboração de Editais e Termos de Referência",
+    "slug": "editais-termos-referencia",
+    "area": "Agenda JML",
+    "modality": ["EAD", "Presencial"],
+    "tags": ["edital", "termo de referência", "especificações técnicas", "critérios de julgamento"],
+    "summary": "Construa editais e TRs robustos, claros e juridicamente seguros.",
+    "description": "Módulo 1: Estrutura do edital | Módulo 2: Termo de referência detalhado | Módulo 3: Critérios de julgamento | Módulo 4: Garantias e sanções | Módulo 5: Checagem e publicação",
+    "duration_hours": 12,
+    "level": "Intermediário",
+    "target_audience": "Pregoeiros, assessores jurídicos, gestores de compras",
+    "deliverables": ["Certificado digital", "Biblioteca de cláusulas", "Modelos prontos"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/editais-termos",
+      "pdf": "https://jml.com.br/ementas/editais-termos.pdf"
+    },
+    "related_ids": [3, 5, 2]
+  },
+  {
+    "id": 7,
+    "title": "Contratos Administrativos: Aspectos Jurídicos e Práticos",
+    "slug": "contratos-administrativos",
+    "area": "Agenda JML",
+    "modality": ["EAD", "Conecta", "In Company"],
+    "tags": ["contratos administrativos", "cláusulas exorbitantes", "equilíbrio econômico", "rescisão"],
+    "summary": "Compreenda a natureza jurídica e os desafios práticos dos contratos administrativos.",
+    "description": "Módulo 1: Conceitos e características | Módulo 2: Cláusulas exorbitantes | Módulo 3: Equilíbrio econômico-financeiro | Módulo 4: Reajuste e repactuação | Módulo 5: Rescisão e extinção",
+    "duration_hours": 10,
+    "level": "Intermediário",
+    "target_audience": "Advogados públicos, gestores de contratos, procuradores",
+    "deliverables": ["Certificado digital", "Apostila jurídica", "Jurisprudência selecionada"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/contratos-administrativos",
+      "pdf": "https://jml.com.br/ementas/contratos-administrativos.pdf"
+    },
+    "related_ids": [1, 4, 2]
+  },
+  {
+    "id": 8,
+    "title": "Compliance em Contratações Públicas",
+    "slug": "compliance-contratacoes",
+    "area": "Setorial",
+    "modality": ["EAD", "In Company"],
+    "tags": ["compliance", "integridade", "lei anticorrupção", "controles internos"],
+    "summary": "Implante programas de integridade e reduza riscos de corrupção e irregularidades.",
+    "description": "Módulo 1: Conceitos de compliance | Módulo 2: Lei Anticorrupção (12.846/13) | Módulo 3: Controles internos | Módulo 4: Canal de denúncias | Módulo 5: Auditoria e monitoramento",
+    "duration_hours": 8,
+    "level": "Intermediário",
+    "target_audience": "Controladores, auditores, gestores de compliance",
+    "deliverables": ["Certificado digital", "Toolkit de compliance", "Matriz de riscos"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/compliance",
+      "pdf": "https://jml.com.br/ementas/compliance.pdf"
+    },
+    "related_ids": [9, 12, 14]
+  },
+  {
+    "id": 9,
+    "title": "Auditoria e Controle Interno de Contratos",
+    "slug": "auditoria-controle",
+    "area": "Setorial",
+    "modality": ["EAD", "Presencial", "Conecta"],
+    "tags": ["auditoria", "controle interno", "TCU", "conformidade"],
+    "summary": "Desenvolva competências para auditar contratos e garantir conformidade.",
+    "description": "Módulo 1: Princípios de auditoria | Módulo 2: Técnicas de amostragem | Módulo 3: Verificação documental | Módulo 4: Relatórios de auditoria | Módulo 5: Acompanhamento de recomendações",
+    "duration_hours": 12,
+    "level": "Avançado",
+    "target_audience": "Auditores internos, controladores, analistas de controle",
+    "deliverables": ["Certificado digital", "Checklists de auditoria", "Modelos de relatórios"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/auditoria-controle",
+      "pdf": "https://jml.com.br/ementas/auditoria-controle.pdf"
+    },
+    "related_ids": [8, 12, 14]
+  },
+  {
+    "id": 10,
+    "title": "Responsabilidade Civil e Criminal do Gestor Público",
+    "slug": "responsabilidade-gestor",
+    "area": "Agenda JML",
+    "modality": ["EAD", "In Company"],
+    "tags": ["responsabilidade", "improbidade", "crimes licitatórios", "LIA"],
+    "summary": "Conheça os riscos jurídicos e proteja-se contra ações de responsabilização.",
+    "description": "Módulo 1: Tipos de responsabilidade | Módulo 2: Improbidade administrativa (LIA) | Módulo 3: Crimes licitatórios | Módulo 4: Ação de ressarcimento | Módulo 5: Defesas e boas práticas",
+    "duration_hours": 10,
+    "level": "Intermediário",
+    "target_audience": "Gestores públicos, procuradores, servidores",
+    "deliverables": ["Certificado digital", "Guia de defesa", "Jurisprudência"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/responsabilidade-gestor",
+      "pdf": "https://jml.com.br/ementas/responsabilidade-gestor.pdf"
+    },
+    "related_ids": [2, 4, 8]
+  },
+  {
+    "id": 11,
+    "title": "Licitações Sustentáveis e Critérios ESG",
+    "slug": "licitacoes-sustentaveis",
+    "area": "Setorial",
+    "modality": ["EAD", "Presencial"],
+    "tags": ["sustentabilidade", "ESG", "licitações verdes", "compras sustentáveis"],
+    "summary": "Integre critérios socioambientais e de governança nas suas contratações.",
+    "description": "Módulo 1: Conceitos de ESG | Módulo 2: Marco legal das licitações sustentáveis | Módulo 3: Critérios de sustentabilidade | Módulo 4: Comprovação e fiscalização | Módulo 5: Cases de sucesso",
+    "duration_hours": 8,
+    "level": "Básico",
+    "target_audience": "Gestores de compras, pregoeiros, sustentabilidade",
+    "deliverables": ["Certificado digital", "Checklist ESG", "Biblioteca de critérios"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/licitacoes-sustentaveis",
+      "pdf": "https://jml.com.br/ementas/licitacoes-sustentaveis.pdf"
+    },
+    "related_ids": [5, 13, 6]
+  },
+  {
+    "id": 12,
+    "title": "LGPD na Administração Pública",
+    "slug": "lgpd-administracao",
+    "area": "Setorial",
+    "modality": ["EAD", "Conecta", "In Company"],
+    "tags": ["LGPD", "proteção de dados", "privacidade", "encarregado"],
+    "summary": "Adeque sua organização pública à Lei Geral de Proteção de Dados.",
+    "description": "Módulo 1: Fundamentos da LGPD | Módulo 2: Bases legais no setor público | Módulo 3: Direitos dos titulares | Módulo 4: Governança de dados | Módulo 5: Incidentes e notificações",
+    "duration_hours": 10,
+    "level": "Intermediário",
+    "target_audience": "Encarregados de dados, TI, gestores públicos",
+    "deliverables": ["Certificado digital", "Toolkit LGPD", "Modelos de políticas"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/lgpd",
+      "pdf": "https://jml.com.br/ementas/lgpd.pdf"
+    },
+    "related_ids": [8, 9, 14]
+  },
+  {
+    "id": 13,
+    "title": "Sistema de Registro de Preços (SRP)",
+    "slug": "registro-precos",
+    "area": "Agenda JML",
+    "modality": ["EAD", "Presencial", "In Company"],
+    "tags": ["registro de preços", "ata de registro", "carona", "adesão"],
+    "summary": "Utilize o SRP de forma estratégica e legal, evitando riscos de adesões inadequadas.",
+    "description": "Módulo 1: O que é e quando usar o SRP | Módulo 2: Licitação e formação da ata | Módulo 3: Gerenciamento da ata | Módulo 4: Adesão ('carona') | Módulo 5: Vedações e jurisprudência",
+    "duration_hours": 8,
+    "level": "Básico",
+    "target_audience": "Gestores de compras, pregoeiros, servidores",
+    "deliverables": ["Certificado digital", "Fluxograma do SRP", "Modelos de ata"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/registro-precos",
+      "pdf": "https://jml.com.br/ementas/registro-precos.pdf"
+    },
+    "related_ids": [3, 5, 11]
+  },
+  {
+    "id": 14,
+    "title": "Controle de Transparência e Acesso à Informação",
+    "slug": "transparencia-acesso",
+    "area": "Setorial",
+    "modality": ["EAD", "Conecta"],
+    "tags": ["transparência", "LAI", "acesso à informação", "portal"],
+    "summary": "Garanta conformidade com a Lei de Acesso à Informação e amplie a transparência.",
+    "description": "Módulo 1: Lei de Acesso à Informação (LAI) | Módulo 2: Transparência ativa e passiva | Módulo 3: Procedimentos de atendimento | Módulo 4: Recursos e prazos | Módulo 5: Portais de transparência",
+    "duration_hours": 6,
+    "level": "Básico",
+    "target_audience": "Servidores, ouvidores, equipes de comunicação",
+    "deliverables": ["Certificado digital", "Guia de atendimento", "Checklist LAI"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/transparencia",
+      "pdf": "https://jml.com.br/ementas/transparencia.pdf"
+    },
+    "related_ids": [8, 9, 12]
+  },
+  {
+    "id": 15,
+    "title": "Licitações para Obras Públicas",
+    "slug": "licitacoes-obras",
+    "area": "Agenda JML",
+    "modality": ["Presencial", "In Company"],
+    "tags": ["obras públicas", "BDI", "planilha orçamentária", "medições"],
+    "summary": "Domine as especificidades das licitações de obras, do projeto básico à conclusão.",
+    "description": "Módulo 1: Projeto básico e executivo | Módulo 2: Orçamento e BDI | Módulo 3: Modalidades aplicáveis | Módulo 4: Fiscalização e medições | Módulo 5: Aditivos e acréscimos",
+    "duration_hours": 16,
+    "level": "Avançado",
+    "target_audience": "Engenheiros, arquitetos, gestores de obras, fiscais",
+    "deliverables": ["Certificado digital", "Modelos de planilha", "Checklist técnico"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/obras-publicas",
+      "pdf": "https://jml.com.br/ementas/obras-publicas.pdf"
+    },
+    "related_ids": [1, 4, 6]
+  },
+  {
+    "id": 16,
+    "title": "Negociação e Comunicação Assertiva",
+    "slug": "negociacao-comunicacao",
+    "area": "Soft Skills",
+    "modality": ["EAD", "Presencial", "In Company"],
+    "tags": ["negociação", "comunicação", "liderança", "conflitos"],
+    "summary": "Desenvolva habilidades de negociação e comunicação para melhorar resultados e relacionamentos.",
+    "description": "Módulo 1: Fundamentos da negociação | Módulo 2: Técnicas de comunicação assertiva | Módulo 3: Gestão de conflitos | Módulo 4: Escuta ativa | Módulo 5: Prática e simulações",
+    "duration_hours": 12,
+    "level": "Básico",
+    "target_audience": "Gestores, líderes, servidores públicos",
+    "deliverables": ["Certificado digital", "Toolkit de negociação", "Exercícios práticos"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/negociacao",
+      "pdf": "https://jml.com.br/ementas/negociacao.pdf"
+    },
+    "related_ids": [17, 18, 19]
+  },
+  {
+    "id": 17,
+    "title": "Gestão de Equipes e Liderança",
+    "slug": "gestao-equipes",
+    "area": "Soft Skills",
+    "modality": ["EAD", "Presencial", "Conecta"],
+    "tags": ["liderança", "gestão de equipes", "motivação", "feedback"],
+    "summary": "Aprimore suas competências de liderança e gestão de pessoas no setor público.",
+    "description": "Módulo 1: Estilos de liderança | Módulo 2: Gestão de desempenho | Módulo 3: Feedback eficaz | Módulo 4: Motivação e engajamento | Módulo 5: Desenvolvimento de talentos",
+    "duration_hours": 10,
+    "level": "Intermediário",
+    "target_audience": "Gestores, líderes, coordenadores",
+    "deliverables": ["Certificado digital", "Ferramentas de gestão", "Planos de ação"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/gestao-equipes",
+      "pdf": "https://jml.com.br/ementas/gestao-equipes.pdf"
+    },
+    "related_ids": [16, 18, 20]
+  },
+  {
+    "id": 18,
+    "title": "Gestão do Tempo e Produtividade",
+    "slug": "gestao-tempo",
+    "area": "Soft Skills",
+    "modality": ["EAD", "Conecta"],
+    "tags": ["produtividade", "gestão do tempo", "priorização", "organização"],
+    "summary": "Organize melhor suas tarefas, elimine desperdícios de tempo e aumente a produtividade.",
+    "description": "Módulo 1: Diagnóstico do tempo | Módulo 2: Técnicas de priorização | Módulo 3: Ferramentas digitais | Módulo 4: Eliminação de distrações | Módulo 5: Rotinas eficazes",
+    "duration_hours": 6,
+    "level": "Básico",
+    "target_audience": "Servidores, gestores, profissionais em geral",
+    "deliverables": ["Certificado digital", "Planner digital", "Checklist de produtividade"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/gestao-tempo",
+      "pdf": "https://jml.com.br/ementas/gestao-tempo.pdf"
+    },
+    "related_ids": [16, 17, 19]
+  },
+  {
+    "id": 19,
+    "title": "Inteligência Emocional no Trabalho",
+    "slug": "inteligencia-emocional",
+    "area": "Soft Skills",
+    "modality": ["EAD", "Presencial"],
+    "tags": ["inteligência emocional", "autoconhecimento", "empatia", "resiliência"],
+    "summary": "Desenvolva inteligência emocional para lidar melhor com pressões e relacionamentos.",
+    "description": "Módulo 1: O que é inteligência emocional | Módulo 2: Autoconhecimento | Módulo 3: Autogestão emocional | Módulo 4: Empatia e relacionamentos | Módulo 5: Resiliência e adaptação",
+    "duration_hours": 8,
+    "level": "Básico",
+    "target_audience": "Todos os profissionais",
+    "deliverables": ["Certificado digital", "Ferramentas de autoavaliação", "Planos de desenvolvimento"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/inteligencia-emocional",
+      "pdf": "https://jml.com.br/ementas/inteligencia-emocional.pdf"
+    },
+    "related_ids": [16, 17, 18]
+  },
+  {
+    "id": 20,
+    "title": "Gestão de Projetos no Setor Público",
+    "slug": "gestao-projetos",
+    "area": "Corporativo",
+    "modality": ["EAD", "In Company", "Conecta"],
+    "tags": ["gestão de projetos", "PMI", "cronograma", "riscos"],
+    "summary": "Aplique metodologias de gestão de projetos para entregar resultados no prazo e qualidade.",
+    "description": "Módulo 1: Conceitos e fases do projeto | Módulo 2: Escopo e cronograma | Módulo 3: Gestão de riscos | Módulo 4: Equipe e comunicação | Módulo 5: Monitoramento e encerramento",
+    "duration_hours": 12,
+    "level": "Intermediário",
+    "target_audience": "Gestores de projetos, coordenadores, servidores",
+    "deliverables": ["Certificado digital", "Templates de gestão", "Ferramentas de controle"],
+    "links": {
+      "landing": "https://jml.com.br/cursos/gestao-projetos",
+      "pdf": "https://jml.com.br/ementas/gestao-projetos.pdf"
+    },
+    "related_ids": [17, 5, 13]
+  }
+]
