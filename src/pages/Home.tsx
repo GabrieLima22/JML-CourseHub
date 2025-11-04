@@ -79,13 +79,13 @@ const categories: CategoryConfig[] = [
     buildParams: () => ({ segmento: 'Estatais' }),
   },
   {
-    name: 'JudiciÃ¡rio',
+    name: 'Judiciário',
     icon: Gavel,
     color: 'category-judiciario',
     match: course =>
       course.tags.some(tag => normalizeText(tag).includes('judici')) ||
       normalizeText(course.target_audience).includes('jurid'),
-    buildParams: () => ({ segmento: 'JudiciÃ¡rio' }),
+    buildParams: () => ({ segmento: 'Judiciário' }),
   },
 ];
 

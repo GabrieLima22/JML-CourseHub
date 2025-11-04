@@ -15,7 +15,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 
 const MODALITIES = ['EAD', 'Presencial', 'Conecta', 'In Company'];
 const AREAS = ['Agenda JML', 'Setorial', 'Soft Skills', 'Corporativo'];
-const SEGMENTS = ['Sistema S', 'Estatais', 'Judiciário'];
+const SEGMENTS = ['Sistema S', 'Estatais', 'Judici�rio'];
 const LEVELS = ['Básico', 'Intermediário', 'Avançado'];
 
 export default function Resultados() {
