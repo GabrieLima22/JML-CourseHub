@@ -9,16 +9,16 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Aurora JML - Light Mode */
-    --background: 0 0% 100%;
-    --foreground: 240 10% 15%;
+    --background: 210 40% 99%;
+    --foreground: 226 37% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 15%;
+    --card-foreground: 226 37% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 15%;
+    --popover-foreground: 226 37% 12%;
 
-    /* Aurora gradient colors */
+    /* Brand colors */
     --primary: 248 60% 62%;
     --primary-foreground: 0 0% 100%;
     --primary-glow: 248 70% 70%;
@@ -27,8 +27,8 @@ All colors MUST be HSL.
     --secondary-foreground: 0 0% 100%;
     --secondary-glow: 196 80% 62%;
 
-    --muted: 240 5% 96%;
-    --muted-foreground: 240 4% 46%;
+    --muted: 220 16% 94%;
+    --muted-foreground: 225 10% 46%;
 
     --accent: 248 60% 62%;
     --accent-foreground: 0 0% 100%;
@@ -36,38 +36,57 @@ All colors MUST be HSL.
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 6% 90%;
-    --input: 240 6% 90%;
+    --border: 216 20% 88%;
+    --input: 216 20% 88%;
     --ring: 248 60% 62%;
 
     --radius: 1rem;
 
-    /* Gradient stops */
-    --gradient-from: 248 60% 62%;
-    --gradient-via: 220 70% 58%;
-    --gradient-to: 196 70% 52%;
+    /* Aurora gradients */
+    --gradient-aurora-from: 222 100% 96%;
+    --gradient-aurora-via: 268 100% 96%;
+    --gradient-aurora-to: 198 88% 94%;
+    --gradient-from: var(--gradient-aurora-from);
+    --gradient-via: var(--gradient-aurora-via);
+    --gradient-to: var(--gradient-aurora-to);
 
     /* Category colors */
-    --category-primary: 208 88% 60%;
-    --category-secondary: 230 82% 62%;
-    --category-tertiary: 262 80% 68%;
-    --category-quaternary: 192 78% 53%;
-    --category-quinary: 150 70% 45%;
-    --category-senary: 30 85% 58%;
-    --category-septenary: 142 71% 45%;
-    --category-octonary: 280 70% 60%;
+    --category-agenda: 222 89% 61%;
+    --category-setorial: 197 94% 53%;
+    --category-soft: 282 74% 66%;
+    --category-corporativo: 164 60% 45%;
+    --category-ead: 26 90% 60%;
+    --category-presencial: 344 82% 58%;
+    --category-conecta: 258 83% 65%;
+    --category-incompany: 206 90% 56%;
+    --category-sistema: 48 96% 64%;
+    --category-estatais: 16 88% 60%;
+    --category-judiciario: 214 60% 45%;
+
+    /* Category aliases */
+    --cat-agenda: var(--category-agenda);
+    --cat-setorial: var(--category-setorial);
+    --cat-soft: var(--category-soft);
+    --cat-corporativo: var(--category-corporativo);
+    --cat-ead: var(--category-ead);
+    --cat-presencial: var(--category-presencial);
+    --cat-conecta: var(--category-conecta);
+    --cat-incompany: var(--category-incompany);
+    --cat-sistema: var(--category-sistema);
+    --cat-estatais: var(--category-estatais);
+    --cat-judiciario: var(--category-judiciario);
   }
 
   .dark {
     /* Aurora JML - Dark Mode */
-    --background: 240 10% 8%;
-    --foreground: 0 0% 98%;
+    --background: 240 14% 10%;
+    --foreground: 210 40% 98%;
 
-    --card: 240 8% 12%;
-    --card-foreground: 0 0% 98%;
+    --card: 240 16% 14%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 240 8% 12%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 240 16% 14%;
+    --popover-foreground: 210 40% 98%;
 
     --primary: 248 60% 62%;
     --primary-foreground: 0 0% 100%;
@@ -77,8 +96,8 @@ All colors MUST be HSL.
     --secondary-foreground: 0 0% 100%;
     --secondary-glow: 196 80% 62%;
 
-    --muted: 240 8% 18%;
-    --muted-foreground: 240 5% 64%;
+    --muted: 240 13% 18%;
+    --muted-foreground: 210 40% 78%;
 
     --accent: 248 60% 62%;
     --accent-foreground: 0 0% 100%;
@@ -86,19 +105,43 @@ All colors MUST be HSL.
     --destructive: 0 62% 47%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 8% 20%;
-    --input: 240 8% 20%;
+    --border: 240 12% 24%;
+    --input: 240 12% 24%;
     --ring: 248 60% 62%;
 
-    /* Category colors - adjusted for dark */
-    --category-primary: 208 88% 65%;
-    --category-secondary: 230 82% 66%;
-    --category-tertiary: 262 80% 70%;
-    --category-quaternary: 192 78% 57%;
-    --category-quinary: 150 70% 50%;
-    --category-senary: 30 85% 62%;
-    --category-septenary: 142 71% 50%;
-    --category-octonary: 280 70% 65%;
+    /* Aurora gradients */
+    --gradient-aurora-from: 242 62% 22%;
+    --gradient-aurora-via: 268 54% 28%;
+    --gradient-aurora-to: 198 62% 24%;
+    --gradient-from: var(--gradient-aurora-from);
+    --gradient-via: var(--gradient-aurora-via);
+    --gradient-to: var(--gradient-aurora-to);
+
+    /* Category colors */
+    --category-agenda: 222 89% 68%;
+    --category-setorial: 197 94% 63%;
+    --category-soft: 282 74% 72%;
+    --category-corporativo: 164 60% 52%;
+    --category-ead: 26 90% 66%;
+    --category-presencial: 344 82% 64%;
+    --category-conecta: 258 83% 72%;
+    --category-incompany: 206 90% 64%;
+    --category-sistema: 48 96% 72%;
+    --category-estatais: 16 88% 66%;
+    --category-judiciario: 214 60% 54%;
+
+    /* Category aliases */
+    --cat-agenda: var(--category-agenda);
+    --cat-setorial: var(--category-setorial);
+    --cat-soft: var(--category-soft);
+    --cat-corporativo: var(--category-corporativo);
+    --cat-ead: var(--category-ead);
+    --cat-presencial: var(--category-presencial);
+    --cat-conecta: var(--category-conecta);
+    --cat-incompany: var(--category-incompany);
+    --cat-sistema: var(--category-sistema);
+    --cat-estatais: var(--category-estatais);
+    --cat-judiciario: var(--category-judiciario);
   }
 }
 
@@ -109,5 +152,19 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(at 10% 20%, hsl(var(--gradient-aurora-from) / 0.45) 0px, transparent 55%),
+      radial-gradient(at 80% 0%, hsl(var(--gradient-aurora-via) / 0.5) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, hsl(var(--gradient-aurora-to) / 0.4) 0px, transparent 55%);
+    background-attachment: fixed;
+  }
+
+  .dark body {
+    @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(at 10% 20%, hsl(var(--gradient-aurora-from) / 0.55) 0px, transparent 55%),
+      radial-gradient(at 80% 0%, hsl(var(--gradient-aurora-via) / 0.6) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, hsl(var(--gradient-aurora-to) / 0.5) 0px, transparent 55%);
+    background-attachment: fixed;
   }
 }
