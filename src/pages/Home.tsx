@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BriefcaseBusiness,
@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 
 type LucideIcon = typeof GraduationCap;
+
 import { SearchBar } from '@/components/SearchBar';
 import { CourseCard } from '@/components/CourseCard';
 import { HistoryPopover } from '@/components/HistoryPopover';
@@ -52,52 +53,49 @@ type CategoryConfig = {
 };
 
 const normalizeText = (value: string) =>
-  value
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .toLowerCase();
+  value.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
 
 const categories: CategoryConfig[] = [
   {
     name: 'EAD',
     icon: MonitorPlay,
     color: 'category-ead',
-    match: (course) => course.modality.some((mod) => normalizeText(mod) === 'ead'),
+    match: (course) => course.modality.some((m) => normalizeText(m) === 'ead'),
     buildParams: () => ({ modalidade: 'EAD' }),
   },
   {
     name: 'Presencial',
     icon: Users,
     color: 'category-presencial',
-    match: (course) => course.modality.some((mod) => normalizeText(mod) === 'presencial'),
+    match: (course) => course.modality.some((m) => normalizeText(m) === 'presencial'),
     buildParams: () => ({ modalidade: 'Presencial' }),
   },
   {
     name: 'Conecta',
     icon: Share2,
     color: 'category-conecta',
-    match: (course) => course.modality.some((mod) => normalizeText(mod) === 'conecta'),
+    match: (course) => course.modality.some((m) => normalizeText(m) === 'conecta'),
     buildParams: () => ({ modalidade: 'Conecta' }),
   },
   {
     name: 'In Company',
     icon: BriefcaseBusiness,
     color: 'category-incompany',
-    match: (course) => course.modality.some((mod) => normalizeText(mod) === 'in company'),
+    match: (course) => course.modality.some((m) => normalizeText(m) === 'in company'),
     buildParams: () => ({ modalidade: 'In Company' }),
   },
   {
     name: 'Sistema S',
     icon: Building2,
     color: 'category-sistema',
-    match: (course) => course.tags.some((tag) => normalizeText(tag) === normalizeText('Sistema S')),
+    match: (course) => course.tags.some((t) => normalizeText(t) === normalizeText('Sistema S')),
     buildParams: () => ({ segmento: 'Sistema S' }),
   },
   {
     name: 'Estatais',
     icon: Landmark,
     color: 'category-estatais',
-    match: (course) => course.tags.some((tag) => normalizeText(tag) === normalizeText('Estatais')),
+    match: (course) => course.tags.some((t) => normalizeText(t) === normalizeText('Estatais')),
     buildParams: () => ({ segmento: 'Estatais' }),
   },
   {
@@ -105,8 +103,9 @@ const categories: CategoryConfig[] = [
     icon: Gavel,
     color: 'category-judiciario',
     match: (course) =>
-      course.tags.some((tag) => normalizeText(tag).includes('judici')) ||
-      (!!course.target_audience && normalizeText(course.target_audience).includes('jurid')),
+      course.tags.some((t) => normalizeText(t).includes('judici')) ||
+      (!!(course as any).target_audience &&
+        normalizeText((course as any).target_audience).includes('jurid')),
     buildParams: () => ({ segmento: 'Judiciário' }),
   },
 ];
@@ -131,6 +130,7 @@ export default function Home() {
   const navigate = useNavigate();
   const { allCourses } = useSearch();
   const { addToHistory } = useSearchHistory();
+
   const [filters] = useState<FilterOptions>({
     modalities: [],
     areas: [],
@@ -150,9 +150,7 @@ export default function Home() {
   const handleCategoryClick = (category: CategoryConfig) => {
     const params = new URLSearchParams();
     const queryParams = category.buildParams();
-    Object.entries(queryParams).forEach(([key, value]) => {
-      params.set(key, value);
-    });
+    Object.entries(queryParams).forEach(([k, v]) => params.set(k, v));
     navigate(`/resultados?${params.toString()}`);
   };
 
@@ -169,78 +167,99 @@ export default function Home() {
   );
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-background via-primary/[0.03] to-background">
-      {/* Blobs sutis de fundo */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute -top-32 -left-24 h-[400px] w-[400px] rounded-full blur-3xl opacity-30 dark:opacity-20"
-        style={{
-          background: 'radial-gradient(circle at center, rgba(99, 102, 241, 0.4), transparent 70%)',
-        }}
-      />
-      <span
-        aria-hidden
-        className="pointer-events-none absolute top-1/3 -right-20 h-[450px] w-[450px] rounded-full blur-3xl opacity-25 dark:opacity-15"
-        style={{
-          background: 'radial-gradient(circle at center, rgba(56, 189, 248, 0.35), transparent 70%)',
-        }}
-      />
+    <div className="relative min-h-screen overflow-hidden bg-[linear-gradient(155deg,#f7f8fe_0%,#eef2ff_48%,#f9fafc_100%)] dark:bg-[linear-gradient(155deg,#050813_0%,#0a1221_50%,#101c31_100%)]">
+      {/* blobs de fundo */}
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div
+          className="absolute left-1/2 top-[-18%] h-[440px] w-[640px] -translate-x-1/2 rounded-full opacity-70 blur-[120px] dark:opacity-60"
+          style={{
+            background:
+              'radial-gradient(circle at center, rgba(80, 56, 237, 0.25), transparent 65%)',
+          }}
+        />
+        <div
+          className="absolute left-[12%] top-[32%] h-[360px] w-[360px] rounded-full opacity-60 blur-[100px] dark:opacity-50"
+          style={{
+            background:
+              'radial-gradient(circle at center, rgba(56, 189, 248, 0.18), transparent 70%)',
+          }}
+        />
+      </div>
 
-      {/* Header fixo e clean */}
-      <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+      <div className="container relative z-10 mx-auto px-4 py-12">
+        {/* Hero com card de vidro */}
+        <div className="relative mb-16 overflow-hidden rounded-[2.5rem] border border-border/40 bg-white/80 px-6 py-10 shadow-[0_28px_90px_-60px_rgba(15,23,42,0.25)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 dark:shadow-[0_28px_90px_-55px_rgba(80,56,237,0.55)]">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-60"
+            style={{
+              background:
+                'radial-gradient(circle at top left, rgba(80, 56, 237, 0.18), transparent 60%), radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.14), transparent 65%)',
+            }}
+          />
+          {/* Header */}
+          <header className="relative z-10 mb-10 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80">
-                <GraduationCap className="h-6 w-6 text-white" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-aurora">
+                <GraduationCap className="h-7 w-7 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-semibold">JML Cursos</h1>
-                <p className="text-xs text-muted-foreground">Apoio à Venda Inteligente</p>
+                <h1 className="text-2xl font-bold">JML Cursos</h1>
+                <p className="text-sm text-muted-foreground">Apoio à Venda Inteligente</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <HistoryPopover onSelectHistory={handleHistorySelect} />
               <ThemeToggle />
             </div>
-          </div>
-        </div>
-      </header>
+          </header>
 
-      <div className="container relative z-10 mx-auto px-4">
-        {/* Hero Section - Com glassmorphism sutil */}
-        <section className="py-16 md:py-24">
-          <div className="mx-auto max-w-3xl">
-            <div className="rounded-3xl border border-white/10 bg-white/40 p-10 shadow-xl backdrop-blur-md dark:border-white/5 dark:bg-white/5">
-              <div className="text-center">
-                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary backdrop-blur-sm">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Busca Inteligente
-                </div>
-                <h2 className="mb-4 bg-gradient-to-br from-primary via-primary to-blue-600 bg-clip-text text-4xl font-bold tracking-tight text-transparent md:text-5xl lg:text-6xl">
+          {/* Hero Search */}
+          <section className="relative z-10 mt-10">
+            <div className="mb-8 flex flex-col items-center gap-6 text-center">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/50 px-4 py-1 text-xs font-medium uppercase tracking-[0.2em] text-primary shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/10 dark:text-white">
+                <Sparkles className="h-4 w-4" />
+                Descubra o próximo passo
+              </div>
+              <div>
+                <h2 className="bg-gradient-aurora bg-clip-text text-4xl font-bold text-transparent lg:text-5xl">
                   Encontre o curso perfeito
                 </h2>
-                <p className="mb-10 text-lg text-muted-foreground md:text-xl">
-                  Digite o que o cliente perguntou e descubra os cursos mais relevantes
+                <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+                  Digite o que o cliente perguntou e descubra os cursos mais relevantes para sua
+                  necessidade
                 </p>
-                <SearchBar onSearch={handleSearch} />
               </div>
             </div>
-          </div>
-        </section>
+            <div className="flex justify-center">
+              <SearchBar onSearch={handleSearch} />
+            </div>
+          </section>
+        </div>
 
-        {/* Explore Section */}
-        <section className="py-12">
-          <div className="relative overflow-hidden rounded-3xl border border-border/40 bg-gradient-to-br from-primary/5 via-background/80 to-blue-500/5 p-8 shadow-lg backdrop-blur-sm">
-            <div className="absolute inset-0 pointer-events-none opacity-40 [background:radial-gradient(circle_at_top_left,hsl(var(--primary)/0.15),transparent_60%)]" />
-            
-            <div className="relative z-10">
-              <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        {/* Explore */}
+        <section className="mb-16">
+          <div className="relative overflow-hidden rounded-3xl border border-border/40 bg-white/80 p-8 shadow-[0_32px_110px_-85px_rgba(15,23,42,0.38)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 dark:shadow-[0_32px_110px_-78px_rgba(37,99,235,0.55)]">
+            <div
+              className="absolute inset-x-0 top-0 pointer-events-none h-1/2 opacity-50"
+              style={{
+                background:
+                  'radial-gradient(circle at top, rgba(80, 56, 237, 0.18), transparent 70%)',
+              }}
+            />
+            <div className="relative z-10 flex flex-col gap-8">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <p className="mb-1 text-sm font-medium text-primary">Explorar</p>
-                  <h3 className="text-2xl font-semibold text-foreground">Navegue pelo catálogo</h3>
+                  <p className="text-sm font-medium text-primary/80 dark:text-primary/70">Explorar</p>
+                  <h3 className="text-2xl font-semibold text-foreground">
+                    Personalize a jornada de descoberta
+                  </h3>
+                  <p className="mt-2 max-w-xl text-sm text-muted-foreground">
+                    Navegue pelas modalidades ou visualize todos os cursos disponíveis. Escolha a
+                    melhor forma de apresentar o portfólio ao cliente.
+                  </p>
                 </div>
-                <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-background/60 p-1 backdrop-blur-sm">
+                <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-white/80 p-1 shadow-sm backdrop-blur dark:bg-white/10">
                   {exploreModeOptions.map(({ id, label, icon: Icon }) => {
                     const isActive = exploreMode === id;
                     return (
@@ -248,16 +267,21 @@ export default function Home() {
                         key={id}
                         type="button"
                         onClick={() => setExploreMode(id as ExploreMode)}
-                        className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all ${
+                        className={`group flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
                           isActive
-                            ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-md'
+                            ? 'bg-gradient-aurora text-white shadow-[0_10px_28px_-18px_rgba(80,56,237,0.55)]'
                             : 'text-muted-foreground hover:text-foreground'
                         }`}
                         aria-pressed={isActive}
                         aria-controls={explorePanelIds[id as ExploreMode]}
+                        aria-label={`Explorar por ${label}`}
                       >
-                        <Icon className="h-4 w-4" />
-                        {label}
+                        <Icon
+                          className={`h-4 w-4 transition-transform ${
+                            isActive ? 'scale-110' : 'scale-100'
+                          }`}
+                        />
+                        {`Explorar por ${label}`}
                       </button>
                     );
                   })}
@@ -267,7 +291,7 @@ export default function Home() {
               {exploreMode === 'category' ? (
                 <div
                   id={explorePanelIds.category}
-                  className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
+                  className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
                   role="region"
                   aria-label="Explorar por categoria"
                 >
@@ -275,30 +299,47 @@ export default function Home() {
                     const Icon = cat.icon;
                     const coursesInCategory = allCourses.filter(cat.match);
                     const colorVar = categoryColorVars[cat.color];
-                    const accentOverlay = `radial-gradient(circle at top, hsl(var(${colorVar}) / 0.15), transparent 70%)`;
+                    const accent = `hsl(var(${colorVar}))`;
+                    const accentSoft = `hsl(var(${colorVar}) / 0.12)`;
+                    const accentSoftHover = `hsl(var(${colorVar}) / 0.2)`;
+                    const accentOverlay = `linear-gradient(160deg, hsl(var(${colorVar}) / 0.22), transparent 70%)`;
+                    const accentShadow = `0 22px 55px -36px hsl(var(${colorVar}) / 0.45)`;
+                    const badgeStyle: CSSProperties = {
+                      background: `linear-gradient(135deg, ${accentSoft}, ${accentSoftHover})`,
+                      color: accent,
+                      boxShadow: `0 12px 30px -18px ${accent}`,
+                    };
 
                     return (
                       <Card
                         key={cat.name}
                         onClick={() => handleCategoryClick(cat)}
-                        className="group relative cursor-pointer overflow-hidden border border-border/50 bg-card/80 p-6 backdrop-blur-sm transition-all duration-300 hover:border-border hover:shadow-lg"
+                        style={{
+                          boxShadow: accentShadow,
+                          background: `linear-gradient(135deg, ${accentSoft}, transparent 65%)`,
+                        }}
+                        className="group relative cursor-pointer overflow-hidden rounded-3xl border border-border/50 bg-white/75 p-8 shadow-[0_22px_55px_-34px_rgba(15,23,42,0.18)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_30px_65px_-36px_rgba(15,23,42,0.28)] backdrop-blur dark:bg-white/10"
                       >
                         <div
-                          className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                          className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-90"
                           style={{ background: accentOverlay }}
                         />
-                        <div className="relative">
+                        <div className="relative z-10">
                           <div
-                            className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg text-white transition-transform duration-300 group-hover:scale-110"
-                            style={{
-                              background: `linear-gradient(135deg, hsl(var(${colorVar})), hsl(var(${colorVar}) / 0.8))`,
-                            }}
+                            className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-[0_18px_35px_-22px_rgba(15,23,42,0.45)] transition-transform duration-300 group-hover:scale-110"
+                            style={badgeStyle}
                           >
-                            <Icon className="h-6 w-6" />
+                            <Icon className="h-7 w-7" />
                           </div>
-                          <h4 className="mb-1 text-lg font-semibold">{cat.name}</h4>
-                          <p className="text-sm text-muted-foreground">
-                            {coursesInCategory.length} cursos disponíveis
+                          <div className="flex items-start justify-between gap-2">
+                            <h4 className="text-xl font-semibold">{cat.name}</h4>
+                            <span className="rounded-full bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
+                              {coursesInCategory.length} cursos
+                            </span>
+                          </div>
+                          <p className="mt-2 text-sm text-muted-foreground">
+                            Explore conteúdos selecionados e entenda rapidamente como apresentar essa
+                            modalidade ao cliente.
                           </p>
                         </div>
                       </Card>
@@ -306,19 +347,27 @@ export default function Home() {
                   })}
                 </div>
               ) : (
-                <div id={explorePanelIds.course} role="region" aria-label="Explorar por curso">
-                  <div className="mb-6 rounded-lg border border-border/50 bg-muted/50 p-4 backdrop-blur-sm">
-                    <h4 className="mb-1 font-semibold">Todos os cursos</h4>
+                <div
+                  id={explorePanelIds.course}
+                  className="space-y-6"
+                  role="region"
+                  aria-label="Explorar por curso"
+                >
+                  <div className="flex flex-col gap-3 rounded-2xl border border-border/50 bg-white/70 p-5 shadow-inner backdrop-blur dark:bg-white/10">
+                    <h4 className="text-lg font-semibold text-foreground">Todos os cursos</h4>
                     <p className="text-sm text-muted-foreground">
-                      Clique em um curso para ver detalhes e opções de matrícula
+                      Visualize rapidamente as opções completas e clique para abrir a página de
+                      resultados já filtrada para o curso escolhido.
                     </p>
                   </div>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                     {sortedCourses.map((course) => (
                       <CourseCard
                         key={course.id}
                         course={course}
-                        onClick={() => navigate(`/resultados?q=${encodeURIComponent(course.title)}`)}
+                        onClick={() =>
+                          navigate(`/resultados?q=${encodeURIComponent(course.title)}`)
+                        }
                       />
                     ))}
                   </div>
@@ -328,10 +377,9 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Most Searched */}
-        <section className="py-12">
-          <div className="relative overflow-hidden rounded-3xl border border-border/40 bg-gradient-to-br from-background/80 via-blue-500/5 to-background/80 p-8 backdrop-blur-sm">
-            <div className="absolute inset-0 pointer-events-none opacity-30 [background:radial-gradient(circle_at_top_right,hsl(var(--primary)/0.2),transparent_60%)]" />
+        {/* Mais buscados */}
+        <section className="mb-16">
+          <div className="relative overflow-hidden rounded-3xl border border-border/40 bg-white/80 p-8 shadow-[0_30px_95px_-80px_rgba(15,23,42,0.42)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 dark:shadow-[0_30px_95px_-72px_rgba(37,99,235,0.5)]">
             <div className="relative z-10">
               <div className="mb-6 flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-primary" />
@@ -342,7 +390,9 @@ export default function Home() {
                   <CourseCard
                     key={course.id}
                     course={course}
-                    onClick={() => navigate(`/resultados?q=${encodeURIComponent(course.title)}`)}
+                    onClick={() =>
+                      navigate(`/resultados?q=${encodeURIComponent(course.title)}`)
+                    }
                   />
                 ))}
               </div>
@@ -350,10 +400,9 @@ export default function Home() {
           </div>
         </section>
 
-        {/* New Courses */}
-        <section className="pb-16 pt-12">
-          <div className="relative overflow-hidden rounded-3xl border border-border/40 bg-gradient-to-br from-primary/5 via-background/80 to-background/80 p-8 backdrop-blur-sm">
-            <div className="absolute inset-0 pointer-events-none opacity-30 [background:radial-gradient(circle_at_bottom_left,hsl(var(--primary)/0.2),transparent_60%)]" />
+        {/* Novos cursos */}
+        <section>
+          <div className="relative overflow-hidden rounded-3xl border border-border/40 bg-white/80 p-8 shadow-[0_30px_95px_-80px_rgba(15,23,42,0.42)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 dark:shadow-[0_30px_95px_-72px_rgba(80,56,237,0.5)]">
             <div className="relative z-10">
               <div className="mb-6 flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" />
@@ -364,7 +413,9 @@ export default function Home() {
                   <CourseCard
                     key={course.id}
                     course={course}
-                    onClick={() => navigate(`/resultados?q=${encodeURIComponent(course.title)}`)}
+                    onClick={() =>
+                      navigate(`/resultados?q=${encodeURIComponent(course.title)}`)
+                    }
                   />
                 ))}
               </div>
@@ -373,7 +424,7 @@ export default function Home() {
         </section>
       </div>
 
-      {/* Footer simples */}
+      {/* Footer */}
       <footer className="relative z-10 border-t border-border/40 bg-background/60 py-8 backdrop-blur-sm">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
           <p>© 2024 JML Cursos. Todos os direitos reservados.</p>
