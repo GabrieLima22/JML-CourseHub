@@ -48,17 +48,14 @@ All colors MUST be HSL.
     --gradient-to: 196 70% 52%;
 
     /* Category colors */
-    --cat-agenda: 248 60% 62%;
-    --cat-setorial: 196 70% 52%;
-    --cat-soft: 142 71% 45%;
-    --cat-corporativo: 24 70% 56%;
-    --cat-ead: 208 88% 60%;
-    --cat-presencial: 230 82% 62%;
-    --cat-conecta: 262 80% 68%;
-    --cat-incompany: 192 78% 53%;
-    --cat-sistema: 150 70% 45%;
-    --cat-estatais: 30 85% 58%;
-    --cat-judiciario: 280 70% 60%;
+    --category-primary: 208 88% 60%;
+    --category-secondary: 230 82% 62%;
+    --category-tertiary: 262 80% 68%;
+    --category-quaternary: 192 78% 53%;
+    --category-quinary: 150 70% 45%;
+    --category-senary: 30 85% 58%;
+    --category-septenary: 142 71% 45%;
+    --category-octonary: 280 70% 60%;
   }
 
   .dark {
@@ -94,17 +91,14 @@ All colors MUST be HSL.
     --ring: 248 60% 62%;
 
     /* Category colors - adjusted for dark */
-    --cat-agenda: 248 60% 62%;
-    --cat-setorial: 196 70% 52%;
-    --cat-soft: 142 71% 45%;
-    --cat-corporativo: 24 70% 56%;
-    --cat-ead: 208 88% 65%;
-    --cat-presencial: 230 82% 66%;
-    --cat-conecta: 262 80% 70%;
-    --cat-incompany: 192 78% 57%;
-    --cat-sistema: 150 70% 50%;
-    --cat-estatais: 30 85% 62%;
-    --cat-judiciario: 280 70% 65%;
+    --category-primary: 208 88% 65%;
+    --category-secondary: 230 82% 66%;
+    --category-tertiary: 262 80% 70%;
+    --category-quaternary: 192 78% 57%;
+    --category-quinary: 150 70% 50%;
+    --category-senary: 30 85% 62%;
+    --category-septenary: 142 71% 50%;
+    --category-octonary: 280 70% 65%;
   }
 }
 
