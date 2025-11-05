@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BriefcaseBusiness,
@@ -21,10 +21,29 @@ import { useSearch, Course, FilterOptions } from '@/hooks/useSearch';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
 import { Card } from '@/components/ui/card';
 
+type CategoryColor =
+  | 'category-ead'
+  | 'category-presencial'
+  | 'category-conecta'
+  | 'category-incompany'
+  | 'category-sistema'
+  | 'category-estatais'
+  | 'category-judiciario';
+
+const categoryColorVars: Record<CategoryColor, string> = {
+  'category-ead': '--cat-ead',
+  'category-presencial': '--cat-presencial',
+  'category-conecta': '--cat-conecta',
+  'category-incompany': '--cat-incompany',
+  'category-sistema': '--cat-sistema',
+  'category-estatais': '--cat-estatais',
+  'category-judiciario': '--cat-judiciario',
+};
+
 type CategoryConfig = {
   name: string;
   icon: LucideIcon;
-  color: string;
+  color: CategoryColor;
   match: (course: Course) => boolean;
   buildParams: () => Record<string, string>;
 };
@@ -79,13 +98,13 @@ const categories: CategoryConfig[] = [
     buildParams: () => ({ segmento: 'Estatais' }),
   },
   {
-    name: 'Judici�rio',
+    name: 'Judiciário',
     icon: Gavel,
     color: 'category-judiciario',
     match: course =>
       course.tags.some(tag => normalizeText(tag).includes('judici')) ||
       normalizeText(course.target_audience).includes('jurid'),
-    buildParams: () => ({ segmento: 'Judici�rio' }),
+    buildParams: () => ({ segmento: 'Judiciário' }),
   },
 ];
 
@@ -132,7 +151,7 @@ export default function Home() {
             </div>
             <div>
               <h1 className="text-2xl font-bold">JML Cursos</h1>
-              <p className="text-sm text-muted-foreground">Apoio à Venda Inteligente</p>
+              <p className="text-sm text-muted-foreground">Apoio Ã  Venda Inteligente</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -158,61 +177,102 @@ export default function Home() {
 
         {/* Categories */}
         <section className="mb-16">
-          <h3 className="text-2xl font-semibold mb-6">Explorar por Categoria</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {categories.map(cat => {
-              const Icon = cat.icon;
-              const coursesInCategory = allCourses.filter(cat.match);
-              return (
-                <Card
-                  key={cat.name}
-                  onClick={() => handleCategoryClick(cat)}
-                  className="group cursor-pointer p-8 rounded-2xl border-2 hover:border-primary/50 transition-all duration-200 hover:shadow-lg hover:scale-[1.02] bg-card"
-                >
-                  <div className={`w-14 h-14 rounded-2xl bg-${cat.color}/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                    <Icon className={`w-7 h-7 text-${cat.color}`} />
-                  </div>
-                  <h4 className="text-xl font-semibold mb-2">{cat.name}</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {coursesInCategory.length} cursos disponíveis
-                  </p>
-                </Card>
-              );
-            })}
+          <div className="relative rounded-3xl border border-border/60 bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-8 overflow-hidden">
+            <div className="absolute inset-0 pointer-events-none opacity-60 mix-blend-screen [background:radial-gradient(circle_at_top_left,hsl(var(--gradient-from)/0.25),transparent_55%)]" />
+            <div className="absolute inset-0 pointer-events-none opacity-50 mix-blend-screen [background:radial-gradient(circle_at_bottom_right,hsl(var(--gradient-to)/0.2),transparent_55%)]" />
+            <div className="relative z-10">
+              <h3 className="text-2xl font-semibold mb-6">Explorar por Categoria</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {categories.map(cat => {
+                  const Icon = cat.icon;
+                  const coursesInCategory = allCourses.filter(cat.match);
+                  const colorVar = categoryColorVars[cat.color];
+                  const accent = `hsl(var(${colorVar}))`;
+                  const accentSoft = `hsl(var(${colorVar}) / 0.18)`;
+                  const accentSoftHover = `hsl(var(${colorVar}) / 0.26)`;
+                  const accentOverlay = `radial-gradient(circle at top, hsl(var(${colorVar}) / 0.4), transparent 60%)`;
+                  const accentShadow = `0 24px 55px -32px hsl(var(${colorVar}) / 0.55)`;
+                  const badgeStyle: CSSProperties = {
+                    background: `linear-gradient(135deg, ${accentSoft}, ${accentSoftHover})`,
+                    color: accent,
+                    boxShadow: `0 12px 30px -18px ${accent}`,
+                  };
+
+                  return (
+                    <Card
+                      key={cat.name}
+                      onClick={() => handleCategoryClick(cat)}
+                      style={{
+                        boxShadow: accentShadow,
+                        background: `linear-gradient(135deg, ${accentSoft}, transparent 65%)`,
+                      }}
+                      className="group relative overflow-hidden cursor-pointer p-8 rounded-3xl border border-border/60 transition-all duration-300 hover:scale-[1.03] hover:border-transparent backdrop-blur-sm"
+                    >
+                      <div
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        style={{ background: accentOverlay }}
+                      />
+                      <div className="relative z-10">
+                        <div
+                          className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform text-white"
+                          style={badgeStyle}
+                        >
+                          <Icon className="w-7 h-7" />
+                        </div>
+                        <h4 className="text-xl font-semibold mb-2">{cat.name}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {coursesInCategory.length} cursos disponíveis
+                        </p>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </section>
 
         {/* Most Searched */}
         <section className="mb-16">
-          <h3 className="text-2xl font-semibold mb-6 flex items-center gap-2">
-            <TrendingUp className="w-6 h-6 text-primary" />
-            Mais Buscados
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {mostSearched.map(course => (
-              <CourseCard
-                key={course.id}
-                course={course}
-                onClick={() => navigate(`/resultados?q=${encodeURIComponent(course.title)}`)}
-              />
-            ))}
+          <div className="relative rounded-3xl border border-border/60 bg-gradient-to-br from-secondary/10 via-background to-primary/10 p-8 overflow-hidden">
+            <div className="absolute inset-0 pointer-events-none opacity-60 mix-blend-screen [background:radial-gradient(circle_at_top_right,hsl(var(--gradient-via)/0.3),transparent_55%)]" />
+            <div className="relative z-10">
+              <h3 className="text-2xl font-semibold mb-6 flex items-center gap-2">
+                <TrendingUp className="w-6 h-6 text-primary" />
+                Mais Buscados
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {mostSearched.map(course => (
+                  <CourseCard
+                    key={course.id}
+                    course={course}
+                    onClick={() => navigate(`/resultados?q=${encodeURIComponent(course.title)}`)}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
         {/* New Courses */}
         <section>
-          <h3 className="text-2xl font-semibold mb-6 flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-secondary" />
-            Novos Cursos
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {newCourses.map(course => (
-              <CourseCard
-                key={course.id}
-                course={course}
-                onClick={() => navigate(`/resultados?q=${encodeURIComponent(course.title)}`)}
-              />
-            ))}
+          <div className="relative rounded-3xl border border-border/60 bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-8 overflow-hidden">
+            <div className="absolute inset-0 pointer-events-none opacity-60 mix-blend-screen [background:radial-gradient(circle_at_bottom_left,hsl(var(--gradient-to)/0.28),transparent_55%)]" />
+            <div className="relative z-10">
+              <h3 className="text-2xl font-semibold mb-6 flex items-center gap-2">
+                <Sparkles className="w-6 h-6 text-secondary" />
+                Novos Cursos
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {newCourses.map(course => (
+                  <CourseCard
+                    key={course.id}
+                    course={course}
+                    onClick={() => navigate(`/resultados?q=${encodeURIComponent(course.title)}`)}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </section>
       </div>
