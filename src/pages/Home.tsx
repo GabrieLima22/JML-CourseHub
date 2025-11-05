@@ -141,39 +141,65 @@ export default function Home() {
   const newCourses = allCourses.slice(-3);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <header className="flex items-center justify-between mb-12">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-aurora flex items-center justify-center">
-              <GraduationCap className="w-7 h-7 text-white" />
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[hsl(var(--background))] via-[#e9edff] to-[#dff6ff] dark:from-[#080b1c] dark:via-[#0f1a2d] dark:to-[#16203b]">
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -top-32 -left-24 h-[420px] w-[420px] rounded-full blur-3xl opacity-70 mix-blend-multiply dark:opacity-100 dark:mix-blend-screen"
+        style={{
+          background:
+            'radial-gradient(circle at center, rgba(99, 102, 241, 0.55), transparent 62%)',
+        }}
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute top-1/4 -right-20 h-[520px] w-[520px] rounded-full blur-3xl opacity-70 mix-blend-multiply dark:opacity-100 dark:mix-blend-screen"
+        style={{
+          background:
+            'radial-gradient(circle at center, rgba(56, 189, 248, 0.45), transparent 68%)',
+        }}
+      />
+      <div className="container relative z-10 mx-auto px-4 py-12">
+        <div className="relative mb-16 overflow-hidden rounded-[2.5rem] border border-slate-200/60 bg-white/80 px-6 py-10 shadow-[0_45px_120px_-60px_rgba(80,56,237,0.25)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 dark:shadow-[0_45px_120px_-60px_rgba(80,56,237,0.65)]">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-60"
+            style={{
+              background:
+                'radial-gradient(circle at top left, rgba(80, 56, 237, 0.35), transparent 55%), radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.28), transparent 60%)',
+            }}
+          />
+          {/* Header */}
+          <header className="relative z-10 mb-10 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-aurora flex items-center justify-center">
+                <GraduationCap className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold">JML Cursos</h1>
+                <p className="text-sm text-muted-foreground">Apoio Ã  Venda Inteligente</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold">JML Cursos</h1>
-              <p className="text-sm text-muted-foreground">Apoio Ã  Venda Inteligente</p>
+            <div className="flex items-center gap-2">
+              <HistoryPopover onSelectHistory={handleHistorySelect} />
+              <ThemeToggle />
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <HistoryPopover onSelectHistory={handleHistorySelect} />
-            <ThemeToggle />
-          </div>
-        </header>
+          </header>
 
-        {/* Hero Search */}
-        <section className="mb-16">
-          <div className="text-center mb-8">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-4 bg-gradient-aurora bg-clip-text text-transparent">
-              Encontre o curso perfeito
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Digite o que o cliente perguntou e descubra os cursos mais relevantes para sua necessidade
-            </p>
-          </div>
-          <div className="flex justify-center">
-            <SearchBar onSearch={handleSearch} />
-          </div>
-        </section>
+          {/* Hero Search */}
+          <section className="relative z-10 mt-10">
+            <div className="mb-8 text-center">
+              <h2 className="bg-gradient-aurora bg-clip-text text-4xl font-bold text-transparent lg:text-5xl">
+                Encontre o curso perfeito
+              </h2>
+              <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+                Digite o que o cliente perguntou e descubra os cursos mais relevantes para sua necessidade
+              </p>
+            </div>
+            <div className="flex justify-center">
+              <SearchBar onSearch={handleSearch} />
+            </div>
+          </section>
+        </div>
 
         {/* Categories */}
         <section className="mb-16">
