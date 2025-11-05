@@ -61,51 +61,51 @@ const categories: CategoryConfig[] = [
     name: 'EAD',
     icon: MonitorPlay,
     color: 'category-ead',
-    match: course => course.modality.some(mod => normalizeText(mod) === 'ead'),
+    match: (course) => course.modality.some((mod) => normalizeText(mod) === 'ead'),
     buildParams: () => ({ modalidade: 'EAD' }),
   },
   {
     name: 'Presencial',
     icon: Users,
     color: 'category-presencial',
-    match: course => course.modality.some(mod => normalizeText(mod) === 'presencial'),
+    match: (course) => course.modality.some((mod) => normalizeText(mod) === 'presencial'),
     buildParams: () => ({ modalidade: 'Presencial' }),
   },
   {
     name: 'Conecta',
     icon: Share2,
     color: 'category-conecta',
-    match: course => course.modality.some(mod => normalizeText(mod) === 'conecta'),
+    match: (course) => course.modality.some((mod) => normalizeText(mod) === 'conecta'),
     buildParams: () => ({ modalidade: 'Conecta' }),
   },
   {
     name: 'In Company',
     icon: BriefcaseBusiness,
     color: 'category-incompany',
-    match: course => course.modality.some(mod => normalizeText(mod) === 'in company'),
+    match: (course) => course.modality.some((mod) => normalizeText(mod) === 'in company'),
     buildParams: () => ({ modalidade: 'In Company' }),
   },
   {
     name: 'Sistema S',
     icon: Building2,
     color: 'category-sistema',
-    match: course => course.tags.some(tag => normalizeText(tag) === normalizeText('Sistema S')),
+    match: (course) => course.tags.some((tag) => normalizeText(tag) === normalizeText('Sistema S')),
     buildParams: () => ({ segmento: 'Sistema S' }),
   },
   {
     name: 'Estatais',
     icon: Landmark,
     color: 'category-estatais',
-    match: course => course.tags.some(tag => normalizeText(tag) === normalizeText('Estatais')),
+    match: (course) => course.tags.some((tag) => normalizeText(tag) === normalizeText('Estatais')),
     buildParams: () => ({ segmento: 'Estatais' }),
   },
   {
     name: 'Judiciário',
     icon: Gavel,
     color: 'category-judiciario',
-    match: course =>
-      course.tags.some(tag => normalizeText(tag).includes('judici')) ||
-      normalizeText(course.target_audience).includes('jurid'),
+    match: (course) =>
+      course.tags.some((tag) => normalizeText(tag).includes('judici')) ||
+      (!!course.target_audience && normalizeText(course.target_audience).includes('jurid')),
     buildParams: () => ({ segmento: 'Judiciário' }),
   },
 ];
@@ -280,7 +280,7 @@ export default function Home() {
                   role="region"
                   aria-label="Explorar por categoria"
                 >
-                  {categories.map(cat => {
+                  {categories.map((cat) => {
                     const Icon = cat.icon;
                     const coursesInCategory = allCourses.filter(cat.match);
                     const colorVar = categoryColorVars[cat.color];
@@ -339,7 +339,7 @@ export default function Home() {
                     </p>
                   </div>
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                    {sortedCourses.map(course => (
+                    {sortedCourses.map((course) => (
                       <CourseCard
                         key={course.id}
                         course={course}
@@ -363,7 +363,7 @@ export default function Home() {
                 Mais Buscados
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {mostSearched.map(course => (
+                {mostSearched.map((course) => (
                   <CourseCard
                     key={course.id}
                     course={course}
@@ -385,7 +385,7 @@ export default function Home() {
                 Novos Cursos
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {newCourses.map(course => (
+                {newCourses.map((course) => (
                   <CourseCard
                     key={course.id}
                     course={course}
