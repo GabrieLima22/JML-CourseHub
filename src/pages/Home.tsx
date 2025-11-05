@@ -1,4 +1,4 @@
-import { useMemo, useState, type CSSProperties } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BriefcaseBusiness,
@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 
 type LucideIcon = typeof GraduationCap;
-
 import { SearchBar } from '@/components/SearchBar';
 import { CourseCard } from '@/components/CourseCard';
 import { HistoryPopover } from '@/components/HistoryPopover';
@@ -107,8 +106,7 @@ const categories: CategoryConfig[] = [
     color: 'category-judiciario',
     match: (course) =>
       course.tags.some((tag) => normalizeText(tag).includes('judici')) ||
-      (!!(course as any).target_audience &&
-        normalizeText((course as any).target_audience).includes('jurid')),
+      (!!course.target_audience && normalizeText(course.target_audience).includes('jurid')),
     buildParams: () => ({ segmento: 'Judiciário' }),
   },
 ];
@@ -171,124 +169,78 @@ export default function Home() {
   );
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[hsl(var(--background))] via-[#f2f4ff] to-[#eef9ff] dark:from-[#060912] dark:via-[#0b1528] dark:to-[#101f36]">
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div
-          className="absolute -top-28 -left-24 h-[420px] w-[420px] rounded-full blur-3xl opacity-80 mix-blend-multiply dark:opacity-90 dark:mix-blend-screen"
-          style={{
-            background:
-              'radial-gradient(circle at center, rgba(99, 102, 241, 0.42), transparent 65%)',
-          }}
-        />
-        <div
-          className="absolute top-[15%] -right-32 h-[520px] w-[520px] rounded-full blur-[110px] opacity-70 mix-blend-multiply dark:opacity-90 dark:mix-blend-screen"
-          style={{
-            background:
-              'radial-gradient(circle at center, rgba(56, 189, 248, 0.38), transparent 70%)',
-          }}
-        />
-        <div
-          className="absolute inset-0 opacity-80 dark:opacity-60"
-          style={{
-            backgroundImage:
-              'radial-gradient(circle at 18% 18%, rgba(80, 56, 237, 0.16), transparent 60%), radial-gradient(circle at 82% 24%, rgba(14, 165, 233, 0.14), transparent 65%), radial-gradient(circle at 50% 100%, rgba(232, 121, 249, 0.12), transparent 70%)',
-          }}
-        />
-        <div
-          className="absolute inset-0 opacity-[0.45] mix-blend-soft-light dark:opacity-25"
-          style={{
-            backgroundImage:
-              'linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 40%), linear-gradient(225deg, rgba(15, 23, 42, 0.12) 0%, rgba(15, 23, 42, 0) 42%)',
-          }}
-        />
-        <div
-          className="absolute inset-0 opacity-40 mix-blend-overlay dark:opacity-15"
-          style={{
-            backgroundImage:
-              'linear-gradient(0deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px)',
-            backgroundSize: '140px 140px',
-          }}
-        />
-      </div>
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-background via-primary/[0.03] to-background">
+      {/* Blobs sutis de fundo */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -top-32 -left-24 h-[400px] w-[400px] rounded-full blur-3xl opacity-30 dark:opacity-20"
+        style={{
+          background: 'radial-gradient(circle at center, rgba(99, 102, 241, 0.4), transparent 70%)',
+        }}
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute top-1/3 -right-20 h-[450px] w-[450px] rounded-full blur-3xl opacity-25 dark:opacity-15"
+        style={{
+          background: 'radial-gradient(circle at center, rgba(56, 189, 248, 0.35), transparent 70%)',
+        }}
+      />
 
-      <div className="container relative z-10 mx-auto px-4 py-12">
-        <div className="relative mb-16 overflow-hidden rounded-[2.5rem] border border-white/70 bg-white/75 px-6 py-10 shadow-[0_45px_120px_-70px_rgba(80,56,237,0.28)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 dark:shadow-[0_45px_120px_-60px_rgba(80,56,237,0.6)]">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-60"
-            style={{
-              background:
-                'radial-gradient(circle at top left, rgba(80, 56, 237, 0.28), transparent 55%), radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.24), transparent 60%)',
-            }}
-          />
-
-          {/* Header */}
-          <header className="relative z-10 mb-10 flex items-center justify-between">
+      {/* Header fixo e clean */}
+      <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-aurora flex items-center justify-center">
-                <GraduationCap className="w-7 h-7 text-white" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80">
+                <GraduationCap className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold">JML Cursos</h1>
-                <p className="text-sm text-muted-foreground">Apoio à Venda Inteligente</p>
+                <h1 className="text-lg font-semibold">JML Cursos</h1>
+                <p className="text-xs text-muted-foreground">Apoio à Venda Inteligente</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <HistoryPopover onSelectHistory={handleHistorySelect} />
               <ThemeToggle />
             </div>
-          </header>
+          </div>
+        </div>
+      </header>
 
-          {/* Hero Search */}
-          <section className="relative z-10 mt-10">
-            <div className="mb-8 flex flex-col items-center gap-6 text-center">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/40 bg-white/50 px-4 py-1 text-xs font-medium uppercase tracking-[0.2em] text-primary shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/10 dark:text-white">
-                <Sparkles className="h-4 w-4" />
-                Descubra o próximo passo
-              </div>
-              <div>
-                <h2 className="bg-gradient-aurora bg-clip-text text-4xl font-bold text-transparent lg:text-5xl">
+      <div className="container relative z-10 mx-auto px-4">
+        {/* Hero Section - Com glassmorphism sutil */}
+        <section className="py-16 md:py-24">
+          <div className="mx-auto max-w-3xl">
+            <div className="rounded-3xl border border-white/10 bg-white/40 p-10 shadow-xl backdrop-blur-md dark:border-white/5 dark:bg-white/5">
+              <div className="text-center">
+                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary backdrop-blur-sm">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Busca Inteligente
+                </div>
+                <h2 className="mb-4 bg-gradient-to-br from-primary via-primary to-blue-600 bg-clip-text text-4xl font-bold tracking-tight text-transparent md:text-5xl lg:text-6xl">
                   Encontre o curso perfeito
                 </h2>
-                <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-                  Digite o que o cliente perguntou e descubra os cursos mais relevantes para sua necessidade
+                <p className="mb-10 text-lg text-muted-foreground md:text-xl">
+                  Digite o que o cliente perguntou e descubra os cursos mais relevantes
                 </p>
+                <SearchBar onSearch={handleSearch} />
               </div>
             </div>
-            <div className="flex justify-center">
-              <SearchBar onSearch={handleSearch} />
-            </div>
-          </section>
-        </div>
+          </div>
+        </section>
 
-        {/* Explore */}
-        <section className="mb-16">
-          <div className="relative overflow-hidden rounded-3xl border border-white/60 bg-white/70 p-8 shadow-[0_60px_120px_-90px_rgba(15,23,42,0.45)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 dark:shadow-[0_60px_120px_-80px_rgba(12,74,110,0.65)]">
-            <div
-              className="absolute inset-0 pointer-events-none opacity-80 mix-blend-screen"
-              style={{
-                background:
-                  'radial-gradient(circle at top left, rgba(80, 56, 237, 0.22), transparent 55%), radial-gradient(circle at center right, rgba(56, 189, 248, 0.18), transparent 60%), radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.16), transparent 65%)',
-              }}
-            />
-            <div
-              className="absolute inset-0 pointer-events-none opacity-30 mix-blend-overlay"
-              style={{
-                backgroundImage:
-                  'linear-gradient(0deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px)',
-                backgroundSize: '140px 140px',
-              }}
-            />
-            <div className="relative z-10 flex flex-col gap-8">
-              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        {/* Explore Section */}
+        <section className="py-12">
+          <div className="relative overflow-hidden rounded-3xl border border-border/40 bg-gradient-to-br from-primary/5 via-background/80 to-blue-500/5 p-8 shadow-lg backdrop-blur-sm">
+            <div className="absolute inset-0 pointer-events-none opacity-40 [background:radial-gradient(circle_at_top_left,hsl(var(--primary)/0.15),transparent_60%)]" />
+            
+            <div className="relative z-10">
+              <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                 <div>
-                  <p className="text-sm font-medium text-primary/80 dark:text-primary/70">Explorar</p>
-                  <h3 className="text-2xl font-semibold text-foreground">Personalize a jornada de descoberta</h3>
-                  <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-                    Navegue pelas modalidades ou visualize todos os cursos disponíveis. Escolha a melhor forma de apresentar o portfólio ao cliente.
-                  </p>
+                  <p className="mb-1 text-sm font-medium text-primary">Explorar</p>
+                  <h3 className="text-2xl font-semibold text-foreground">Navegue pelo catálogo</h3>
                 </div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/60 p-1 shadow-sm backdrop-blur">
+                <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-background/60 p-1 backdrop-blur-sm">
                   {exploreModeOptions.map(({ id, label, icon: Icon }) => {
                     const isActive = exploreMode === id;
                     return (
@@ -296,17 +248,16 @@ export default function Home() {
                         key={id}
                         type="button"
                         onClick={() => setExploreMode(id as ExploreMode)}
-                        className={`group flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
+                        className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all ${
                           isActive
-                            ? 'bg-gradient-aurora text-white shadow-[0_12px_30px_-18px_rgba(80,56,237,0.65)]'
+                            ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-md'
                             : 'text-muted-foreground hover:text-foreground'
                         }`}
                         aria-pressed={isActive}
                         aria-controls={explorePanelIds[id as ExploreMode]}
-                        aria-label={`Explorar por ${label}`}
                       >
-                        <Icon className={`h-4 w-4 transition-transform ${isActive ? 'scale-110' : 'scale-100'}`} />
-                        {`Explorar por ${label}`}
+                        <Icon className="h-4 w-4" />
+                        {label}
                       </button>
                     );
                   })}
@@ -316,7 +267,7 @@ export default function Home() {
               {exploreMode === 'category' ? (
                 <div
                   id={explorePanelIds.category}
-                  className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+                  className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
                   role="region"
                   aria-label="Explorar por categoria"
                 >
@@ -324,46 +275,30 @@ export default function Home() {
                     const Icon = cat.icon;
                     const coursesInCategory = allCourses.filter(cat.match);
                     const colorVar = categoryColorVars[cat.color];
-                    const accent = `hsl(var(${colorVar}))`;
-                    const accentSoft = `hsl(var(${colorVar}) / 0.16)`;
-                    const accentSoftHover = `hsl(var(${colorVar}) / 0.24)`;
-                    const accentOverlay = `radial-gradient(circle at 30% 20%, hsl(var(${colorVar}) / 0.35), transparent 60%)`;
-                    const accentShadow = `0 26px 60px -38px hsl(var(${colorVar}) / 0.5)`;
-                    const badgeStyle: CSSProperties = {
-                      background: `linear-gradient(135deg, ${accentSoft}, ${accentSoftHover})`,
-                      color: accent,
-                      boxShadow: `0 12px 30px -18px ${accent}`,
-                    };
+                    const accentOverlay = `radial-gradient(circle at top, hsl(var(${colorVar}) / 0.15), transparent 70%)`;
 
                     return (
                       <Card
                         key={cat.name}
                         onClick={() => handleCategoryClick(cat)}
-                        style={{
-                          boxShadow: accentShadow,
-                          background: `linear-gradient(135deg, ${accentSoft}, transparent 65%)`,
-                        }}
-                        className="group relative cursor-pointer overflow-hidden rounded-3xl border border-white/40 bg-white/60 p-8 shadow-[0_22px_55px_-34px_rgba(15,23,42,0.2)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_32px_65px_-38px_rgba(15,23,42,0.35)] backdrop-blur"
+                        className="group relative cursor-pointer overflow-hidden border border-border/50 bg-card/80 p-6 backdrop-blur-sm transition-all duration-300 hover:border-border hover:shadow-lg"
                       >
                         <div
                           className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                           style={{ background: accentOverlay }}
                         />
-                        <div className="relative z-10">
+                        <div className="relative">
                           <div
-                            className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-[0_18px_35px_-22px_rgba(15,23,42,0.55)] transition-transform duration-300 group-hover:scale-110"
-                            style={badgeStyle}
+                            className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg text-white transition-transform duration-300 group-hover:scale-110"
+                            style={{
+                              background: `linear-gradient(135deg, hsl(var(${colorVar})), hsl(var(${colorVar}) / 0.8))`,
+                            }}
                           >
-                            <Icon className="h-7 w-7" />
+                            <Icon className="h-6 w-6" />
                           </div>
-                          <div className="flex items-start justify-between gap-2">
-                            <h4 className="text-xl font-semibold">{cat.name}</h4>
-                            <span className="rounded-full bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
-                              {coursesInCategory.length} cursos
-                            </span>
-                          </div>
-                          <p className="mt-2 text-sm text-muted-foreground">
-                            Explore conteúdos selecionados e entenda rapidamente como apresentar essa modalidade ao cliente.
+                          <h4 className="mb-1 text-lg font-semibold">{cat.name}</h4>
+                          <p className="text-sm text-muted-foreground">
+                            {coursesInCategory.length} cursos disponíveis
                           </p>
                         </div>
                       </Card>
@@ -371,14 +306,14 @@ export default function Home() {
                   })}
                 </div>
               ) : (
-                <div id={explorePanelIds.course} className="space-y-6" role="region" aria-label="Explorar por curso">
-                  <div className="flex flex-col gap-3 rounded-2xl border border-border/60 bg-background/60 p-5 shadow-inner backdrop-blur">
-                    <h4 className="text-lg font-semibold text-foreground">Todos os cursos</h4>
+                <div id={explorePanelIds.course} role="region" aria-label="Explorar por curso">
+                  <div className="mb-6 rounded-lg border border-border/50 bg-muted/50 p-4 backdrop-blur-sm">
+                    <h4 className="mb-1 font-semibold">Todos os cursos</h4>
                     <p className="text-sm text-muted-foreground">
-                      Visualize rapidamente as opções completas e clique para abrir a página de resultados já filtrada para o curso escolhido.
+                      Clique em um curso para ver detalhes e opções de matrícula
                     </p>
                   </div>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {sortedCourses.map((course) => (
                       <CourseCard
                         key={course.id}
@@ -394,21 +329,15 @@ export default function Home() {
         </section>
 
         {/* Most Searched */}
-        <section className="mb-16">
-          <div className="relative overflow-hidden rounded-3xl border border-white/50 bg-white/65 p-8 shadow-[0_40px_100px_-80px_rgba(15,23,42,0.45)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 dark:shadow-[0_40px_100px_-70px_rgba(15,118,110,0.55)]">
-            <div
-              className="absolute inset-0 pointer-events-none opacity-70 mix-blend-screen"
-              style={{
-                background:
-                  'radial-gradient(circle at top right, rgba(56, 189, 248, 0.22), transparent 55%), radial-gradient(circle at bottom left, rgba(80, 56, 237, 0.18), transparent 65%)',
-              }}
-            />
+        <section className="py-12">
+          <div className="relative overflow-hidden rounded-3xl border border-border/40 bg-gradient-to-br from-background/80 via-blue-500/5 to-background/80 p-8 backdrop-blur-sm">
+            <div className="absolute inset-0 pointer-events-none opacity-30 [background:radial-gradient(circle_at_top_right,hsl(var(--primary)/0.2),transparent_60%)]" />
             <div className="relative z-10">
-              <h3 className="text-2xl font-semibold mb-6 flex items-center gap-2">
-                <TrendingUp className="w-6 h-6 text-primary" />
-                Mais Buscados
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="mb-6 flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                <h3 className="text-2xl font-semibold">Mais Buscados</h3>
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {mostSearched.map((course) => (
                   <CourseCard
                     key={course.id}
@@ -422,21 +351,15 @@ export default function Home() {
         </section>
 
         {/* New Courses */}
-        <section className="pb-8">
-          <div className="relative overflow-hidden rounded-3xl border border-white/50 bg-white/65 p-8 shadow-[0_40px_100px_-80px_rgba(15,23,42,0.45)] backdrop-blur-xl dark:border-white/10 dark:bg-white/5 dark:shadow-[0_40px_100px_-70px_rgba(76,29,149,0.55)]">
-            <div
-              className="absolute inset-0 pointer-events-none opacity-70 mix-blend-screen"
-              style={{
-                background:
-                  'radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.22), transparent 60%), radial-gradient(circle at top right, rgba(56, 189, 248, 0.18), transparent 65%)',
-              }}
-            />
+        <section className="pb-16 pt-12">
+          <div className="relative overflow-hidden rounded-3xl border border-border/40 bg-gradient-to-br from-primary/5 via-background/80 to-background/80 p-8 backdrop-blur-sm">
+            <div className="absolute inset-0 pointer-events-none opacity-30 [background:radial-gradient(circle_at_bottom_left,hsl(var(--primary)/0.2),transparent_60%)]" />
             <div className="relative z-10">
-              <h3 className="text-2xl font-semibold mb-6 flex items-center gap-2">
-                <Sparkles className="w-6 h-6 text-secondary" />
-                Novos Cursos
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="mb-6 flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                <h3 className="text-2xl font-semibold">Novos Cursos</h3>
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {newCourses.map((course) => (
                   <CourseCard
                     key={course.id}
@@ -450,8 +373,8 @@ export default function Home() {
         </section>
       </div>
 
-      {/* Footer */}
-      <footer className="border-t border-white/40 bg-white/40 py-8 dark:border-border/40 dark:bg-muted/30">
+      {/* Footer simples */}
+      <footer className="relative z-10 border-t border-border/40 bg-background/60 py-8 backdrop-blur-sm">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
           <p>© 2024 JML Cursos. Todos os direitos reservados.</p>
         </div>
