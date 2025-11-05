@@ -92,13 +92,6 @@ const categories: CategoryConfig[] = [
     buildParams: () => ({ segmento: 'Estatais' }),
   },
   {
-    name: 'Educação',
-    icon: GraduationCap,
-    color: 'septenary',
-    match: (course) => course.tags.some((t) => normalizeText(t).includes('educa')),
-    buildParams: () => ({ segmento: 'Educação' }),
-  },
-  {
     name: 'Judiciário',
     icon: Gavel,
     color: 'octonary',
