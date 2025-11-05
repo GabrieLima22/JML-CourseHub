@@ -13,8 +13,9 @@ import {
   Sparkles,
   TrendingUp,
   Users,
-  type LucideIcon,
 } from 'lucide-react';
+
+type LucideIcon = typeof GraduationCap;
 import { SearchBar } from '@/components/SearchBar';
 import { CourseCard } from '@/components/CourseCard';
 import { HistoryPopover } from '@/components/HistoryPopover';
@@ -168,7 +169,7 @@ export default function Home() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/[0.02] to-background">
       {/* Header fixo e clean */}
       <header className="sticky top-0 z-50 border-b border-border/40 bg-background/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 py-4">
