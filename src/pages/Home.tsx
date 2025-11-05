@@ -20,7 +20,7 @@ import { CourseCard } from '@/components/CourseCard';
 import { HistoryPopover } from '@/components/HistoryPopover';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useSearch, Course, FilterOptions } from '@/hooks/useSearch';
-import { useSearchHistory } from '@/hooks/useSearchHistory';
+import { useSearchHistory, type HistoryEntry } from '@/hooks/useSearchHistory';
 import { Card } from '@/components/ui/card';
 
 type CategoryColor =
@@ -128,7 +128,7 @@ export default function Home() {
     navigate(`/resultados?q=${encodeURIComponent(query)}`);
   };
 
-  const handleHistorySelect = (entry: any) => {
+  const handleHistorySelect = (entry: HistoryEntry) => {
     navigate(`/resultados?q=${encodeURIComponent(entry.query)}`);
   };
 
