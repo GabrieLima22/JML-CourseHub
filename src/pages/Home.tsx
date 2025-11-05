@@ -112,6 +112,20 @@ const categories: CategoryConfig[] = [
 
 type ExploreMode = 'category' | 'course';
 
+const exploreModeOptions: ReadonlyArray<{
+  id: ExploreMode;
+  label: string;
+  icon: LucideIcon;
+}> = [
+  { id: 'category', label: 'Categoria', icon: LayoutGrid },
+  { id: 'course', label: 'Curso', icon: BookOpenCheck },
+];
+
+const explorePanelIds: Record<ExploreMode, string> = {
+  category: 'explore-category-panel',
+  course: 'explore-course-panel',
+};
+
 export default function Home() {
   const navigate = useNavigate();
   const { allCourses } = useSearch();
@@ -235,7 +249,7 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/60 p-1 shadow-sm backdrop-blur">
-                  {[{ id: 'category', label: 'Categoria', icon: LayoutGrid }, { id: 'course', label: 'Curso', icon: BookOpenCheck }].map(({ id, label, icon: Icon }) => {
+                  {exploreModeOptions.map(({ id, label, icon: Icon }) => {
                     const isActive = exploreMode === id;
                     return (
                       <button
@@ -248,6 +262,8 @@ export default function Home() {
                             : 'text-muted-foreground hover:text-foreground'
                         }`}
                         aria-pressed={isActive}
+                        aria-controls={explorePanelIds[id as ExploreMode]}
+                        aria-label={`Explorar por ${label}`}
                       >
                         <Icon className={`h-4 w-4 transition-transform ${isActive ? 'scale-110' : 'scale-100'}`} />
                         {`Explorar por ${label}`}
@@ -258,7 +274,12 @@ export default function Home() {
               </div>
 
               {exploreMode === 'category' ? (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div
+                  id={explorePanelIds.category}
+                  className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+                  role="region"
+                  aria-label="Explorar por categoria"
+                >
                   {categories.map(cat => {
                     const Icon = cat.icon;
                     const coursesInCategory = allCourses.filter(cat.match);
@@ -310,7 +331,7 @@ export default function Home() {
                   })}
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div id={explorePanelIds.course} className="space-y-6" role="region" aria-label="Explorar por curso">
                   <div className="flex flex-col gap-3 rounded-2xl border border-border/60 bg-background/60 p-5 shadow-inner backdrop-blur">
                     <h4 className="text-lg font-semibold text-foreground">Todos os cursos</h4>
                     <p className="text-sm text-muted-foreground">
