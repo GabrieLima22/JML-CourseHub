@@ -50,31 +50,19 @@ All colors MUST be HSL.
     --gradient-via: var(--gradient-aurora-via);
     --gradient-to: var(--gradient-aurora-to);
 
-    /* Enhanced Category colors - Mais vibrantes para melhor contraste */
-    --category-agenda: 222 89% 61%;
-    --category-setorial: 197 94% 53%;
-    --category-soft: 282 74% 66%;
-    --category-corporativo: 164 60% 45%;
-    --category-ead: 270 91% 65%;           /* Roxo vibrante */
-    --category-presencial: 344 82% 58%;
-    --category-conecta: 258 83% 65%;
-    --category-incompany: 206 90% 56%;
-    --category-sistema: 48 96% 64%;
-    --category-estatais: 16 88% 60%;
-    --category-judiciario: 214 60% 45%;
+    /* Enhanced Category colors - Novas categorias JML/Conecta */
+    --category-curso-aberto-jml: 270 91% 65%;      /* Roxo vibrante para JML aberto */
+    --category-curso-aberto-conecta: 196 70% 52%;   /* Azul para Conecta aberto */
+    --category-curso-incompany-jml: 248 60% 62%;    /* Roxo-azul para JML InCompany */
+    --category-curso-incompany-conecta: 258 83% 65%; /* Roxo claro para Conecta InCompany */
+    --category-curso-ead-jml: 155 84% 55%;          /* Verde para EAD JML */
 
-    /* Category aliases */
-    --cat-agenda: var(--category-agenda);
-    --cat-setorial: var(--category-setorial);
-    --cat-soft: var(--category-soft);
-    --cat-corporativo: var(--category-corporativo);
-    --cat-ead: var(--category-ead);
-    --cat-presencial: var(--category-presencial);
-    --cat-conecta: var(--category-conecta);
-    --cat-incompany: var(--category-incompany);
-    --cat-sistema: var(--category-sistema);
-    --cat-estatais: var(--category-estatais);
-    --cat-judiciario: var(--category-judiciario);
+    /* Category aliases - Mapeamento simplificado */
+    --category-primary: var(--category-curso-aberto-jml);
+    --category-secondary: var(--category-curso-aberto-conecta);
+    --category-tertiary: var(--category-curso-incompany-jml);
+    --category-quaternary: var(--category-curso-incompany-conecta);
+    --category-quinary: var(--category-curso-ead-jml);
   }
 
   .dark {
@@ -117,31 +105,19 @@ All colors MUST be HSL.
     --gradient-via: var(--gradient-aurora-via);
     --gradient-to: var(--gradient-aurora-to);
 
-    /* Category colors - Dark mode mais vibrantes */
-    --category-agenda: 222 89% 68%;
-    --category-setorial: 197 94% 63%;
-    --category-soft: 282 74% 72%;
-    --category-corporativo: 164 60% 52%;
-    --category-ead: 270 91% 72%;           /* Roxo ainda mais vibrante no escuro */
-    --category-presencial: 344 82% 64%;
-    --category-conecta: 258 83% 72%;
-    --category-incompany: 206 90% 64%;
-    --category-sistema: 48 96% 72%;
-    --category-estatais: 16 88% 66%;
-    --category-judiciario: 214 60% 54%;
+    /* Category colors - Dark mode JML/Conecta mais vibrantes */
+    --category-curso-aberto-jml: 270 91% 72%;      /* Roxo mais vibrante no escuro */
+    --category-curso-aberto-conecta: 196 80% 62%;   /* Azul mais vibrante */
+    --category-curso-incompany-jml: 248 70% 70%;    /* Roxo-azul vibrante */
+    --category-curso-incompany-conecta: 258 83% 72%; /* Roxo claro vibrante */
+    --category-curso-ead-jml: 155 84% 55%;          /* Verde vibrante para EAD */
 
-    /* Category aliases */
-    --cat-agenda: var(--category-agenda);
-    --cat-setorial: var(--category-setorial);
-    --cat-soft: var(--category-soft);
-    --cat-corporativo: var(--category-corporativo);
-    --cat-ead: var(--category-ead);
-    --cat-presencial: var(--category-presencial);
-    --cat-conecta: var(--category-conecta);
-    --cat-incompany: var(--category-incompany);
-    --cat-sistema: var(--category-sistema);
-    --cat-estatais: var(--category-estatais);
-    --cat-judiciario: var(--category-judiciario);
+    /* Category aliases - Dark mode */
+    --category-primary: var(--category-curso-aberto-jml);
+    --category-secondary: var(--category-curso-aberto-conecta);
+    --category-tertiary: var(--category-curso-incompany-jml);
+    --category-quaternary: var(--category-curso-incompany-conecta);
+    --category-quinary: var(--category-curso-ead-jml);
   }
 }
 
