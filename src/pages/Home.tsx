@@ -138,13 +138,13 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
-      {/* Remoção do overlay radial antigo - agora o gradiente está no CSS body */}
+      {/* Background animado agora está no CSS body */}
       <div className="relative z-10 flex min-h-screen flex-col">
-        {/* Header refinado */}
-        <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+        {/* Header refinado e fixo */}
+        <header className="header-fixed">
           <div className="container flex items-center justify-between gap-4 px-4 py-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-aurora shadow-lg">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-violet-600 to-blue-600 shadow-lg">
                 <GraduationCap className="h-7 w-7 text-white" />
               </div>
               <div>
