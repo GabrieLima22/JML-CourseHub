@@ -16,6 +16,7 @@ type LucideIcon = typeof GraduationCap;
 
 import { SearchBar } from '@/components/SearchBar';
 import { CourseCard } from '@/components/CourseCard';
+import { CourseDrawer } from '@/components/CourseDrawer';
 import { HistoryPopover } from '@/components/HistoryPopover';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useSearch, type Course, type FilterOptions } from '@/hooks/useSearch';
@@ -95,8 +96,10 @@ const explorePanelIds: Record<ExploreMode, string> = {
 
 export default function Home() {
   const navigate = useNavigate();
-  const { allCourses } = useSearch();
+  const { allCourses, getRelatedCourses } = useSearch();
   const { addToHistory } = useSearchHistory();
+
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
   const [filters] = useState<FilterOptions>({
     modalities: [],
@@ -135,6 +138,12 @@ export default function Home() {
     alpha === 1
       ? `hsl(var(${categoryColorVars[color]}))`
       : `hsl(var(${categoryColorVars[color]}) / ${alpha})`;
+
+  // Cursos relacionados para o drawer
+  const relatedCourses = useMemo(() => {
+    if (!selectedCourse) return [];
+    return getRelatedCourses(selectedCourse.related_ids);
+  }, [selectedCourse, getRelatedCourses]);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
@@ -295,7 +304,7 @@ export default function Home() {
                     <CourseCard
                       key={course.id}
                       course={course}
-                      onClick={() => navigate(`/resultados?q=${encodeURIComponent(course.title)}`)}
+                      onClick={() => setSelectedCourse(course)}
                     />
                   ))}
                 </div>
@@ -318,7 +327,7 @@ export default function Home() {
                   <CourseCard
                     key={course.id}
                     course={course}
-                    onClick={() => navigate(`/resultados?q=${encodeURIComponent(course.title)}`)}
+                    onClick={() => setSelectedCourse(course)}
                   />
                 ))}
               </div>
@@ -337,7 +346,7 @@ export default function Home() {
                   <CourseCard
                     key={course.id}
                     course={course}
-                    onClick={() => navigate(`/resultados?q=${encodeURIComponent(course.title)}`)}
+                    onClick={() => setSelectedCourse(course)}
                   />
                 ))}
               </div>
@@ -351,6 +360,15 @@ export default function Home() {
           </div>
         </footer>
       </div>
+
+      {/* Course Drawer */}
+      <CourseDrawer
+        course={selectedCourse}
+        open={!!selectedCourse}
+        onClose={() => setSelectedCourse(null)}
+        relatedCourses={relatedCourses}
+        onCourseClick={setSelectedCourse}
+      />
     </div>
   );
 }
