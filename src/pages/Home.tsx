@@ -3,16 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import {
   BriefcaseBusiness,
   Building2,
-  Gavel,
   GraduationCap,
-  Landmark,
   MonitorPlay,
   LayoutGrid,
   BookOpenCheck,
   Share2,
   Sparkles,
   TrendingUp,
-  Users,
 } from 'lucide-react';
 
 type LucideIcon = typeof GraduationCap;
@@ -50,56 +47,39 @@ type CategoryConfig = {
 
 const categories: CategoryConfig[] = [
   {
-    name: 'EAD',
-    icon: MonitorPlay,
+    name: 'Curso aberto JML',
+    icon: GraduationCap,
     color: 'primary',
-    match: (course) => course.modality.some((m) => normalizeText(m) === 'ead'),
-    buildParams: () => ({ modalidade: 'EAD' }),
+    match: (course) => course.modality.some((m) => normalizeText(m) === normalizeText('Curso aberto JML')),
+    buildParams: () => ({ empresa: 'JML', tipo: 'aberto' }),
   },
   {
-    name: 'Presencial',
-    icon: Users,
-    color: 'secondary',
-    match: (course) => course.modality.some((m) => normalizeText(m) === 'presencial'),
-    buildParams: () => ({ modalidade: 'Presencial' }),
-  },
-  {
-    name: 'Conecta',
+    name: 'Curso aberto Conecta',
     icon: Share2,
-    color: 'tertiary',
-    match: (course) => course.modality.some((m) => normalizeText(m) === 'conecta'),
-    buildParams: () => ({ modalidade: 'Conecta' }),
+    color: 'secondary',
+    match: (course) => course.modality.some((m) => normalizeText(m) === normalizeText('Curso aberto Conecta')),
+    buildParams: () => ({ empresa: 'Conecta', tipo: 'aberto' }),
   },
   {
-    name: 'In Company',
+    name: 'Curso InCompany JML',
     icon: BriefcaseBusiness,
-    color: 'quaternary',
-    match: (course) => course.modality.some((m) => normalizeText(m) === 'in company'),
-    buildParams: () => ({ modalidade: 'In Company' }),
+    color: 'tertiary',
+    match: (course) => course.modality.some((m) => normalizeText(m) === normalizeText('Curso InCompany JML')),
+    buildParams: () => ({ empresa: 'JML', tipo: 'incompany' }),
   },
   {
-    name: 'Sistema S',
+    name: 'Curso InCompany Conecta',
     icon: Building2,
+    color: 'quaternary',
+    match: (course) => course.modality.some((m) => normalizeText(m) === normalizeText('Curso InCompany Conecta')),
+    buildParams: () => ({ empresa: 'Conecta', tipo: 'incompany' }),
+  },
+  {
+    name: 'Curso EAD JML',
+    icon: MonitorPlay,
     color: 'quinary',
-    match: (course) => course.tags.some((t) => normalizeText(t) === normalizeText('Sistema S')),
-    buildParams: () => ({ segmento: 'Sistema S' }),
-  },
-  {
-    name: 'Estatais',
-    icon: Landmark,
-    color: 'senary',
-    match: (course) => course.tags.some((t) => normalizeText(t) === normalizeText('Estatais')),
-    buildParams: () => ({ segmento: 'Estatais' }),
-  },
-  {
-    name: 'Judiciário',
-    icon: Gavel,
-    color: 'octonary',
-    match: (course) =>
-      course.tags.some((t) => normalizeText(t).includes('judici')) ||
-      ((course as any).target_audience &&
-        normalizeText((course as any).target_audience).includes('jurid')),
-    buildParams: () => ({ segmento: 'Judiciário' }),
+    match: (course) => course.modality.some((m) => normalizeText(m) === normalizeText('Curso EAD JML')),
+    buildParams: () => ({ empresa: 'JML', tipo: 'ead' }),
   },
 ];
 
@@ -209,7 +189,7 @@ export default function Home() {
                 <span className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">Explorar</span>
                 <h3 className="text-3xl font-semibold leading-tight">Personalize a jornada de descoberta</h3>
                 <p className="max-w-2xl text-sm text-muted-foreground">
-                  Navegue por segmentos estratégicos ou visualize todos os cursos disponíveis para responder rapidamente ao cliente.
+                  Navegue pelos cursos JML e Conecta organizados por tipo e segmento para responder rapidamente ao cliente.
                 </p>
               </div>
               <div className="inline-flex gap-2 rounded-full border border-border/60 bg-background/80 p-1 shadow-sm backdrop-blur">
@@ -285,7 +265,7 @@ export default function Home() {
                           <div>
                             <h4 className="text-xl font-semibold">{category.name}</h4>
                             <p className="mt-2 text-sm text-muted-foreground">
-                              Explore conteúdos selecionados e encontre rapidamente o que melhor atende o cliente.
+                              Cursos especializados por empresa e modalidade para atender diferentes perfis de cliente.
                             </p>
                           </div>
                           <span className="rounded-full bg-background/90 px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm">
