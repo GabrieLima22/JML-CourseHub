@@ -42,20 +42,20 @@ All colors MUST be HSL.
 
     --radius: 1rem;
 
-    /* Aurora gradients */
-    --gradient-aurora-from: 222 100% 96%;
-    --gradient-aurora-via: 268 100% 96%;
-    --gradient-aurora-to: 198 88% 94%;
+    /* Aurora gradients - Novo esquema roxo-branco-azul-verde */
+    --gradient-aurora-from: 270 91% 65%;   /* Roxo */
+    --gradient-aurora-via: 0 0% 100%;      /* Branco */
+    --gradient-aurora-to: 200 100% 70%;    /* Azul-Verde */
     --gradient-from: var(--gradient-aurora-from);
     --gradient-via: var(--gradient-aurora-via);
     --gradient-to: var(--gradient-aurora-to);
 
-    /* Category colors */
+    /* Enhanced Category colors - Mais vibrantes para melhor contraste */
     --category-agenda: 222 89% 61%;
     --category-setorial: 197 94% 53%;
     --category-soft: 282 74% 66%;
     --category-corporativo: 164 60% 45%;
-    --category-ead: 26 90% 60%;
+    --category-ead: 270 91% 65%;           /* Roxo vibrante */
     --category-presencial: 344 82% 58%;
     --category-conecta: 258 83% 65%;
     --category-incompany: 206 90% 56%;
@@ -109,20 +109,20 @@ All colors MUST be HSL.
     --input: 240 12% 24%;
     --ring: 248 60% 62%;
 
-    /* Aurora gradients */
-    --gradient-aurora-from: 242 62% 22%;
-    --gradient-aurora-via: 268 54% 28%;
-    --gradient-aurora-to: 198 62% 24%;
+    /* Aurora gradients - Dark mode com roxo-preto-azul-verde */
+    --gradient-aurora-from: 270 91% 45%;   /* Roxo mais escuro */
+    --gradient-aurora-via: 240 14% 10%;    /* Preto */
+    --gradient-aurora-to: 185 84% 55%;     /* Azul-Verde escuro */
     --gradient-from: var(--gradient-aurora-from);
     --gradient-via: var(--gradient-aurora-via);
     --gradient-to: var(--gradient-aurora-to);
 
-    /* Category colors */
+    /* Category colors - Dark mode mais vibrantes */
     --category-agenda: 222 89% 68%;
     --category-setorial: 197 94% 63%;
     --category-soft: 282 74% 72%;
     --category-corporativo: 164 60% 52%;
-    --category-ead: 26 90% 66%;
+    --category-ead: 270 91% 72%;           /* Roxo ainda mais vibrante no escuro */
     --category-presencial: 344 82% 64%;
     --category-conecta: 258 83% 72%;
     --category-incompany: 206 90% 64%;
@@ -150,21 +150,61 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  /* Novo gradiente de fundo estático - TEMA CLARO */
   body {
     @apply bg-background text-foreground;
-    background-image:
-      radial-gradient(at 10% 20%, hsl(var(--gradient-aurora-from) / 0.45) 0px, transparent 55%),
-      radial-gradient(at 80% 0%, hsl(var(--gradient-aurora-via) / 0.5) 0px, transparent 50%),
-      radial-gradient(at 50% 100%, hsl(var(--gradient-aurora-to) / 0.4) 0px, transparent 55%);
+    background: linear-gradient(135deg, 
+      rgba(139, 92, 246, 0.12) 0%,     /* Roxo */
+      rgba(255, 255, 255, 0.8) 25%,   /* Branco */
+      rgba(59, 130, 246, 0.15) 50%,   /* Azul */
+      rgba(255, 255, 255, 0.8) 75%,   /* Branco */
+      rgba(16, 185, 129, 0.12) 100%   /* Verde */
+    );
     background-attachment: fixed;
   }
 
+  /* Novo gradiente de fundo estático - TEMA ESCURO */
   .dark body {
     @apply bg-background text-foreground;
-    background-image:
-      radial-gradient(at 10% 20%, hsl(var(--gradient-aurora-from) / 0.55) 0px, transparent 55%),
-      radial-gradient(at 80% 0%, hsl(var(--gradient-aurora-via) / 0.6) 0px, transparent 50%),
-      radial-gradient(at 50% 100%, hsl(var(--gradient-aurora-to) / 0.5) 0px, transparent 55%);
+    background: linear-gradient(135deg, 
+      rgba(139, 92, 246, 0.25) 0%,     /* Roxo mais intenso */
+      rgba(0, 0, 0, 0.9) 25%,          /* Preto */
+      rgba(59, 130, 246, 0.22) 50%,    /* Azul mais intenso */
+      rgba(0, 0, 0, 0.9) 75%,          /* Preto */
+      rgba(16, 185, 129, 0.20) 100%    /* Verde mais intenso */
+    );
     background-attachment: fixed;
+  }
+}
+
+/* Melhorias nos hovers das categorias - similar aos cards de curso */
+@layer components {
+  .category-card {
+    @apply relative cursor-pointer rounded-3xl border border-border/70 bg-card/80 p-8 transition-all duration-300 ease-out;
+    @apply hover:-translate-y-2 hover:border-transparent hover:shadow-xl;
+  }
+
+  .category-card::before {
+    @apply absolute inset-0 rounded-3xl opacity-0 transition-opacity duration-300;
+    content: '';
+    background: radial-gradient(circle at top, var(--accent-overlay-color, transparent), transparent 70%);
+  }
+
+  .category-card:hover::before {
+    @apply opacity-100;
+  }
+
+  .category-icon {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .category-card:hover .category-icon {
+    @apply scale-110;
+    filter: drop-shadow(0 8px 25px var(--accent-shadow-color, rgba(0,0,0,0.15)));
+  }
+
+  /* Hover style similar aos cards de curso */
+  .course-card-hover {
+    @apply transition-all duration-200 hover:-translate-y-1 hover:shadow-lg;
   }
 }
