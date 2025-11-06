@@ -168,6 +168,20 @@ All colors MUST be HSL.
       background-position: 0% 50%;
     }
   }
+
+  /* Animação shimmer para efeito de brilho */
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+  }
 }
 
 /* Componentes e classes customizadas */
