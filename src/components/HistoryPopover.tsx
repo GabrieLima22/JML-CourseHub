@@ -13,6 +13,42 @@ export function HistoryPopover({ onSelectHistory }: HistoryPopoverProps) {
 
   if (history.length === 0) return null;
 
+  // Mapeamento para labels amigáveis dos filtros
+  const typeLabels: Record<string, string> = {
+    'aberto': 'Aberto',
+    'incompany': 'InCompany', 
+    'ead': 'EAD'
+  };
+
+  const companyLabels: Record<string, string> = {
+    'JML': 'JML',
+    'Conecta': 'Conecta'
+  };
+
+  const formatFilters = (filters: HistoryEntry['filters']): string => {
+    const filterParts: string[] = [];
+    
+    if (filters.companies.length > 0) {
+      const companies = filters.companies.map(c => companyLabels[c] || c).join(', ');
+      filterParts.push(`Empresa: ${companies}`);
+    }
+    
+    if (filters.course_types.length > 0) {
+      const types = filters.course_types.map(t => typeLabels[t] || t).join(', ');
+      filterParts.push(`Tipo: ${types}`);
+    }
+    
+    if (filters.segments.length > 0) {
+      filterParts.push(`Segmento: ${filters.segments.join(', ')}`);
+    }
+    
+    if (filters.levels.length > 0) {
+      filterParts.push(`Nível: ${filters.levels.join(', ')}`);
+    }
+    
+    return filterParts.join(' | ');
+  };
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -38,26 +74,33 @@ export function HistoryPopover({ onSelectHistory }: HistoryPopoverProps) {
         </div>
         <Separator />
         <div className="max-h-64 overflow-y-auto">
-          {history.map((entry, idx) => (
-            <button
-              key={idx}
-              onClick={() => onSelectHistory(entry)}
-              className="w-full text-left px-4 py-3 hover:bg-muted transition-colors border-b border-border last:border-b-0"
-            >
-              <div className="text-sm font-medium mb-1">{entry.query}</div>
-              {(entry.filters.modalities.length > 0 ||
-                entry.filters.areas.length > 0 ||
-                entry.filters.segments.length > 0) && (
-                <div className="text-xs text-muted-foreground">
-                  Filtros: {[
-                    ...entry.filters.modalities,
-                    ...entry.filters.areas,
-                    ...entry.filters.segments,
-                  ].join(', ')}
+          {history.map((entry, idx) => {
+            const hasFilters = Object.values(entry.filters).some(arr => arr.length > 0);
+            const filtersText = hasFilters ? formatFilters(entry.filters) : '';
+            
+            return (
+              <button
+                key={idx}
+                onClick={() => onSelectHistory(entry)}
+                className="w-full text-left px-4 py-3 hover:bg-muted transition-colors border-b border-border last:border-b-0"
+              >
+                <div className="text-sm font-medium mb-1">{entry.query}</div>
+                {filtersText && (
+                  <div className="text-xs text-muted-foreground">
+                    {filtersText}
+                  </div>
+                )}
+                <div className="text-xs text-muted-foreground mt-1">
+                  {new Date(entry.timestamp).toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
                 </div>
-              )}
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
       </PopoverContent>
     </Popover>
