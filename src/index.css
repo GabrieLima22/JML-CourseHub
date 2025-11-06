@@ -126,7 +126,7 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
-  /* Novo gradiente de fundo estático - TEMA CLARO */
+  /* Novo gradiente de fundo estático ANIMADO - TEMA CLARO */
   body {
     @apply bg-background text-foreground;
     background: linear-gradient(135deg, 
@@ -137,9 +137,11 @@ All colors MUST be HSL.
       rgba(16, 185, 129, 0.12) 100%   /* Verde */
     );
     background-attachment: fixed;
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
   }
 
-  /* Novo gradiente de fundo estático - TEMA ESCURO */
+  /* Novo gradiente de fundo estático ANIMADO - TEMA ESCURO */
   .dark body {
     @apply bg-background text-foreground;
     background: linear-gradient(135deg, 
@@ -150,11 +152,49 @@ All colors MUST be HSL.
       rgba(16, 185, 129, 0.20) 100%    /* Verde mais intenso */
     );
     background-attachment: fixed;
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+  }
+
+  /* Animação do gradiente de fundo */
+  @keyframes gradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
   }
 }
 
 /* Melhorias nos hovers das categorias - similar aos cards de curso */
 @layer components {
+  /* Header fixo com gradiente */
+  .header-fixed {
+    @apply sticky top-0 z-50 border-b border-border/60 backdrop-blur-xl;
+    background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.9) 0%,
+      rgba(139, 92, 246, 0.05) 25%,
+      rgba(59, 130, 246, 0.08) 50%,
+      rgba(16, 185, 129, 0.05) 75%,
+      rgba(255, 255, 255, 0.9) 100%
+    );
+    transition: all 0.3s ease;
+  }
+
+  .dark .header-fixed {
+    background: linear-gradient(135deg,
+      rgba(15, 23, 42, 0.9) 0%,
+      rgba(139, 92, 246, 0.15) 25%,
+      rgba(59, 130, 246, 0.18) 50%,
+      rgba(16, 185, 129, 0.15) 75%,
+      rgba(15, 23, 42, 0.9) 100%
+    );
+  }
+
   .category-card {
     @apply relative cursor-pointer rounded-3xl border border-border/70 bg-card/80 p-8 transition-all duration-300 ease-out;
     @apply hover:-translate-y-2 hover:border-transparent hover:shadow-xl;
