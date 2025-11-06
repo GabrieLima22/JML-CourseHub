@@ -126,7 +126,7 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
-  /* Novo gradiente de fundo estático ANIMADO - TEMA CLARO */
+  /* BACKGROUND ANIMADO GLOBAL - TEMA CLARO */
   body {
     @apply bg-background text-foreground;
     background: linear-gradient(135deg, 
@@ -139,11 +139,11 @@ All colors MUST be HSL.
     background-attachment: fixed;
     background-size: 400% 400%;
     animation: gradientShift 15s ease infinite;
+    min-height: 100vh;
   }
 
-  /* Novo gradiente de fundo estático ANIMADO - TEMA ESCURO */
+  /* BACKGROUND ANIMADO GLOBAL - TEMA ESCURO */
   .dark body {
-    @apply bg-background text-foreground;
     background: linear-gradient(135deg, 
       rgba(139, 92, 246, 0.25) 0%,     /* Roxo mais intenso */
       rgba(0, 0, 0, 0.9) 25%,          /* Preto */
@@ -170,31 +170,46 @@ All colors MUST be HSL.
   }
 }
 
-/* Melhorias nos hovers das categorias - similar aos cards de curso */
+/* Componentes e classes customizadas */
 @layer components {
-  /* Header fixo com gradiente */
+  /* HEADER FIXO COM GRADIENTE */
   .header-fixed {
-    @apply sticky top-0 z-50 border-b border-border/60 backdrop-blur-xl;
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    border-bottom: 1px solid hsl(var(--border) / 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     background: linear-gradient(135deg,
-      rgba(255, 255, 255, 0.9) 0%,
-      rgba(139, 92, 246, 0.05) 25%,
-      rgba(59, 130, 246, 0.08) 50%,
-      rgba(16, 185, 129, 0.05) 75%,
-      rgba(255, 255, 255, 0.9) 100%
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(139, 92, 246, 0.08) 25%,
+      rgba(59, 130, 246, 0.1) 50%,
+      rgba(16, 185, 129, 0.08) 75%,
+      rgba(255, 255, 255, 0.95) 100%
     );
     transition: all 0.3s ease;
+    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.1);
   }
 
   .dark .header-fixed {
     background: linear-gradient(135deg,
-      rgba(15, 23, 42, 0.9) 0%,
-      rgba(139, 92, 246, 0.15) 25%,
-      rgba(59, 130, 246, 0.18) 50%,
-      rgba(16, 185, 129, 0.15) 75%,
-      rgba(15, 23, 42, 0.9) 100%
+      rgba(15, 23, 42, 0.95) 0%,
+      rgba(139, 92, 246, 0.18) 25%,
+      rgba(59, 130, 246, 0.2) 50%,
+      rgba(16, 185, 129, 0.18) 75%,
+      rgba(15, 23, 42, 0.95) 100%
     );
+    box-shadow: 0 4px 32px rgba(0, 0, 0, 0.3);
   }
 
+  /* Espaçamento para compensar header fixo */
+  .main-content {
+    padding-top: 80px; /* Altura do header */
+  }
+
+  /* CATEGORY CARDS */
   .category-card {
     @apply relative cursor-pointer rounded-3xl border border-border/70 bg-card/80 p-8 transition-all duration-300 ease-out;
     @apply hover:-translate-y-2 hover:border-transparent hover:shadow-xl;
@@ -219,7 +234,7 @@ All colors MUST be HSL.
     filter: drop-shadow(0 8px 25px var(--accent-shadow-color, rgba(0,0,0,0.15)));
   }
 
-  /* Hover style similar aos cards de curso */
+  /* COURSE CARDS */
   .course-card-hover {
     @apply transition-all duration-200 hover:-translate-y-1 hover:shadow-lg;
   }
