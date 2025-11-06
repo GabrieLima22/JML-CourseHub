@@ -102,8 +102,8 @@ export default function Home() {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
   const [filters] = useState<FilterOptions>({
-    modalities: [],
-    areas: [],
+    companies: [],
+    course_types: [],
     levels: [],
     segments: [],
   });
