@@ -6,8 +6,10 @@ export type Course = {
   id: number;
   title: string;
   slug: string;
-  area: string;
-  modality: string[];
+  company: string;           // Nova propriedade: "JML" ou "Conecta"
+  course_type: string;       // Nova propriedade: "aberto", "incompany", "ead"
+  segment: string;           // Nova propriedade: "Judiciário", "Sistema S", "Estatais"
+  modality: string[];        // Atualizado para novas modalidades
   tags: string[];
   summary: string;
   description: string;
@@ -23,10 +25,10 @@ export type Course = {
 };
 
 export type FilterOptions = {
-  modalities: string[];
-  areas: string[];
-  levels: string[];
-  segments: string[];
+  companies: string[];       // Nova: ["JML", "Conecta"]
+  course_types: string[];    // Nova: ["aberto", "incompany", "ead"]
+  segments: string[];        // Atualizada: ["Judiciário", "Sistema S", "Estatais"]
+  levels: string[];          // Mantida: ["Básico", "Intermediário", "Avançado"]
 };
 
 export type SearchResult = Course & {
@@ -75,25 +77,18 @@ export function useSearch() {
       results = courses.map(c => ({ ...c }));
     }
 
-    // Apply filters
-    if (filters.modalities.length > 0) {
-      results = results.filter(c =>
-        c.modality.some(m => filters.modalities.includes(m))
-      );
+    // Apply filters - Nova lógica JML/Conecta
+    if (filters.companies.length > 0) {
+      results = results.filter(c => filters.companies.includes(c.company));
     }
-    if (filters.areas.length > 0) {
-      results = results.filter(c => filters.areas.includes(c.area));
+    if (filters.course_types.length > 0) {
+      results = results.filter(c => filters.course_types.includes(c.course_type));
+    }
+    if (filters.segments.length > 0) {
+      results = results.filter(c => filters.segments.includes(c.segment));
     }
     if (filters.levels.length > 0) {
       results = results.filter(c => filters.levels.includes(c.level));
-    }
-    if (filters.segments.length > 0) {
-      const normalizedSegments = filters.segments.map(normalizeText);
-      results = results.filter(c => {
-        const normalizedTags = c.tags.map(normalizeText);
-        const audience = normalizeText(c.target_audience);
-        return normalizedSegments.some(segment => normalizedTags.includes(segment) || audience.includes(segment));
-      });
     }
 
     return results;
@@ -107,5 +102,31 @@ export function useSearch() {
     return courses.filter(c => ids.includes(c.id));
   };
 
-  return { search, getCourseById, getRelatedCourses, allCourses: courses };
+  // Funções auxiliares para obter valores únicos dos filtros
+  const getUniqueCompanies = (): string[] => {
+    return [...new Set(courses.map(c => c.company))];
+  };
+
+  const getUniqueCourseTypes = (): string[] => {
+    return [...new Set(courses.map(c => c.course_type))];
+  };
+
+  const getUniqueSegments = (): string[] => {
+    return [...new Set(courses.map(c => c.segment))];
+  };
+
+  const getUniqueLevels = (): string[] => {
+    return [...new Set(courses.map(c => c.level))];
+  };
+
+  return { 
+    search, 
+    getCourseById, 
+    getRelatedCourses, 
+    allCourses: courses,
+    getUniqueCompanies,
+    getUniqueCourseTypes,
+    getUniqueSegments,
+    getUniqueLevels
+  };
 }
