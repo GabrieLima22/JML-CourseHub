@@ -19,11 +19,11 @@ export function useSearchHistory() {
       return parsed.map(entry => ({
         ...entry,
         filters: {
-          ...entry.filters,
-          modalities: entry.filters.modalities || [],
-          areas: entry.filters.areas || [],
-          levels: entry.filters.levels || [],
+          // Migração da estrutura antiga para nova
+          companies: entry.filters.companies || [],
+          course_types: entry.filters.course_types || [],
           segments: entry.filters.segments || [],
+          levels: entry.filters.levels || [],
         },
       }));
     } catch {
