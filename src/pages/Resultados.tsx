@@ -88,8 +88,8 @@ export default function Resultados() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+      {/* Header FIXO com gradiente */}
+      <header className="header-fixed">
         <div className="container flex items-center justify-between gap-4 px-4 py-4">
           <div className="flex items-center gap-3">
             <Button
@@ -111,7 +111,8 @@ export default function Resultados() {
         </div>
       </header>
 
-      <div className="container px-4 py-6">
+      {/* Conteúdo principal com padding para header fixo */}
+      <div className="main-content container px-4 py-6">
         {/* Barra de busca */}
         <div className="mb-6">
           <SearchBar
