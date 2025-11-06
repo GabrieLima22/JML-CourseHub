@@ -7,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Separator } from './ui/separator';
 import { Course } from '@/hooks/useSearch';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 
 type CourseDrawerProps = {
   course: Course | null;
@@ -17,18 +16,16 @@ type CourseDrawerProps = {
   onCourseClick: (course: Course) => void;
 };
 
-const areaColors: Record<string, string> = {
-  'Agenda JML': 'bg-category-agenda/10 text-category-agenda border-category-agenda/20',
-  'Setorial': 'bg-category-setorial/10 text-category-setorial border-category-setorial/20',
-  'Soft Skills': 'bg-category-soft/10 text-category-soft border-category-soft/20',
-  'Corporativo': 'bg-category-corporativo/10 text-category-corporativo border-category-corporativo/20',
-  'EAD': 'bg-category-ead/10 text-category-ead border-category-ead/20',
-  'Presencial': 'bg-category-presencial/10 text-category-presencial border-category-presencial/20',
-  'Conecta': 'bg-category-conecta/10 text-category-conecta border-category-conecta/20',
-  'In Company': 'bg-category-incompany/10 text-category-incompany border-category-incompany/20',
-  'Sistema S': 'bg-category-sistema/10 text-category-sistema border-category-sistema/20',
-  'Estatais': 'bg-category-estatais/10 text-category-estatais border-category-estatais/20',
-  'Judiciário': 'bg-category-judiciario/10 text-category-judiciario border-category-judiciario/20',
+const companyLabels: Record<string, string> = {
+  JML: 'JML',
+  Conecta: 'Conecta',
+};
+
+const courseTypeLabels: Record<string, string> = {
+  aberto: 'Aberto',
+  incompany: 'InCompany',
+  ead: 'EAD',
+  hibrido: 'Híbrido',
 };
 
 export function CourseDrawer({ course, open, onClose, relatedCourses, onCourseClick }: CourseDrawerProps) {
@@ -45,7 +42,7 @@ export function CourseDrawer({ course, open, onClose, relatedCourses, onCourseCl
     });
   };
 
-  const pitchText = `${course.title}\n\n${course.summary}\n\nDuração: ${course.duration_hours}h | Nível: ${course.level} | Modalidades: ${course.modality.join(', ')}`;
+  const pitchText = `${course.title}\n\n${course.summary}\n\nEmpresa: ${companyLabels[course.company] || course.company} | Tipo: ${courseTypeLabels[course.course_type] || course.course_type} | Segmento: ${course.segment}\nDuração: ${course.duration_hours}h | Nível: ${course.level} | Modalidades: ${course.modality.join(', ')}`;
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
@@ -57,9 +54,17 @@ export function CourseDrawer({ course, open, onClose, relatedCourses, onCourseCl
                 {course.title}
               </SheetTitle>
               <div className="flex flex-wrap gap-2">
-                <Badge className={cn('text-xs', areaColors[course.area] || '')}>
-                  {course.area}
+                <Badge variant="outline" className="text-xs font-medium">
+                  {companyLabels[course.company] || course.company}
                 </Badge>
+                <Badge variant="outline" className="text-xs font-medium">
+                  {courseTypeLabels[course.course_type] || course.course_type}
+                </Badge>
+                {course.segment && (
+                  <Badge variant="secondary" className="text-xs font-medium">
+                    {course.segment}
+                  </Badge>
+                )}
                 {course.modality.map(mod => (
                   <Badge key={mod} variant="secondary" className="text-xs">
                     {mod}
