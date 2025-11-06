@@ -139,7 +139,7 @@ export default function Home() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
       {/* Background animado agora está no CSS body */}
-      <div className="relative z-10 flex min-h-screen flex-col">
+        <div className="main-content relative z-10 flex min-h-screen flex-col">
         {/* Header refinado e fixo */}
         <header className="header-fixed">
           <div className="container flex items-center justify-between gap-4 px-4 py-4">
