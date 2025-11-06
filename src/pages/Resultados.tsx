@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Filter, X } from 'lucide-react';
-import { SearchBar } from '@/components/SearchBar';
+import { SearchBarSimple } from '@/components/SearchBarSimple';
 import { CourseCard } from '@/components/CourseCard';
 import { CourseDrawer } from '@/components/CourseDrawer';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -25,7 +25,6 @@ export default function Resultados() {
   });
 
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
 
   // Inicialização baseada nos parâmetros da URL
   const initialQuery = searchParams.get('q') || '';
@@ -113,9 +112,9 @@ export default function Resultados() {
 
       {/* Conteúdo principal com padding para header fixo */}
       <div className="main-content container px-4 py-6">
-        {/* Barra de busca */}
+        {/* Barra de busca SIMPLES */}
         <div className="mb-6">
-          <SearchBar
+          <SearchBarSimple
             onSearch={setQuery}
             initialValue={query}
             placeholder="Refinar busca..."
