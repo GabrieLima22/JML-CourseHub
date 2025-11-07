@@ -56,6 +56,7 @@ All colors MUST be HSL.
     --category-curso-incompany-jml: 248 60% 62%;    /* Roxo-azul para JML InCompany */
     --category-curso-incompany-conecta: 258 83% 65%; /* Roxo claro para Conecta InCompany */
     --category-curso-ead-jml: 155 84% 55%;          /* Verde para EAD JML */
+    --category-curso-hibrido-jml: 45 100% 60%;      /* Laranja/dourado para Híbrido JML */
 
     /* Category aliases - Mapeamento simplificado */
     --category-primary: var(--category-curso-aberto-jml);
@@ -63,6 +64,7 @@ All colors MUST be HSL.
     --category-tertiary: var(--category-curso-incompany-jml);
     --category-quaternary: var(--category-curso-incompany-conecta);
     --category-quinary: var(--category-curso-ead-jml);
+    --category-senary: var(--category-curso-hibrido-jml);
   }
 
   .dark {
@@ -111,6 +113,7 @@ All colors MUST be HSL.
     --category-curso-incompany-jml: 248 70% 70%;    /* Roxo-azul vibrante */
     --category-curso-incompany-conecta: 258 83% 72%; /* Roxo claro vibrante */
     --category-curso-ead-jml: 155 84% 55%;          /* Verde vibrante para EAD */
+    --category-curso-hibrido-jml: 45 100% 65%;      /* Laranja/dourado mais vibrante no escuro */
 
     /* Category aliases - Dark mode */
     --category-primary: var(--category-curso-aberto-jml);
@@ -118,6 +121,7 @@ All colors MUST be HSL.
     --category-tertiary: var(--category-curso-incompany-jml);
     --category-quaternary: var(--category-curso-incompany-conecta);
     --category-quinary: var(--category-curso-ead-jml);
+    --category-senary: var(--category-curso-hibrido-jml);
   }
 }
 
