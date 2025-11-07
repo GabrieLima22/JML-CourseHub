@@ -14,7 +14,7 @@ import { useSearch, type Course, type FilterOptions } from '@/hooks/useSearch';
 export default function Resultados() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { search, getRelatedCourses, getUniqueCompanies, getUniqueCourseTypes, getUniqueSegments, getUniqueLevels } = useSearch();
+  const { search, getCourseById, getRelatedCourses, getUniqueCompanies, getUniqueCourseTypes, getUniqueSegments, getUniqueLevels } = useSearch();
 
   // Estado dos filtros atualizado para nova estrutura
   const [filters, setFilters] = useState<FilterOptions>({
@@ -77,7 +77,8 @@ export default function Resultados() {
   const typeLabels: Record<string, string> = {
     'aberto': 'Aberto',
     'incompany': 'InCompany', 
-    'ead': 'EAD'
+    'ead': 'EAD',
+    'hibrido': 'Híbrido'
   };
 
   const companyLabels: Record<string, string> = {
