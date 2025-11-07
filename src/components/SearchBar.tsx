@@ -150,10 +150,10 @@ export function SearchBar({ onSearch, placeholder, initialValue = '' }: SearchBa
       >
         {isExpanded && (
           <div className="mt-8 space-y-8">
-            {/* Header melhorado com gradiente */}
+            {/* Header com background consistente */}
             <div className="text-center mb-10 relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent h-px top-1/2" />
-              <div className="relative bg-background px-6">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-border/40 to-transparent h-px top-1/2" />
+              <div className="relative px-6 py-4 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/40 shadow-lg">
                 <h3 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-blue-600 to-emerald-600 bg-clip-text text-transparent mb-2">
                   Painel Interativo de Apoio à Venda de Cursos
                 </h3>
@@ -265,7 +265,7 @@ export function SearchBar({ onSearch, placeholder, initialValue = '' }: SearchBa
                   size="lg"
                   className="px-8 py-4 text-lg font-semibold bg-gradient-to-r from-violet-600 via-blue-600 to-emerald-600 hover:from-violet-700 hover:via-blue-700 hover:to-emerald-700 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-200"
                 >
-                   Ver todos os {Object.values(searchResults).flat().length} resultados detalhados
+                  🚀 Ver todos os {Object.values(searchResults).flat().length} resultados detalhados
                 </Button>
               </div>
             </div>
