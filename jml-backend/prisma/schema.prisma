@@ -1,0 +1,201 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 🎓 CURSO - Modelo principal
+model Course {
+  id                String    @id @default(cuid())
+  titulo            String
+  slug              String    @unique
+  
+  // 🏢 Categorização (para filtros no frontend)
+  categoria         String    // "Sistema S", "Judiciário", "Estatais"
+  empresa           String    // "JML", "Conecta"
+  tipo              String    // "aberto", "incompany", "ead", "hibrido"
+  modalidade        String[]  // ["Curso aberto JML", "Curso Híbrido JML"]
+  segmento          String    // "Sistema S", "Judiciário", "Estatais"
+  
+  // 📅 Datas e Local (para cursos presenciais)
+  data_inicio       DateTime?
+  data_fim          DateTime?
+  local             String?
+  endereco_completo String?
+  carga_horaria     Int
+  
+  // 📖 Conteúdo Principal
+  summary           String    @db.Text
+  description       String    @db.Text
+  objetivos         String[]
+  publico_alvo      String[]
+  nivel             String    // "Básico", "Intermediário", "Avançado"
+  
+  // 👥 Equipe
+  professores       Json[]    // [{ nome, bio, foto?, linkedin? }]
+  coordenacao       Json?     // { responsavel, contato }
+  
+  // 💰 Investimento (design: diferentes modalidades)
+  investimento      Json      // { presencial: 1200, online: 800, hibrido: 1000, desconto?: 10 }
+  forma_pagamento   String[]  // ["PIX", "Cartão", "Boleto", "Parcelado"]
+  
+  // 📚 Programação Detalhada (design: timeline visual)
+  programacao       Json[]    // [{ dia: 1, data: "2024-01-15", modulos: [{ hora: "09:00", titulo: "...", conteudo: "..." }] }]
+  metodologia       String?   // Descrição da metodologia
+  
+  // 📎 Documentos e Links
+  pdf_original      String?   // Caminho do PDF original
+  pdf_url           String?   // URL pública do PDF
+  landing_page      String?   // URL da página de venda
+  inscricao_url     String?   // URL de inscrição
+  
+  // 🎯 Metadados (para busca e recomendações)
+  tags              String[]  // ["licitação", "contratos", "compliance"]
+  deliverables      String[]  // ["Certificado", "Material", "Apostila"]
+  related_ids       String[]  // IDs de cursos relacionados
+  
+  // 📊 Analytics (design: métricas visuais)
+  views_count       Int       @default(0)
+  clicks_count      Int       @default(0)
+  conversions_count Int       @default(0)
+  
+  // 🎨 Customização Visual
+  cor_categoria     String?   // Hex color para a categoria
+  icone             String?   // Nome do ícone Lucide
+  imagem_capa       String?   // URL da imagem de capa
+  
+  // 🔄 Status e Controle
+  status            String    @default("draft") // "draft", "review", "published", "archived"
+  destaque          Boolean   @default(false)   // Para cursos em destaque
+  novo              Boolean   @default(true)    // Para badge "Novo"
+  
+  // 👤 Auditoria
+  created_by        String?   // ID do usuário admin
+  updated_by        String?   // ID do último usuário que editou
+  
+  // ⏰ Timestamps
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+  published_at      DateTime?
+  
+  // 🔗 Relacionamentos
+  uploads           Upload[]  // PDFs relacionados
+  analytics         Analytics[]
+  
+  @@map("courses")
+  @@index([empresa, tipo])
+  @@index([categoria, segmento])
+  @@index([status, published_at])
+  @@index([destaque, novo])
+}
+
+// 👤 USUÁRIO - Admin/Editor
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  name            String
+  password        String
+  
+  // 🎭 Roles e Permissões
+  role            String    @default("editor") // "admin", "editor", "viewer"
+  permissions     String[]  @default(["read"]) // ["create", "read", "update", "delete", "publish"]
+  
+  // 🎨 Profile (design: avatar e preferências)
+  avatar          String?
+  theme           String    @default("auto") // "light", "dark", "auto"
+  language        String    @default("pt-BR")
+  
+  // 📊 Activity Tracking
+  last_login      DateTime?
+  login_count     Int       @default(0)
+  
+  // 🔐 Security
+  email_verified  Boolean   @default(false)
+  two_factor      Boolean   @default(false)
+  reset_token     String?
+  reset_expires   DateTime?
+  
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  
+  // 🔗 Relacionamentos
+  uploads         Upload[]  @relation("UploadedBy")
+  
+  @@map("users")
+}
+
+// 📄 UPLOAD - Gestão de arquivos
+model Upload {
+  id              String    @id @default(cuid())
+  filename        String
+  original_name   String
+  size            Int
+  mimetype        String
+  path            String
+  
+  // 🔄 Processamento (design: progress bar)
+  status          String    @default("pending") // "pending", "processing", "completed", "failed"
+  progress        Int       @default(0)         // 0-100 para progress bar
+  extracted_data  Json?     // Dados extraídos do PDF
+  error_message   String?
+  processing_time Int?      // Tempo em segundos
+  
+  // 🤖 AI Processing
+  ai_confidence   Float?    // 0-1, confiança da extração
+  manual_review   Boolean   @default(false)    // Precisa de revisão manual
+  
+  // 🔗 Relacionamentos
+  course_id       String?
+  course          Course?   @relation(fields: [course_id], references: [id], onDelete: SetNull)
+  
+  processed_by    String?
+  user            User?     @relation("UploadedBy", fields: [processed_by], references: [id])
+  
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  
+  @@map("uploads")
+  @@index([status, created_at])
+  @@index([course_id])
+}
+
+// 📈 ANALYTICS - Métricas detalhadas
+model Analytics {
+  id            String    @id @default(cuid())
+  
+  // 📊 Métricas
+  event_type    String    // "view", "click", "download", "search"
+  course_id     String?
+  course        Course?   @relation(fields: [course_id], references: [id], onDelete: SetNull)
+  search_query  String?
+  user_agent    String?
+  ip_address    String?
+  referrer      String?
+  
+  // 🎯 Contexto
+  filters_used  Json?     // Filtros aplicados na busca
+  session_id    String?
+  
+  created_at    DateTime  @default(now())
+  
+  @@map("analytics")
+  @@index([event_type, created_at])
+  @@index([course_id, created_at])
+}
+
+// ⚙️ CONFIG - Configurações do sistema
+model Config {
+  id            String    @id @default(cuid())
+  key           String    @unique
+  value         Json
+  description   String?
+  
+  updated_by    String?
+  updated_at    DateTime  @updatedAt
+  
+  @@map("config")
+}
