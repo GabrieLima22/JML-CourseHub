@@ -183,8 +183,44 @@ All colors MUST be HSL.
     }
   }
 
+  /* 🚀 ANIMAÇÕES ÉPICAS PARA TRANSFORMERS WOW! */
+  @keyframes transformers-glow {
+    0% { 
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+    50% { 
+      box-shadow: 0 0 40px rgba(59, 130, 246, 0.6), 0 0 60px rgba(139, 92, 246, 0.4);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    100% { 
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  @keyframes epic-pulse {
+    0% { transform: scale(1) translateY(0); }
+    50% { transform: scale(1.03) translateY(-2px); }
+    100% { transform: scale(1) translateY(0); }
+  }
+
+  @keyframes card-float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+
   .animate-shimmer {
     animation: shimmer 2s infinite;
+  }
+
+  /* 🎨 CLASSES ÉPICAS PARA OS CARDS */
+  .course-card-epic {
+    animation: transformers-glow 4s ease-in-out infinite;
+  }
+
+  .course-card-epic:hover {
+    animation: epic-pulse 0.6s ease-in-out, card-float 2s ease-in-out infinite;
   }
 }
 
@@ -278,5 +314,76 @@ All colors MUST be HSL.
 
   .scrollbar-thumb-white\/30::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.5);
+  }
+
+  /* 🚀 ESTILOS ÉPICOS TRANSFORMERS - LEVEL WOW! */
+  
+  /* Scroll bars invisíveis - NO MORE BUGS! */
+  .scrollbar-none {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  /* Botão "mostrar mais" épico com efeito shimmer */
+  .show-more-btn {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .show-more-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s ease-in-out;
+    pointer-events: none;
+  }
+
+  .show-more-btn:hover::before {
+    left: 100%;
+  }
+
+  /* Background fixes para diferentes temas */
+  .transformers-legendary {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .transformers-legendary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .transformers-legendary:hover::after {
+    opacity: 1;
+  }
+
+  /* Efeitos épicos para tema dark */
+  .dark .transformers-legendary::after {
+    background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05), transparent 70%);
+  }
+
+  /* Hover effects épicos */
+  .group:hover .course-card-epic {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+  }
+
+  .dark .group:hover .course-card-epic {
+    box-shadow: 0 15px 35px rgba(139, 92, 246, 0.4);
   }
 }
