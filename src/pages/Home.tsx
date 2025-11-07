@@ -10,6 +10,7 @@ import {
   Share2,
   Sparkles,
   TrendingUp,
+  Blend, // Novo ícone para Híbrido
 } from 'lucide-react';
 
 type LucideIcon = typeof GraduationCap;
@@ -32,9 +33,7 @@ const categoryColorVars = {
   tertiary: '--category-tertiary',
   quaternary: '--category-quaternary',
   quinary: '--category-quinary',
-  senary: '--category-senary',
-  septenary: '--category-septenary',
-  octonary: '--category-octonary',
+  senary: '--category-senary', // Nova cor para Híbrido
 } as const;
 type CategoryColor = keyof typeof categoryColorVars;
 
@@ -82,6 +81,13 @@ const categories: CategoryConfig[] = [
     match: (course) => course.modality.some((m) => normalizeText(m) === normalizeText('Curso EAD JML')),
     buildParams: () => ({ empresa: 'JML', tipo: 'ead' }),
   },
+  {
+    name: 'Curso Híbrido JML',
+    icon: Blend,
+    color: 'senary',
+    match: (course) => course.modality.some((m) => normalizeText(m) === normalizeText('Curso Híbrido JML')),
+    buildParams: () => ({ empresa: 'JML', tipo: 'hibrido' }),
+  },
 ];
 
 type ExploreMode = 'category' | 'course';
@@ -104,8 +110,8 @@ export default function Home() {
   const [filters] = useState<FilterOptions>({
     companies: [],
     course_types: [],
-    levels: [],
     segments: [],
+    levels: [],
   });
 
   const handleSearch = (query: string) => {
@@ -148,7 +154,7 @@ export default function Home() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
       {/* Background animado agora está no CSS body */}
-        <div className="main-content relative z-10 flex min-h-screen flex-col">
+      <div className="main-content relative z-10 flex min-h-screen flex-col">
         {/* Header refinado e fixo */}
         <header className="header-fixed">
           <div className="container flex items-center justify-between gap-4 px-4 py-4">
@@ -198,7 +204,7 @@ export default function Home() {
                 <span className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">Explorar</span>
                 <h3 className="text-3xl font-semibold leading-tight">Personalize a jornada de descoberta</h3>
                 <p className="max-w-2xl text-sm text-muted-foreground">
-                  Navegue pelos cursos JML e Conecta organizados por tipo e segmento para responder rapidamente ao cliente.
+                  Navegue pelos cursos JML e Conecta organizados por tipo e segmento, incluindo os novos cursos híbridos.
                 </p>
               </div>
               <div className="inline-flex gap-2 rounded-full border border-border/60 bg-background/80 p-1 shadow-sm backdrop-blur">
@@ -274,7 +280,10 @@ export default function Home() {
                           <div>
                             <h4 className="text-xl font-semibold">{category.name}</h4>
                             <p className="mt-2 text-sm text-muted-foreground">
-                              Cursos especializados por empresa e modalidade para atender diferentes perfis de cliente.
+                              {category.name.includes('Híbrido') 
+                                ? 'Formato exclusivo JML combinando presencial e EAD para máxima flexibilidade.'
+                                : 'Cursos especializados por empresa e modalidade para atender diferentes perfis de cliente.'
+                              }
                             </p>
                           </div>
                           <span className="rounded-full bg-background/90 px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm">
@@ -296,7 +305,7 @@ export default function Home() {
                 <div className="flex flex-col gap-3 rounded-3xl border border-border/60 bg-background/80 p-6 shadow-inner backdrop-blur">
                   <h4 className="text-lg font-semibold text-foreground">Todos os cursos</h4>
                   <p className="text-sm text-muted-foreground">
-                    Visualize rapidamente as opções completas e clique para abrir a página de resultados já filtrada.
+                    Visualize rapidamente as opções completas incluindo os novos cursos híbridos exclusivos da JML.
                   </p>
                 </div>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -339,7 +348,7 @@ export default function Home() {
                 Novos cursos
               </h3>
               <p className="text-sm text-muted-foreground">
-                Destaques recém-chegados para manter o portfólio sempre atualizado.
+                Destaques recém-chegados incluindo os novos cursos híbridos da JML.
               </p>
               <div className="grid grid-cols-1 gap-4">
                 {newCourses.map((course) => (
