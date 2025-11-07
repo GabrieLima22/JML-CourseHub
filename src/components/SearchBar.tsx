@@ -57,6 +57,7 @@ export function SearchBar({ onSearch, placeholder, initialValue = '' }: SearchBa
       'Curso InCompany JML': results.filter(c => c.modality.includes('Curso InCompany JML')),
       'Curso InCompany Conecta': results.filter(c => c.modality.includes('Curso InCompany Conecta')),
       'Curso EAD JML': results.filter(c => c.modality.includes('Curso EAD JML')),
+      'Curso Híbrido JML': results.filter(c => c.modality.includes('Curso Híbrido JML')),
     };
 
     setSearchResults(categorizedResults);
@@ -85,6 +86,7 @@ export function SearchBar({ onSearch, placeholder, initialValue = '' }: SearchBa
     'Curso InCompany JML': 'from-purple-500 to-blue-600',
     'Curso InCompany Conecta': 'from-indigo-500 to-purple-600',
     'Curso EAD JML': 'from-green-500 to-emerald-600',
+    'Curso Híbrido JML': 'from-orange-500 to-amber-600',
   };
 
   return (
