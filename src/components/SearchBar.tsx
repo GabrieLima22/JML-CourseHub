@@ -177,98 +177,76 @@ export function SearchBar({ onSearch, placeholder, initialValue = '' }: SearchBa
                     transitionDelay: `${index * 150}ms` // Animação escalonada
                   }}
                 >
-                  <Card className={`group transformers-legendary relative p-6 bg-gradient-to-br ${categoryColors[category]} text-white overflow-hidden h-full border-0 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 hover:scale-[1.02]`}>
-                    {/* Background consistente - fix do bug de cor */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-black/5 via-transparent to-black/15 pointer-events-none rounded-xl" />
+                  <Card className={`group relative p-6 bg-gradient-to-br ${categoryColors[category]} text-white overflow-hidden h-full border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}>
+                    {/* Background overlay sutil e consistente */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-black/10 via-black/5 to-black/15 rounded-xl" />
                     
-                    {/* Efeito de brilho animado melhorado */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1200 ease-in-out" />
+                    {/* Efeito de brilho sutil no hover */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-800 ease-out" />
                     
-                    {/* Border glow effect épico */}
-                    <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-500"
-                         style={{
-                           background: `linear-gradient(45deg, transparent, rgba(255,255,255,0.4), transparent)`,
-                           filter: 'blur(1px)',
-                           boxShadow: '0 0 30px rgba(255,255,255,0.2)'
-                         }} />
-                    
-                    <div className="relative z-20 h-full flex flex-col">
-                      {/* Header da categoria com background fixo */}
-                      <div className="mb-4 pb-4 border-b border-white/30 bg-black/10 backdrop-blur-sm rounded-xl p-4 -m-2 mt-0 mx-0 shadow-inner">
-                        <h4 className="text-xl font-bold mb-2 text-white drop-shadow-lg tracking-tight">{category}</h4>
+                    <div className="relative z-10 h-full flex flex-col">
+                      {/* Header da categoria limpo */}
+                      <div className="mb-4 pb-4 border-b border-white/25">
+                        <h4 className="text-xl font-bold mb-2 text-white">{category}</h4>
                         <div className="flex items-center justify-between">
-                          <p className="text-white/90 text-sm font-medium">
+                          <p className="text-white/90 text-sm">
                             {courses.length} curso{courses.length !== 1 ? 's' : ''} disponível{courses.length !== 1 ? 'is' : ''}
                           </p>
-                          <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30 shadow-xl hover:bg-white/30 transition-all duration-300 hover:scale-110">
-                            <span className="text-sm font-bold text-white drop-shadow-sm">{courses.length}</span>
+                          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center border border-white/30">
+                            <span className="text-sm font-bold text-white">{courses.length}</span>
                           </div>
                         </div>
                       </div>
                       
-                      {/* Lista de cursos sem scroll bars - design épico */}
-                      <div className="flex-1 space-y-3 max-h-64 overflow-hidden">
-                        <div className="space-y-3 overflow-y-auto scrollbar-none pr-2" 
-                             style={{ maxHeight: '15rem', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                          {courses.slice(0, 4).map((course: any, courseIndex) => (
+                      {/* Lista de cursos com layout profissional */}
+                      <div className="flex-1 space-y-3 max-h-64">
+                        <div className="space-y-3 overflow-y-auto scrollbar-none" style={{ maxHeight: '15rem' }}>
+                          {courses.slice(0, 3).map((course: any, courseIndex) => (
                             <div 
                               key={course.id}
-                              className="course-card-epic group/card relative overflow-hidden bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/20 transition-all duration-300 cursor-pointer transform hover:scale-[1.02] border border-white/10 hover:border-white/30 hover:shadow-lg"
+                              className="group/course bg-white/10 backdrop-blur-sm rounded-lg p-3 hover:bg-white/15 transition-all duration-200 cursor-pointer border border-white/10 hover:border-white/20"
                               onClick={() => onSearch(course.title)}
                               style={{
-                                animationDelay: `${(index * 150) + (courseIndex * 100)}ms`
+                                animationDelay: `${(index * 100) + (courseIndex * 50)}ms`
                               }}
                             >
-                              {/* Gradiente sutil no hover */}
-                              <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-white/10 to-white/5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 rounded-xl" />
-                              
-                              {/* Conteúdo */}
-                              <div className="relative z-10">
-                                <div className="flex items-start justify-between gap-3 mb-2">
-                                  <h5 className="font-semibold text-sm leading-tight flex-1 min-w-0">
-                                    <span className="line-clamp-2 group-hover/card:text-white transition-colors duration-200">
-                                      {course.title}
-                                    </span>
+                              <div className="flex items-start gap-3">
+                                {/* Conteúdo principal */}
+                                <div className="flex-1 min-w-0">
+                                  <h5 className="font-medium text-sm text-white mb-1 line-clamp-1 group-hover/course:text-white/90 transition-colors">
+                                    {course.title}
                                   </h5>
-                                  <ArrowUpRight className="h-4 w-4 text-white/60 group-hover/card:text-white transform group-hover/card:scale-110 transition-all duration-200 shrink-0" />
+                                  <p className="text-white/80 text-xs leading-relaxed line-clamp-2 mb-2">
+                                    {course.summary}
+                                  </p>
+                                  
+                                  {/* Meta info */}
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs bg-white/15 px-2 py-0.5 rounded-md text-white/90">
+                                      {course.level}
+                                    </span>
+                                    <span className="text-xs text-white/70 flex items-center gap-1">
+                                      <Clock className="h-3 w-3" />
+                                      {course.duration_hours}h
+                                    </span>
+                                  </div>
                                 </div>
-                                
-                                <p className="text-white/80 text-xs mb-3 leading-relaxed">
-                                  <span className="line-clamp-2">{course.summary}</span>
-                                </p>
-                                
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="inline-flex items-center text-xs bg-white/15 hover:bg-white/25 px-2.5 py-1 rounded-full border border-white/20 transition-colors duration-200">
-                                    <GraduationCap className="h-3 w-3 mr-1" />
-                                    {course.level}
-                                  </span>
-                                  <span className="inline-flex items-center text-xs bg-white/15 hover:bg-white/25 px-2.5 py-1 rounded-full border border-white/20 transition-colors duration-200">
-                                    <Clock className="h-3 w-3 mr-1" />
-                                    {course.duration_hours}h
-                                  </span>
+
+                                {/* Ícone de ação sutil */}
+                                <div className="shrink-0 w-6 h-6 rounded-full bg-white/10 flex items-center justify-center group-hover/course:bg-white/20 transition-colors">
+                                  <ArrowUpRight className="h-3 w-3 text-white/60 group-hover/course:text-white transition-colors" />
                                 </div>
                               </div>
-
-                              {/* Border glow no hover */}
-                              <div className="absolute inset-0 rounded-xl opacity-0 group-hover/card:opacity-20 transition-opacity duration-300 pointer-events-none"
-                                   style={{
-                                     background: 'linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent)',
-                                     filter: 'blur(0.5px)'
-                                   }} />
                             </div>
                           ))}
                         </div>
                         
-                        {courses.length > 4 && (
+                        {courses.length > 3 && (
                           <button 
-                            className="show-more-btn group/more w-full text-center text-white/80 hover:text-white text-sm transition-all duration-300 py-3 rounded-xl hover:bg-white/10 border border-white/20 border-dashed hover:border-white/40 hover:border-solid relative overflow-hidden"
+                            className="w-full text-center text-white/80 hover:text-white text-sm transition-colors py-2 rounded-lg hover:bg-white/10 border border-white/20 border-dashed hover:border-white/30"
                             onClick={() => onSearch(query)}
                           >
-                            <span className="relative z-10 flex items-center justify-center gap-2">
-                              <Plus className="h-4 w-4 group-hover/more:rotate-90 transition-transform duration-300" />
-                              {courses.length - 4} curso{courses.length - 4 !== 1 ? 's' : ''} adicional{courses.length - 4 !== 1 ? 'is' : ''}
-                            </span>
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/more:translate-x-full transition-transform duration-500" />
+                            + {courses.length - 3} curso{courses.length - 3 !== 1 ? 's' : ''} adicional{courses.length - 3 !== 1 ? 'is' : ''}
                           </button>
                         )}
                       </div>
@@ -287,7 +265,7 @@ export function SearchBar({ onSearch, placeholder, initialValue = '' }: SearchBa
                   size="lg"
                   className="px-8 py-4 text-lg font-semibold bg-gradient-to-r from-violet-600 via-blue-600 to-emerald-600 hover:from-violet-700 hover:via-blue-700 hover:to-emerald-700 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-200"
                 >
-                  🚀 Ver todos os {Object.values(searchResults).flat().length} resultados detalhados
+                   Ver todos os {Object.values(searchResults).flat().length} resultados detalhados
                 </Button>
               </div>
             </div>
