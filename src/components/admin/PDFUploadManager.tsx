@@ -245,8 +245,48 @@ export function PDFUploadManager({ open, onClose }: PDFUploadManagerProps) {
   };
 
   const createCourseFromExtraction = (fileData: UploadFile) => {
-    // Aqui você conectaria com o sistema de criação de cursos
-    alert(`Criando curso: ${fileData.extractedData?.title}`);
+    if (!fileData.extractedData) return;
+
+    // Criar objeto do curso baseado nos dados extraídos
+    const newCourse = {
+      id: Date.now(),
+      title: fileData.extractedData.title,
+      slug: fileData.extractedData.title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+/g, '-'),
+      area: fileData.extractedData.area,
+      modality: ["EAD", "Presencial"], // Modalidades padrão
+      tags: fileData.extractedData.tags,
+      summary: fileData.extractedData.summary,
+      description: fileData.extractedData.description,
+      duration_hours: fileData.extractedData.duration_hours,
+      level: fileData.extractedData.level,
+      target_audience: fileData.extractedData.target_audience,
+      deliverables: fileData.extractedData.deliverables,
+      links: {
+        landing: `https://jml.com.br/cursos/${fileData.extractedData.title.toLowerCase().replace(/\s+/g, '-')}`,
+        pdf: URL.createObjectURL(fileData.file) // URL temporária do PDF
+      },
+      related_ids: [],
+      status: 'draft'
+    };
+
+    // Simular salvamento do curso
+    console.log('Curso criado automaticamente:', newCourse);
+    
+    // Remover o arquivo da lista após criar o curso
+    setUploadedFiles(prev => prev.filter(f => f.id !== fileData.id));
+    
+    // Feedback visual
+    alert(`✅ Curso "${newCourse.title}" criado com sucesso!\n\n📊 Precisão da IA: ${Math.round((fileData.extractedData?.confidence || 0) * 100)}%\n🎯 Status: Rascunho\n📝 Pronto para revisão e publicação`);
+    
+    // Em uma implementação real, aqui você faria:
+    // 1. POST para API backend
+    // 2. Salvar no banco de dados
+    // 3. Upload real do PDF para storage
+    // 4. Atualizar estado global dos cursos
+    // 5. Redirecionar para edição do curso se necessário
   };
 
   const getStatusIcon = (status: UploadFile['status']) => {
@@ -275,7 +315,7 @@ export function PDFUploadManager({ open, onClose }: PDFUploadManagerProps) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl h-[90vh] p-0">
+      <DialogContent className="max-w-5xl h-[90vh] p-0" aria-describedby="pdf-upload-description">
         <DialogHeader className="p-6 pb-4 border-b">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -284,7 +324,7 @@ export function PDFUploadManager({ open, onClose }: PDFUploadManagerProps) {
               </div>
               <div>
                 <DialogTitle className="text-xl">Upload Inteligente de PDFs</DialogTitle>
-                <p className="text-sm text-muted-foreground">
+                <p id="pdf-upload-description" className="text-sm text-muted-foreground">
                   IA extrai automaticamente dados dos cursos
                 </p>
               </div>
