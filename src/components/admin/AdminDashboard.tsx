@@ -21,6 +21,9 @@ import {
   RefreshCw
 } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { CourseManager } from "@/components/admin/CourseManager";
+import { PDFUploadManager } from "@/components/admin/PDFUploadManager";
+import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
 import { cn } from "@/lib/utils";
 
 interface AdminDashboardProps {
@@ -31,6 +34,8 @@ interface AdminDashboardProps {
 export function AdminDashboard({ open, onClose }: AdminDashboardProps) {
   const { user, logout, getTimeRemainingFormatted, extendSession } = useAdminAuth();
   const [activeTab, setActiveTab] = useState("overview");
+  const [showCourseManager, setShowCourseManager] = useState(false);
+  const [showPDFUploader, setShowPDFUploader] = useState(false);
 
   // Auto-close se não estiver autenticado
   useEffect(() => {
@@ -163,11 +168,11 @@ export function AdminDashboard({ open, onClose }: AdminDashboardProps) {
                   <Card className="p-6">
                     <h3 className="text-lg font-semibold mb-4">Ações Rápidas</h3>
                     <div className="space-y-3">
-                      <Button className="w-full justify-start" onClick={() => setActiveTab("courses")}>
+                      <Button className="w-full justify-start" onClick={() => setShowCourseManager(true)}>
                         <Plus className="h-4 w-4 mr-2" />
                         Novo Curso
                       </Button>
-                      <Button variant="outline" className="w-full justify-start" onClick={() => setActiveTab("uploads")}>
+                      <Button variant="outline" className="w-full justify-start" onClick={() => setShowPDFUploader(true)}>
                         <Upload className="h-4 w-4 mr-2" />
                         Upload de PDF
                       </Button>
@@ -202,7 +207,7 @@ export function AdminDashboard({ open, onClose }: AdminDashboardProps) {
               <TabsContent value="courses" className="space-y-6 mt-0">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-semibold">Gerenciar Cursos</h3>
-                  <Button>
+                  <Button onClick={() => setShowCourseManager(true)}>
                     <Plus className="h-4 w-4 mr-2" />
                     Novo Curso
                   </Button>
@@ -211,13 +216,13 @@ export function AdminDashboard({ open, onClose }: AdminDashboardProps) {
                 <Card className="p-6">
                   <div className="text-center py-12">
                     <FileText className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">Interface de Cursos</h3>
+                    <h3 className="text-lg font-semibold mb-2">Sistema de Cursos</h3>
                     <p className="text-muted-foreground mb-4">
-                      Interface completa para criação e edição de cursos será implementada
+                      Interface completa para criar, editar e gerenciar todos os cursos
                     </p>
-                    <Button variant="outline">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Implementar CRUD
+                    <Button onClick={() => setShowCourseManager(true)}>
+                      <FileText className="h-4 w-4 mr-2" />
+                      Abrir Gerenciador
                     </Button>
                   </div>
                 </Card>
@@ -226,8 +231,8 @@ export function AdminDashboard({ open, onClose }: AdminDashboardProps) {
               {/* Uploads Tab */}
               <TabsContent value="uploads" className="space-y-6 mt-0">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-semibold">Upload de PDFs</h3>
-                  <Button>
+                  <h3 className="text-xl font-semibold">Upload Inteligente</h3>
+                  <Button onClick={() => setShowPDFUploader(true)}>
                     <Upload className="h-4 w-4 mr-2" />
                     Novo Upload
                   </Button>
@@ -236,13 +241,17 @@ export function AdminDashboard({ open, onClose }: AdminDashboardProps) {
                 <Card className="p-6">
                   <div className="text-center py-12">
                     <Upload className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">Sistema de Upload</h3>
+                    <h3 className="text-lg font-semibold mb-2">Upload com IA</h3>
                     <p className="text-muted-foreground mb-4">
-                      Drag & drop de PDFs com processamento automático por IA
+                      Faça upload de PDFs e nossa IA extrai automaticamente os dados dos cursos
                     </p>
-                    <Button variant="outline">
+                    <div className="flex items-center justify-center gap-2 text-sm text-purple-600 mb-4">
+                      <div className="w-2 h-2 bg-purple-600 rounded-full animate-pulse"></div>
+                      <span>Processamento inteligente com 85%+ de precisão</span>
+                    </div>
+                    <Button onClick={() => setShowPDFUploader(true)}>
                       <Upload className="h-4 w-4 mr-2" />
-                      Implementar Upload
+                      Iniciar Upload
                     </Button>
                   </div>
                 </Card>
@@ -250,21 +259,7 @@ export function AdminDashboard({ open, onClose }: AdminDashboardProps) {
 
               {/* Analytics Tab */}
               <TabsContent value="users" className="space-y-6 mt-0">
-                <h3 className="text-xl font-semibold">Analytics e Métricas</h3>
-
-                <Card className="p-6">
-                  <div className="text-center py-12">
-                    <BarChart3 className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">Dashboard Analytics</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Gráficos e métricas detalhadas sobre uso dos cursos
-                    </p>
-                    <Button variant="outline">
-                      <BarChart3 className="h-4 w-4 mr-2" />
-                      Ver Relatórios
-                    </Button>
-                  </div>
-                </Card>
+                <AnalyticsDashboard />
               </TabsContent>
 
               {/* Settings Tab */}
@@ -305,6 +300,17 @@ export function AdminDashboard({ open, onClose }: AdminDashboardProps) {
           </Tabs>
         </div>
       </DialogContent>
+
+      {/* Modais dos subsistemas */}
+      <CourseManager 
+        open={showCourseManager} 
+        onClose={() => setShowCourseManager(false)} 
+      />
+      
+      <PDFUploadManager 
+        open={showPDFUploader} 
+        onClose={() => setShowPDFUploader(false)} 
+      />
     </Dialog>
   );
 }
