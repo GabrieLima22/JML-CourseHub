@@ -1,5 +1,6 @@
 import { useMemo, useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AdminIcon } from '@/components/admin/AdminIcon';
 import {
   BriefcaseBusiness,
   Building2,
@@ -156,23 +157,21 @@ export default function Home() {
       {/* Background animado agora está no CSS body */}
       <div className="main-content relative z-10 flex min-h-screen flex-col">
         {/* Header refinado e fixo */}
-        <header className="header-fixed">
-          <div className="container flex items-center justify-between gap-4 px-4 py-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-r from-violet-600 to-blue-600 shadow-lg">
-                <GraduationCap className="h-7 w-7 text-white" />
-              </div>
-              <div>
-                <p className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">Plataforma JML</p>
-                <h1 className="text-xl font-semibold sm:text-2xl">Centro de Cursos</h1>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <HistoryPopover onSelectHistory={handleHistorySelect} />
-              <ThemeToggle />
-            </div>
-          </div>
-        </header>
+     <header className="header-fixed">
+  <div className="container flex items-center justify-between gap-4 px-4 py-4">
+    <div className="flex items-center gap-3">
+      <AdminIcon />  {/* ← NOVA LINHA */}
+      <div>
+        <p className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">Plataforma JML</p>
+        <h1 className="text-xl font-semibold sm:text-2xl">Centro de Cursos</h1>
+      </div>
+    </div>
+    <div className="flex items-center gap-2">
+      <HistoryPopover onSelectHistory={handleHistorySelect} />
+      <ThemeToggle />
+    </div>
+  </div>
+</header>
 
         <main className="container relative z-10 flex-1 space-y-16 px-4 py-12 lg:space-y-20 lg:py-20">
           {/* Seção hero refinada com novo título */}
