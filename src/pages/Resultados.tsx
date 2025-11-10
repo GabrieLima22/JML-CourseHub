@@ -14,7 +14,7 @@ import { useSearch, type Course, type FilterOptions } from '@/hooks/useSearch';
 export default function Resultados() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { search, getCourseById, getRelatedCourses, getUniqueCompanies, getUniqueCourseTypes, getUniqueSegments, getUniqueLevels } = useSearch();
+  const { search, getRelatedCourses, getUniqueCompanies, getUniqueCourseTypes, getUniqueSegments, getUniqueLevels } = useSearch();
 
   // Estado dos filtros atualizado para nova estrutura
   const [filters, setFilters] = useState<FilterOptions>({

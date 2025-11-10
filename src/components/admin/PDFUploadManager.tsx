@@ -19,12 +19,13 @@ import {
   Zap,
   FileCheck,
   Clock,
-  Robot,
+  Bot,
   ChevronDown,
   ChevronUp,
   Plus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { uploadPdf, API_BASE_URL } from "@/services/api";
 
 interface PDFUploadManagerProps {
   open: boolean;
@@ -36,6 +37,14 @@ interface UploadFile {
   file: File;
   status: 'uploading' | 'processing' | 'completed' | 'error';
   progress: number;
+  backendFile?: {
+    id: string | null;
+    name: string;
+    filename: string;
+    size: number;
+    url: string;
+  };
+  storedInDatabase?: boolean;
   extractedData?: {
     title: string;
     area: string;
@@ -126,6 +135,13 @@ export function PDFUploadManager({ open, onClose }: PDFUploadManagerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [expandedFiles, setExpandedFiles] = useState<Set<string>>(new Set());
 
+  const getDownloadHref = (file: UploadFile) => {
+    if (file.backendFile?.url) {
+      return `${API_BASE_URL}${file.backendFile.url}`;
+    }
+    return file.previewUrl ?? '';
+  };
+
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const newFiles: UploadFile[] = acceptedFiles
       .filter(file => file.type === 'application/pdf')
@@ -134,6 +150,7 @@ export function PDFUploadManager({ open, onClose }: PDFUploadManagerProps) {
         file,
         status: 'uploading',
         progress: 0,
+        storedInDatabase: false,
         previewUrl: URL.createObjectURL(file)
       }));
 
@@ -146,47 +163,79 @@ export function PDFUploadManager({ open, onClose }: PDFUploadManagerProps) {
   }, []);
 
   const simulateUpload = async (uploadFile: UploadFile) => {
-    // Fase 1: Upload
-    for (let i = 0; i <= 100; i += Math.random() * 15) {
+    const backendUploadPromise = uploadPdf(uploadFile.file);
+
+    for (let i = 0; i <= 85; i += Math.random() * 15) {
       await new Promise(resolve => setTimeout(resolve, 50));
-      setUploadedFiles(prev => prev.map(f => 
-        f.id === uploadFile.id 
-          ? { ...f, progress: Math.min(100, i) }
+      setUploadedFiles(prev => prev.map(f =>
+        f.id === uploadFile.id
+          ? { ...f, progress: Math.min(85, i) }
           : f
       ));
     }
 
-    // Fase 2: Processamento IA
-    setUploadedFiles(prev => prev.map(f => 
-      f.id === uploadFile.id 
+    try {
+      const response = await backendUploadPromise;
+      setUploadedFiles(prev => prev.map(f =>
+        f.id === uploadFile.id
+          ? {
+              ...f,
+              backendFile: response.data.file,
+              storedInDatabase: response.data.storedInDatabase,
+              progress: 100,
+            }
+          : f
+      ));
+    } catch (error) {
+      setUploadedFiles(prev => prev.map(f =>
+        f.id === uploadFile.id
+          ? {
+              ...f,
+              status: 'error',
+              error:
+                error instanceof Error
+                  ? error.message
+                  : 'Falha ao enviar para o backend',
+            }
+          : f
+      ));
+      return;
+    }
+
+    setUploadedFiles(prev => prev.map(f =>
+      f.id === uploadFile.id
         ? { ...f, status: 'processing', progress: 0 }
         : f
     ));
 
     try {
       const extractedData = await mockAIExtraction(uploadFile.file);
-      
-      // Simular progresso do processamento
+
       for (let i = 0; i <= 100; i += Math.random() * 20) {
         await new Promise(resolve => setTimeout(resolve, 100));
-        setUploadedFiles(prev => prev.map(f => 
-          f.id === uploadFile.id 
+        setUploadedFiles(prev => prev.map(f =>
+          f.id === uploadFile.id
             ? { ...f, progress: Math.min(100, i) }
             : f
         ));
       }
 
-      // Completar
-      setUploadedFiles(prev => prev.map(f => 
-        f.id === uploadFile.id 
+      setUploadedFiles(prev => prev.map(f =>
+        f.id === uploadFile.id
           ? { ...f, status: 'completed', progress: 100, extractedData }
           : f
       ));
-
     } catch (error) {
-      setUploadedFiles(prev => prev.map(f => 
-        f.id === uploadFile.id 
-          ? { ...f, status: 'error', error: 'Erro no processamento IA' }
+      setUploadedFiles(prev => prev.map(f =>
+        f.id === uploadFile.id
+          ? {
+              ...f,
+              status: 'error',
+              error:
+                error instanceof Error
+                  ? error.message
+                  : 'Erro no processamento IA',
+            }
           : f
       ));
     }
@@ -249,14 +298,17 @@ export function PDFUploadManager({ open, onClose }: PDFUploadManagerProps) {
 
     // Criar objeto do curso baseado nos dados extraídos
     const newCourse = {
-      id: Date.now(),
+      id: Date.now().toString(),
       title: fileData.extractedData.title,
       slug: fileData.extractedData.title
         .toLowerCase()
         .replace(/[^a-z0-9\s]/g, '')
         .replace(/\s+/g, '-'),
       area: fileData.extractedData.area,
-      modality: ["EAD", "Presencial"], // Modalidades padrão
+      company: "JML",
+      course_type: "ead",
+      segment: fileData.extractedData.area,
+      modality: ["Curso EAD JML"],
       tags: fileData.extractedData.tags,
       summary: fileData.extractedData.summary,
       description: fileData.extractedData.description,
@@ -320,7 +372,7 @@ export function PDFUploadManager({ open, onClose }: PDFUploadManagerProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-pink-600">
-                <Robot className="h-5 w-5 text-white" />
+                <Bot className="h-5 w-5 text-white" />
               </div>
               <div>
                 <DialogTitle className="text-xl">Upload Inteligente de PDFs</DialogTitle>
@@ -362,7 +414,7 @@ export function PDFUploadManager({ open, onClose }: PDFUploadManagerProps) {
                   </p>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Robot className="h-4 w-4" />
+                  <Bot className="h-4 w-4" />
                   <span>Processamento inteligente com 85%+ de precisão</span>
                 </div>
                 <Button
@@ -425,6 +477,27 @@ export function PDFUploadManager({ open, onClose }: PDFUploadManagerProps) {
                               </div>
                               <Progress value={file.progress} className="h-2" />
                             </div>
+
+                            {file.backendFile && (
+                              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                                <FileCheck className="h-3 w-3 text-green-600" />
+                                <span>
+                                  {file.backendFile.filename}
+                                  {file.storedInDatabase ? ' • registrado no banco' : ''}
+                                </span>
+                                {getDownloadHref(file) && (
+                                  <a
+                                    href={getDownloadHref(file)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 text-primary hover:underline"
+                                  >
+                                    <Download className="h-3 w-3" />
+                                    Abrir PDF
+                                  </a>
+                                )}
+                              </div>
+                            )}
 
                             {file.status === 'completed' && file.extractedData && (
                               <div className="flex items-center gap-2 mt-2">

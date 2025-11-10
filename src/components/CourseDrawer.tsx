@@ -168,7 +168,11 @@ export function CourseDrawer({ course, open, onClose, relatedCourses, onCourseCl
                 <h4 className="font-semibold mb-3 text-sm uppercase tracking-wide text-muted-foreground">
                   Público-Alvo
                 </h4>
-                <p className="text-sm text-muted-foreground">{course.target_audience}</p>
+                <p className="text-sm text-muted-foreground">
+                  {Array.isArray(course.target_audience)
+                    ? course.target_audience.join(', ')
+                    : course.target_audience}
+                </p>
               </div>
 
               <div>

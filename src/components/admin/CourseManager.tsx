@@ -42,12 +42,15 @@ interface CourseManagerProps {
   onClose: () => void;
 }
 
-type CourseFormData = Omit<Course, 'id'> & { id?: number };
+type CourseFormData = Omit<Course, 'id'> & { id?: string };
 
 const emptyFormData: CourseFormData = {
   title: "",
   slug: "",
   area: "Agenda JML",
+  company: "JML",
+  course_type: "aberto",
+  segment: "Agenda JML",
   modality: [],
   tags: [],
   summary: "",
@@ -145,8 +148,8 @@ export function CourseManager({ open, onClose }: CourseManagerProps) {
     } else {
       // Criar novo curso
       const newCourse = {
-        ...formData as Course,
-        id: Date.now(),
+        ...(formData as Course),
+        id: Date.now().toString(),
         status: 'draft'
       };
       setCourses(prev => [...prev, newCourse]);
