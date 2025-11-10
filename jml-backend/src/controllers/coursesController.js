@@ -19,9 +19,9 @@ const getAllCourses = async (req, res) => {
       status = 'published'
     } = req.query;
 
-    // 🔍 Filtros dinâmicos (design: interface de filtros)
+    // Filtros din�micos (design: interface de filtros)
     const filters = {
-      status,
+      ...(status && status !== 'all' && { status }),
       ...(empresa && { empresa }),
       ...(tipo && { tipo }),
       ...(categoria && { categoria }),

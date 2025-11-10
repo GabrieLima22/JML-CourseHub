@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -6,13 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { 
-  X, 
-  Settings, 
-  FileText, 
-  BarChart3, 
-  Upload, 
-  Users, 
+import {
+  X,
+  Settings,
+  FileText,
+  BarChart3,
+  Upload,
+  Users,
   Clock,
   Shield,
   Plus,
@@ -42,9 +42,11 @@ import {
   ExternalLink,
   CheckCircle2,
   AlertCircle,
-  Info
+  Info,
+  Loader2
 } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { useDashboardStats, useRecentActivities } from "@/hooks/useAdminStats";
 import { CourseManager } from "@/components/admin/CourseManager";
 import { PDFUploadManager } from "@/components/admin/PDFUploadManager";
 import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
@@ -56,43 +58,15 @@ interface AdminDashboardProps {
   onClose: () => void;
 }
 
-// Mock data para demonstrar funcionalidades
-const mockSystemStatus = {
-  health: "excellent",
-  uptime: "99.9%",
-  lastBackup: "2 horas atrás",
-  activeSessions: 24,
-  todayUploads: 8,
-  pendingTasks: 3,
-  aiProcessing: 2,
-  systemLoad: 23
-};
-
-const mockRecentActivities = [
-  { id: 1, type: "upload", message: "PDF 'Licitações 2024' processado com sucesso", time: "5 min", status: "success" },
-  { id: 2, type: "course", message: "Curso 'Compliance Avançado' criado por IA", time: "12 min", status: "success" },
-  { id: 3, type: "user", message: "15 novos acessos ao curso 'Pregão Eletrônico'", time: "23 min", status: "info" },
-  { id: 4, type: "system", message: "Backup automático concluído", time: "1 hora", status: "success" },
-  { id: 5, type: "ai", message: "Processamento de 3 PDFs em andamento", time: "2 horas", status: "processing" }
-];
-
-const mockQuickStats = {
-  totalCourses: 847,
-  aiGenerated: 234,
-  totalViews: 127896,
-  conversionRate: 23.4,
-  growthRate: 15.8,
-  satisfaction: 4.8
-};
-
 export function AdminDashboard({ open, onClose }: AdminDashboardProps) {
   const { user, logout, getTimeRemainingFormatted, extendSession } = useAdminAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [showCourseManager, setShowCourseManager] = useState(false);
   const [showPDFUploader, setShowPDFUploader] = useState(false);
-  const [systemStats, setSystemStats] = useState(mockSystemStatus);
-  const [recentActivities, setRecentActivities] = useState(mockRecentActivities);
-  const [refreshing, setRefreshing] = useState(false);
+
+  // Buscar dados reais via React Query
+  const { data: dashboardStats, isLoading: statsLoading, refetch: refetchStats } = useDashboardStats();
+  const { data: activitiesData, isLoading: activitiesLoading, refetch: refetchActivities } = useRecentActivities(5);
 
   // Auto-close se não estiver autenticado
   useEffect(() => {
@@ -107,10 +81,64 @@ export function AdminDashboard({ open, onClose }: AdminDashboardProps) {
   };
 
   const handleRefreshData = async () => {
-    setRefreshing(true);
-    // Simular refresh de dados
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setRefreshing(false);
+    await Promise.all([
+      refetchStats(),
+      refetchActivities()
+    ]);
+  };
+
+  const systemStats = useMemo(() => {
+    if (!dashboardStats?.system) {
+      return {
+        uptime: '—',
+        lastBackup: 'Aguardando backup',
+        activeSessions: 0,
+        aiProcessing: 0,
+        systemLoad: 0
+      };
+    }
+
+    const { system } = dashboardStats;
+    return {
+      uptime: formatUptime(system.uptime ?? 0),
+      lastBackup: `${system.recentUploads} uploads nas �?ltimas horas`,
+      activeSessions: system.totalUploads ?? 0,
+      aiProcessing: system.aiProcessing ?? 0,
+      systemLoad: Math.min(100, Math.round((system.memoryUsage ?? 0) * 100))
+    };
+  }, [dashboardStats]);
+
+  // Calcular health status baseado nos dados reais
+  const getSystemHealth = () => {
+    if (!dashboardStats) return 'unknown';
+    const { system } = dashboardStats;
+    if (system.aiProcessing > 5) return 'warning';
+    return 'excellent';
+  };
+
+  // Formatar uptime
+  const formatUptime = (seconds: number) => {
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    if (days > 0) return `${days}d ${hours}h`;
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    return `${minutes}m`;
+  };
+
+  // Formatar tempo relativo
+  const formatRelativeTime = (timestamp: string) => {
+    const now = new Date();
+    const past = new Date(timestamp);
+    const diffMs = now.getTime() - past.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+
+    if (diffMins < 1) return "agora";
+    if (diffMins < 60) return `${diffMins} min`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours} hora${diffHours > 1 ? 's' : ''}`;
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays} dia${diffDays > 1 ? 's' : ''}`;
   };
 
   const getHealthColor = (health: string) => {
@@ -174,10 +202,10 @@ export function AdminDashboard({ open, onClose }: AdminDashboardProps) {
                 </div>
                 <div className={cn(
                   "flex items-center gap-2 px-3 py-1 rounded-full border",
-                  getHealthColor(systemStats.health)
+                  getHealthColor(getSystemHealth())
                 )}>
                   <div className="w-2 h-2 bg-current rounded-full animate-pulse"></div>
-                  <span className="capitalize text-xs font-medium">{systemStats.health}</span>
+                  <span className="capitalize text-xs font-medium">{getSystemHealth()}</span>
                 </div>
               </div>
               
@@ -250,8 +278,14 @@ export function AdminDashboard({ open, onClose }: AdminDashboardProps) {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Cursos Totais</p>
-                        <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{mockQuickStats.totalCourses}</p>
-                        <p className="text-xs text-blue-600 dark:text-blue-400">+{mockQuickStats.growthRate}% este mês</p>
+                        {statsLoading ? (
+                          <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+                        ) : (
+                          <>
+                            <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">{dashboardStats?.overview.totalCourses || 0}</p>
+                            <p className="text-xs text-blue-600 dark:text-blue-400">{dashboardStats?.overview.publishedCourses || 0} publicados</p>
+                          </>
+                        )}
                       </div>
                       <div className="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl">
                         <FileText className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -263,8 +297,14 @@ export function AdminDashboard({ open, onClose }: AdminDashboardProps) {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-purple-600 dark:text-purple-400">IA Gerados</p>
-                        <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">{mockQuickStats.aiGenerated}</p>
-                        <p className="text-xs text-purple-600 dark:text-purple-400">Automação 85%+</p>
+                        {statsLoading ? (
+                          <Loader2 className="h-6 w-6 animate-spin text-purple-600" />
+                        ) : (
+                          <>
+                            <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">{dashboardStats?.overview.coursesWithAI || 0}</p>
+                            <p className="text-xs text-purple-600 dark:text-purple-400">{dashboardStats?.system.aiProcessing || 0} processando</p>
+                          </>
+                        )}
                       </div>
                       <div className="p-3 bg-purple-100 dark:bg-purple-900/50 rounded-xl">
                         <Brain className="h-6 w-6 text-purple-600 dark:text-purple-400" />
@@ -276,8 +316,14 @@ export function AdminDashboard({ open, onClose }: AdminDashboardProps) {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-green-600 dark:text-green-400">Visualizações</p>
-                        <p className="text-2xl font-bold text-green-900 dark:text-green-100">{mockQuickStats.totalViews.toLocaleString()}</p>
-                        <p className="text-xs text-green-600 dark:text-green-400">Crescimento orgânico</p>
+                        {statsLoading ? (
+                          <Loader2 className="h-6 w-6 animate-spin text-green-600" />
+                        ) : (
+                          <>
+                            <p className="text-2xl font-bold text-green-900 dark:text-green-100">{(dashboardStats?.overview.totalViews || 0).toLocaleString()}</p>
+                            <p className="text-xs text-green-600 dark:text-green-400">{(dashboardStats?.overview.totalClicks || 0).toLocaleString()} cliques</p>
+                          </>
+                        )}
                       </div>
                       <div className="p-3 bg-green-100 dark:bg-green-900/50 rounded-xl">
                         <Eye className="h-6 w-6 text-green-600 dark:text-green-400" />
@@ -289,8 +335,14 @@ export function AdminDashboard({ open, onClose }: AdminDashboardProps) {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-orange-600 dark:text-orange-400">Conversão</p>
-                        <p className="text-2xl font-bold text-orange-900 dark:text-orange-100">{mockQuickStats.conversionRate}%</p>
-                        <p className="text-xs text-orange-600 dark:text-orange-400">Meta: 25%</p>
+                        {statsLoading ? (
+                          <Loader2 className="h-6 w-6 animate-spin text-orange-600" />
+                        ) : (
+                          <>
+                            <p className="text-2xl font-bold text-orange-900 dark:text-orange-100">{dashboardStats?.overview.conversionRate.toFixed(1) || 0}%</p>
+                            <p className="text-xs text-orange-600 dark:text-orange-400">{dashboardStats?.overview.totalConversions || 0} conversões</p>
+                          </>
+                        )}
                       </div>
                       <div className="p-3 bg-orange-100 dark:bg-orange-900/50 rounded-xl">
                         <Target className="h-6 w-6 text-orange-600 dark:text-orange-400" />
@@ -331,13 +383,13 @@ export function AdminDashboard({ open, onClose }: AdminDashboardProps) {
                         <BarChart3 className="h-4 w-4 mr-2" />
                         Ver Analytics Avançado
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        className="w-full justify-start border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800" 
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
                         onClick={handleRefreshData}
-                        disabled={refreshing}
+                        disabled={statsLoading || activitiesLoading}
                       >
-                        <RefreshCw className={cn("h-4 w-4 mr-2", refreshing && "animate-spin")} />
+                        <RefreshCw className={cn("h-4 w-4 mr-2", (statsLoading || activitiesLoading) && "animate-spin")} />
                         Atualizar Dados
                       </Button>
                     </div>
@@ -393,23 +445,31 @@ export function AdminDashboard({ open, onClose }: AdminDashboardProps) {
                     </Button>
                   </div>
                   <div className="space-y-3">
-                    {recentActivities.map((activity) => {
-                      const Icon = getActivityIcon(activity.type);
-                      return (
-                        <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                          <div className={cn(
-                            "p-2 rounded-full",
-                            getActivityStatusColor(activity.status)
-                          )}>
-                            <Icon className="h-4 w-4" />
+                    {activitiesLoading ? (
+                      <div className="flex justify-center py-8">
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : activitiesData?.activities && activitiesData.activities.length > 0 ? (
+                      activitiesData.activities.map((activity, index) => {
+                        const Icon = getActivityIcon(activity.type);
+                        return (
+                          <div key={index} className="flex items-start gap-3 p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                            <div className={cn(
+                              "p-2 rounded-full",
+                              getActivityStatusColor(activity.status)
+                            )}>
+                              <Icon className="h-4 w-4" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium">{activity.action}: {activity.title}</p>
+                              <p className="text-xs text-muted-foreground">{formatRelativeTime(activity.timestamp)} atrás</p>
+                            </div>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium">{activity.message}</p>
-                            <p className="text-xs text-muted-foreground">{activity.time} atrás</p>
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center py-4">Nenhuma atividade recente</p>
+                    )}
                   </div>
                 </Card>
 

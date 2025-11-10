@@ -171,8 +171,13 @@ function mapApiCourse(course: ApiCourse): Course {
   };
 }
 
-export function useSearch() {
+type UseSearchOptions = {
+  status?: 'published' | 'draft' | 'all';
+};
+
+export function useSearch(options: UseSearchOptions = {}) {
   const legacyCourses = coursesData as LegacyCourse[];
+  const statusFilter = options.status ?? 'published';
 
   const {
     data: remoteCourses,
@@ -182,10 +187,11 @@ export function useSearch() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ['courses'],
+    queryKey: ['courses', statusFilter],
     queryFn: async () => {
+      const statusQuery = statusFilter === 'all' ? '' : `&status=${statusFilter}`;
       const response = await apiGet<CoursesApiPayload>(
-        '/api/courses?limit=500&status=published'
+        `/api/courses?limit=500${statusQuery}`
       );
       return response.data?.courses?.map(mapApiCourse) ?? [];
     },

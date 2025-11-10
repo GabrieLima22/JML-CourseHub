@@ -32,6 +32,25 @@ interface PDFUploadManagerProps {
   onClose: () => void;
 }
 
+type ExtractedCourseData = {
+  title: string;
+  area?: string;
+  categoria?: string;
+  empresa?: string;
+  tipo?: string;
+  segmento?: string;
+  modalidade?: string[];
+  summary: string;
+  description: string;
+  duration_hours: number;
+  level: string;
+  tags: string[];
+  target_audience: string[];
+  deliverables: string[];
+  confidence: number;
+  objetivos?: string[];
+};
+
 interface UploadFile {
   id: string;
   file: File;
@@ -45,23 +64,13 @@ interface UploadFile {
     url: string;
   };
   storedInDatabase?: boolean;
-  extractedData?: {
-    title: string;
-    area: string;
-    summary: string;
-    description: string;
-    duration_hours: number;
-    level: string;
-    tags: string[];
-    target_audience: string[];
-    deliverables: string[];
-    confidence: number;
-  };
+  extractedData?: ExtractedCourseData;
+  courseId?: string | null;
   error?: string;
   previewUrl?: string;
 }
 
-const mockAIExtraction = async (file: File): Promise<UploadFile['extractedData']> => {
+const mockAIExtraction = async (file: File): Promise<ExtractedCourseData> => {
   // Simular processamento IA
   await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 3000));
   
@@ -142,104 +151,116 @@ export function PDFUploadManager({ open, onClose }: PDFUploadManagerProps) {
     return file.previewUrl ?? '';
   };
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const newFiles: UploadFile[] = acceptedFiles
-      .filter(file => file.type === 'application/pdf')
-      .map(file => ({
-        id: Date.now().toString() + Math.random(),
-        file,
-        status: 'uploading',
-        progress: 0,
-        storedInDatabase: false,
-        previewUrl: URL.createObjectURL(file)
-      }));
+const normalizeExtractionData = (data?: Partial<ExtractedCourseData>): ExtractedCourseData => {
+  return {
+    title: data?.title || 'Curso analisado',
+    area: data?.area || data?.categoria || 'Estatais',
+    categoria: data?.categoria || data?.area || 'Estatais',
+    empresa: data?.empresa || 'JML',
+    tipo: data?.tipo || 'aberto',
+    segmento: data?.segmento || data?.area || 'Estatais',
+    modalidade: data?.modalidade && data?.modalidade.length ? data.modalidade : ['Curso EAD JML'],
+    summary: data?.summary || 'Resumo não identificado no PDF',
+    description: data?.description || 'Descrição não identificada no PDF',
+    duration_hours: data?.duration_hours && data.duration_hours > 0 ? data.duration_hours : 8,
+    level: data?.level || 'Intermediário',
+    tags: data?.tags && data.tags.length ? data.tags : ['capacitação', 'pdf'],
+    target_audience: data?.target_audience && data.target_audience.length ? data.target_audience : ['Profissionais do setor público'],
+    deliverables: data?.deliverables && data.deliverables.length ? data.deliverables : ['Certificado'],
+    confidence: typeof data?.confidence === 'number' ? data.confidence : 0.6,
+    objetivos: data?.objetivos && data.objetivos.length ? data.objetivos : ['Capacitar profissionais']
+  };
+};
 
-    setUploadedFiles(prev => [...prev, ...newFiles]);
+const onDrop = useCallback((acceptedFiles: File[]) => {
+  const newFiles: UploadFile[] = acceptedFiles
+    .filter(file => file.type === 'application/pdf')
+    .map(file => ({
+      id: Date.now().toString() + Math.random(),
+      file,
+      status: 'uploading',
+      progress: 0,
+      storedInDatabase: false,
+      previewUrl: URL.createObjectURL(file)
+    }));
 
-    // Simular upload e processamento
-    newFiles.forEach(uploadFile => {
-      simulateUpload(uploadFile);
-    });
-  }, []);
+  setUploadedFiles(prev => [...prev, ...newFiles]);
 
-  const simulateUpload = async (uploadFile: UploadFile) => {
-    const backendUploadPromise = uploadPdf(uploadFile.file);
+  newFiles.forEach(uploadFile => {
+    simulateUpload(uploadFile);
+  });
+}, []);
 
-    for (let i = 0; i <= 85; i += Math.random() * 15) {
-      await new Promise(resolve => setTimeout(resolve, 50));
-      setUploadedFiles(prev => prev.map(f =>
-        f.id === uploadFile.id
-          ? { ...f, progress: Math.min(85, i) }
-          : f
-      ));
-    }
+const simulateUpload = async (uploadFile: UploadFile) => {
+  const backendUploadPromise = uploadPdf(uploadFile.file);
 
-    try {
-      const response = await backendUploadPromise;
-      setUploadedFiles(prev => prev.map(f =>
-        f.id === uploadFile.id
-          ? {
-              ...f,
-              backendFile: response.data.file,
-              storedInDatabase: response.data.storedInDatabase,
-              progress: 100,
-            }
-          : f
-      ));
-    } catch (error) {
-      setUploadedFiles(prev => prev.map(f =>
-        f.id === uploadFile.id
-          ? {
-              ...f,
-              status: 'error',
-              error:
-                error instanceof Error
-                  ? error.message
-                  : 'Falha ao enviar para o backend',
-            }
-          : f
-      ));
-      return;
+  for (let i = 0; i <= 70; i += Math.random() * 12) {
+    await new Promise(resolve => setTimeout(resolve, 60));
+    setUploadedFiles(prev => prev.map(f =>
+      f.id === uploadFile.id
+        ? { ...f, progress: Math.min(70, i) }
+        : f
+    ));
+  }
+
+  try {
+    const response = await backendUploadPromise;
+    const payload = response.data;
+    const extraction = payload.extractedData
+      ? normalizeExtractionData(payload.extractedData)
+      : undefined;
+
+    if (!payload.processingSuccess || !extraction) {
+      throw new Error(payload.error || 'Falha ao processar PDF');
     }
 
     setUploadedFiles(prev => prev.map(f =>
       f.id === uploadFile.id
-        ? { ...f, status: 'processing', progress: 0 }
+        ? {
+            ...f,
+            backendFile: payload.file,
+            storedInDatabase: payload.storedInDatabase,
+            extractedData: extraction,
+            courseId: payload.createdCourseId ?? payload.courseId ?? null,
+            status: 'processing',
+            error: undefined,
+            progress: 90,
+          }
         : f
     ));
 
-    try {
-      const extractedData = await mockAIExtraction(uploadFile.file);
-
-      for (let i = 0; i <= 100; i += Math.random() * 20) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        setUploadedFiles(prev => prev.map(f =>
-          f.id === uploadFile.id
-            ? { ...f, progress: Math.min(100, i) }
-            : f
-        ));
-      }
-
+    for (let i = 90; i <= 100; i += Math.random() * 5) {
+      await new Promise(resolve => setTimeout(resolve, 80));
       setUploadedFiles(prev => prev.map(f =>
         f.id === uploadFile.id
-          ? { ...f, status: 'completed', progress: 100, extractedData }
-          : f
-      ));
-    } catch (error) {
-      setUploadedFiles(prev => prev.map(f =>
-        f.id === uploadFile.id
-          ? {
-              ...f,
-              status: 'error',
-              error:
-                error instanceof Error
-                  ? error.message
-                  : 'Erro no processamento IA',
-            }
+          ? { ...f, progress: Math.min(100, i) }
           : f
       ));
     }
-  };
+
+    setUploadedFiles(prev => prev.map(f =>
+      f.id === uploadFile.id
+        ? { ...f, status: 'completed', progress: 100 }
+        : f
+    ));
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : 'Falha ao enviar para o backend';
+
+    setUploadedFiles(prev => prev.map(f =>
+      f.id === uploadFile.id
+        ? {
+            ...f,
+            status: 'error',
+            error: message,
+            progress: 100
+          }
+        : f
+    ));
+  }
+};
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -498,6 +519,11 @@ export function PDFUploadManager({ open, onClose }: PDFUploadManagerProps) {
                                 )}
                               </div>
                             )}
+                            {file.courseId && (
+                              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border border-green-200">
+                                Curso criado #{file.courseId.slice(-6)}
+                              </Badge>
+                            )}
 
                             {file.status === 'completed' && file.extractedData && (
                               <div className="flex items-center gap-2 mt-2">
@@ -538,7 +564,7 @@ export function PDFUploadManager({ open, onClose }: PDFUploadManagerProps) {
                             </Button>
                           )}
                           
-                          {file.status === 'completed' && (
+                          {file.status === 'completed' && !file.courseId && (
                             <Button
                               variant="ghost"
                               size="icon"
@@ -579,14 +605,26 @@ export function PDFUploadManager({ open, onClose }: PDFUploadManagerProps) {
                               <p className="font-medium">{file.extractedData.title}</p>
                             </div>
                             <div>
-                              <span className="text-muted-foreground">Área:</span>
-                              <p className="font-medium">{file.extractedData.area}</p>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Nível:</span>
-                              <p className="font-medium">{file.extractedData.level}</p>
-                            </div>
-                            <div>
+                            <span className="text-muted-foreground">Área:</span>
+                            <p className="font-medium">{file.extractedData.area}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Empresa:</span>
+                            <p className="font-medium">{file.extractedData.empresa || '—'}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Tipo:</span>
+                            <p className="font-medium">{file.extractedData.tipo || '—'}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Segmento:</span>
+                            <p className="font-medium">{file.extractedData.segmento || '—'}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Nível:</span>
+                            <p className="font-medium">{file.extractedData.level}</p>
+                          </div>
+                          <div>
                               <span className="text-muted-foreground">Duração:</span>
                               <p className="font-medium">{file.extractedData.duration_hours}h</p>
                             </div>
@@ -596,6 +634,41 @@ export function PDFUploadManager({ open, onClose }: PDFUploadManagerProps) {
                             <span className="text-muted-foreground text-sm">Resumo:</span>
                             <p className="text-sm mt-1">{file.extractedData.summary}</p>
                           </div>
+
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Público-alvo:</span>
+                              <p className="mt-1">{file.extractedData.target_audience?.join(', ') || '—'}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Entregáveis:</span>
+                              <p className="mt-1">{file.extractedData.deliverables?.join(', ') || '—'}</p>
+                            </div>
+                          </div>
+
+                          {file.extractedData.tags?.length > 0 && (
+                            <div className="space-y-1">
+                              <span className="text-muted-foreground text-sm">Tags detectadas:</span>
+                              <div className="flex flex-wrap gap-2">
+                                {file.extractedData.tags.map(tag => (
+                                  <Badge key={tag} variant="outline" className="text-xs">
+                                    {tag}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {file.extractedData.objetivos?.length > 0 && (
+                            <div className="space-y-1 text-sm">
+                              <span className="text-muted-foreground">Objetivos:</span>
+                              <ul className="list-disc list-inside text-muted-foreground">
+                                {file.extractedData.objetivos.map(goal => (
+                                  <li key={goal}>{goal}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
 
                           <div className="flex flex-wrap gap-1">
                             <span className="text-muted-foreground text-sm mr-2">Tags:</span>

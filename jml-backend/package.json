@@ -19,7 +19,8 @@
     "lint": "echo 'ESLint ainda não configurado'",
     
     "setup": "npm install && npx prisma generate && npx prisma db push",
-    "fresh": "npm run db:reset && npm run db:seed"
+    "fresh": "npm run db:reset && npm run db:seed",
+    "pdf:import": "node scripts/process-pdfs.js"
   },
   "keywords": [
     "jml",

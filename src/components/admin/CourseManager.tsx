@@ -46,12 +46,11 @@ type CourseFormData = Omit<Course, 'id'> & { id?: string };
 
 const emptyFormData: CourseFormData = {
   title: "",
-  slug: "",
-  area: "Agenda JML",
+  area: "Estatais",
   company: "JML",
   course_type: "aberto",
-  segment: "Agenda JML",
-  modality: [],
+  segment: "Estatais",
+  modality: ["Curso EAD JML"],
   tags: [],
   summary: "",
   description: "",
@@ -65,11 +64,9 @@ const emptyFormData: CourseFormData = {
   },
   related_ids: []
 };
-
-const areaOptions = ["Agenda JML", "Setorial", "Soft Skills", "Corporativo"];
-const modalityOptions = ["EAD", "Presencial", "Conecta", "In Company"];
+const areaOptions = ["Estatais", "Judiciário", "Sistema S"];
+const modalityOptions = ["Curso aberto JML", "Curso aberto Conecta", "Curso InCompany", "Curso EAD JML", "Curso Híbrido JML"];
 const levelOptions = ["Básico", "Intermediário", "Avançado"];
-
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'published': return 'bg-green-100 text-green-700 border-green-200';
@@ -80,32 +77,36 @@ const getStatusColor = (status: string) => {
 };
 
 export function CourseManager({ open, onClose }: CourseManagerProps) {
-  const { allCourses } = useSearch();
-  const [courses, setCourses] = useState<(Course & { status: string })[]>([]);
+  const { allCourses, isLoading: isLoadingCourses, refetch } = useSearch({ status: 'all' });
+  const [courses, setCourses] = useState<(Course & { status?: string })[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterArea, setFilterArea] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [showForm, setShowForm] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [formData, setFormData] = useState<CourseFormData>(emptyFormData);
   const [activeFormTab, setActiveFormTab] = useState("basic");
 
   useEffect(() => {
-    // Simular status para os cursos existentes
     const coursesWithStatus = allCourses.map(course => ({
       ...course,
-      status: Math.random() > 0.8 ? 'draft' : 'published'
+      status: course.status ?? 'draft'
     }));
     setCourses(coursesWithStatus);
   }, [allCourses]);
 
   const filteredCourses = courses.filter(course => {
-    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         course.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         course.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    const matchesArea = filterArea === "all" || course.area === filterArea;
-    
-    return matchesSearch && matchesArea;
+    const normalizedSearch = searchQuery.toLowerCase();
+    const matchesSearch =
+      course.title.toLowerCase().includes(normalizedSearch) ||
+      course.summary.toLowerCase().includes(normalizedSearch) ||
+      course.tags.some(tag => tag.toLowerCase().includes(normalizedSearch));
+
+    const courseArea = course.area || course.segment;
+    const matchesArea = filterArea === "all" || courseArea === filterArea;
+    const matchesStatus = statusFilter === "all" || (course.status ?? 'draft') === statusFilter;
+
+    return matchesSearch && matchesArea && matchesStatus;
   });
 
   const handleCreateCourse = () => {
@@ -122,7 +123,7 @@ export function CourseManager({ open, onClose }: CourseManagerProps) {
     setShowForm(true);
   };
 
-  const handleDeleteCourse = (courseId: number) => {
+  const handleDeleteCourse = (courseId: string) => {
     if (confirm("Tem certeza que deseja excluir este curso?")) {
       setCourses(prev => prev.filter(course => course.id !== courseId));
     }
@@ -243,9 +244,21 @@ export function CourseManager({ open, onClose }: CourseManagerProps) {
                           </div>
 
                           <div className="flex flex-wrap gap-2">
-                            <Badge variant="outline" className="text-xs">
-                              {course.area}
-                            </Badge>
+                            {course.company && (
+                              <Badge variant="outline" className="text-xs">
+                                {course.company}
+                              </Badge>
+                            )}
+                            {course.course_type && (
+                              <Badge variant="outline" className="text-xs">
+                                {course.course_type}
+                              </Badge>
+                            )}
+                            {(course.area || course.segment) && (
+                              <Badge variant="outline" className="text-xs">
+                                {course.area || course.segment}
+                              </Badge>
+                            )}
                             {course.modality.slice(0, 3).map(mod => (
                               <Badge key={mod} variant="secondary" className="text-xs">
                                 {mod}
@@ -598,3 +611,4 @@ export function CourseManager({ open, onClose }: CourseManagerProps) {
     </Dialog>
   );
 }
+

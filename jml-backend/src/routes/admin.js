@@ -1,5 +1,6 @@
 const express = require('express');
 const os = require('os');
+const adminStatsController = require('../controllers/adminStatsController');
 
 const router = express.Router();
 
@@ -27,5 +28,11 @@ router.get('/health', (req, res) => {
     'Admin healthcheck'
   );
 });
+
+// Rotas de estatísticas do admin
+router.get('/stats/dashboard', adminStatsController.getDashboardStats);
+router.get('/stats/activities', adminStatsController.getRecentActivities);
+router.get('/stats/analytics', adminStatsController.getDetailedAnalytics);
+router.get('/stats/ai-metrics', adminStatsController.getAIMetrics);
 
 module.exports = router;

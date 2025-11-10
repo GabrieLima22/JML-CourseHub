@@ -116,6 +116,28 @@ export type UploadPdfPayload = {
   };
   courseId: string | null;
   storedInDatabase: boolean;
+  extractedData?: {
+    title: string;
+    empresa?: string;
+    tipo?: string;
+    segmento?: string;
+    categoria?: string;
+    modalidade?: string[];
+    area?: string;
+    summary?: string;
+    description?: string;
+    duration_hours?: number;
+    level?: string;
+    tags?: string[];
+    target_audience?: string[];
+    deliverables?: string[];
+    confidence?: number;
+    objetivos?: string[];
+    publico_alvo?: string[];
+  } | null;
+  processingSuccess?: boolean;
+  error?: string | null;
+  createdCourseId?: string | null;
 };
 
 export function uploadPdf(file: File, courseId?: string | null) {
