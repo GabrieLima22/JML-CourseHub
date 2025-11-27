@@ -1,4 +1,4 @@
-const DEFAULT_BASE_URL = "http://localhost:3001";
+﻿const DEFAULT_BASE_URL = "http://localhost:3001";
 
 const sanitizeBaseUrl = (value?: string) => {
   if (!value || !value.trim()) return DEFAULT_BASE_URL;
@@ -106,6 +106,48 @@ export async function apiPost<T>(
   });
 }
 
+export async function apiPatch<T>(
+  path: string,
+  body?: unknown,
+  init: RequestInit = {}
+): Promise<ApiSuccessResponse<T>> {
+  return apiRequest<T>(path, {
+    ...init,
+    method: "PATCH",
+    body: body ? JSON.stringify(body) : undefined,
+    headers: {
+      ...init.headers,
+      "Content-Type": "application/json",
+    },
+  });
+}
+
+export async function apiPut<T>(
+  path: string,
+  body?: unknown,
+  init: RequestInit = {}
+): Promise<ApiSuccessResponse<T>> {
+  return apiRequest<T>(path, {
+    ...init,
+    method: "PUT",
+    body: body ? JSON.stringify(body) : undefined,
+    headers: {
+      ...init.headers,
+      "Content-Type": "application/json",
+    },
+  });
+}
+
+export async function apiDelete<T>(
+  path: string,
+  init: RequestInit = {}
+): Promise<ApiSuccessResponse<T>> {
+  return apiRequest<T>(path, {
+    ...init,
+    method: "DELETE",
+  });
+}
+
 export type UploadPdfPayload = {
   file: {
     id: string | null;
@@ -157,3 +199,9 @@ export const api = {
 };
 
 export type { ApiResponse };
+
+export const adminApi = {
+  createCourse: (payload: any) => apiPost('/api/courses', payload),
+  updateCourse: (id: string, payload: any) => apiPatch(`/api/courses/${id}`, payload),
+  setCourseStatus: (id: string, status: 'draft'|'published'|'archived') => apiPost(`/api/courses/${id}/status`, { status })
+};

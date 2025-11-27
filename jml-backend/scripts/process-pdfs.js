@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ï»¿/* eslint-disable no-console */
 const path = require('path');
 const fs = require('fs/promises');
 const { existsSync } = require('fs');
@@ -37,33 +37,32 @@ async function createUniqueSlug(baseTitle) {
 
 function buildCoursePayload(extracted, relativePdfPath) {
   const modality = extracted?.modalidade?.length ? extracted.modalidade : ['Curso EAD JML'];
-  const tags = extracted?.tags?.length ? extracted.tags : ['capacitação'];
+  const tags = extracted?.tags?.length ? extracted.tags : ['capacitacao'];
   const deliverables = extracted?.deliverables?.length ? extracted.deliverables : ['Certificado'];
-  const publico = extracted?.target_audience?.length ? extracted.target_audience : ['Profissionais do setor público'];
+  const publico = extracted?.target_audience?.length ? extracted.target_audience : ['Profissionais do setor publico'];
   const objetivos = extracted?.objetivos?.length ? extracted.objetivos : ['Capacitar profissionais'];
 
   return {
     titulo: normalizeText(extracted?.title) || 'Curso importado do PDF',
     slug: '', // preenchido depois
     categoria: extracted?.categoria || extracted?.area || 'Estatais',
-    empresa: extracted?.empresa || 'JML',
+    empresa: ['JML', 'CONECTA', 'Conecta'].includes(extracted?.empresa) ? extracted?.empresa : 'JML',
     tipo: extracted?.tipo || 'aberto',
-    modalidade,
+    modalidade: modality,
     segmento: extracted?.segmento || extracted?.area || 'Estatais',
     data_inicio: null,
     data_fim: null,
     local: null,
     endereco_completo: null,
     carga_horaria: Math.max(4, extracted?.duration_hours || 8),
-    summary: normalizeText(extracted?.summary) || 'Resumo não identificado no PDF.',
-    description: normalizeText(extracted?.description) || 'Descrição não identificada no PDF.',
+    summary: normalizeText(extracted?.summary) || 'Resumo nao identificado no PDF.',
+    description: normalizeText(extracted?.description) || 'Descricao nao identificada no PDF.',
     objetivos,
     publico_alvo: publico,
-    nivel: extracted?.level || 'Intermediário',
     professores: [],
     coordenacao: null,
-    investimento: { geral: 0 },
-    forma_pagamento: ['PIX', 'Boleto', 'Cartão'],
+    investimento: { valor: 0, moeda: 'BRL' },
+    forma_pagamento: ['PIX', 'Boleto', 'Cartao'],
     programacao: [],
     metodologia: null,
     pdf_original: relativePdfPath,
@@ -93,7 +92,7 @@ async function processPdf(filePath) {
     return { skipped: true, reason: 'not a pdf' };
   }
 
-  console.log(`\n?? Processando: ${filePath}`);
+  console.log(`\n[script] Processando: ${filePath}`);
   const bufferName = `${crypto.randomUUID()}.pdf`;
   await ensureUploadsDir();
   const destinationPath = path.join(uploadsDir, bufferName);
@@ -119,7 +118,7 @@ async function processPdf(filePath) {
   });
 
   if (!extraction.success || !extraction.data) {
-    console.warn('??  Falha ao extrair dados do PDF. Upload registrado apenas para auditoria.');
+    console.warn('[script] Falha ao extrair dados do PDF. Upload registrado apenas para auditoria.');
     return { skipped: true, reason: 'extraction failed' };
   }
 
@@ -133,20 +132,20 @@ async function processPdf(filePath) {
     data: { course_id: course.id }
   });
 
-  console.log(`? Curso criado: ${course.titulo} (${course.slug})`);
+  console.log(`Curso criado: ${course.titulo} (${course.slug})`);
   return { skipped: false };
 }
 
 async function main() {
   if (!existsSync(sourceDir)) {
-    console.error(`? Diretório não encontrado: ${sourceDir}`);
+    console.error(`? Diretorio nao encontrado: ${sourceDir}`);
     process.exit(1);
   }
 
   const entries = await fs.readdir(sourceDir);
   const pdfs = entries.filter(file => file.toLowerCase().endsWith('.pdf'));
 
-  console.log(`?? Importando PDFs de ${sourceDir}`);
+  console.log(`[script] Importando PDFs de ${sourceDir}`);
   console.log(`Encontrados ${pdfs.length} arquivos.`);
 
   let processed = 0;
@@ -168,8 +167,8 @@ async function main() {
   }
 
   console.log('\nResumo:');
-  console.log(`  ? Processados: ${processed}`);
-  console.log(`  ??  Ignorados: ${skipped}`);
+  console.log(`  Processados: ${processed}`);
+  console.log(`  Ignorados: ${skipped}`);
 }
 
 main()
@@ -179,3 +178,6 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+
+
+

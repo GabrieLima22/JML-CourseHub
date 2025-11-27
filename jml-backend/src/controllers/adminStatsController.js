@@ -56,7 +56,7 @@ exports.getDashboardStats = async (req, res) => {
       }
     });
 
-    res.json({
+    res.apiResponse({
       overview: {
         totalCourses,
         publishedCourses,
@@ -75,10 +75,10 @@ exports.getDashboardStats = async (req, res) => {
         uptime: process.uptime(), // em segundos
         memoryUsage: process.memoryUsage().heapUsed / 1024 / 1024 // MB
       }
-    });
+    }, 'Dashboard stats fetched');
   } catch (error) {
     console.error('Erro ao buscar estatísticas do dashboard:', error);
-    res.status(500).json({ error: 'Erro ao buscar estatísticas' });
+    res.apiError('Erro ao buscar estatísticas', 500, 'DASHBOARD_STATS_ERROR');
   }
 };
 
@@ -155,18 +155,23 @@ exports.getRecentActivities = async (req, res) => {
     // Ordenar por timestamp (mais recente primeiro)
     activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-    res.json({
+    res.apiResponse({
       activities: activities.slice(0, limit)
-    });
+    }, 'Recent activities fetched');
   } catch (error) {
     console.error('Erro ao buscar atividades recentes:', error);
-    res.status(500).json({ error: 'Erro ao buscar atividades' });
+    res.apiError('Erro ao buscar atividades', 500, 'RECENT_ACTIVITIES_ERROR');
   }
 };
 
 /**
  * Obtém estatísticas detalhadas para analytics
  */
+const toNumber = (value) => {
+  if (value === null || value === undefined) return 0;
+  return typeof value === 'bigint' ? Number(value) : value;
+};
+
 exports.getDetailedAnalytics = async (req, res) => {
   try {
     const daysAgo = parseInt(req.query.days) || 30;
@@ -203,7 +208,7 @@ exports.getDetailedAnalytics = async (req, res) => {
     });
 
     // Analytics por dia (últimos 30 dias)
-    const dailyStats = await prisma.$queryRaw`
+    const dailyStatsRaw = await prisma.$queryRaw`
       SELECT
         DATE(created_at) as date,
         COUNT(*) as total,
@@ -237,7 +242,7 @@ exports.getDetailedAnalytics = async (req, res) => {
       }
     });
 
-    res.json({
+    res.apiResponse({
       period: {
         days: daysAgo,
         startDate,
@@ -245,26 +250,32 @@ exports.getDetailedAnalytics = async (req, res) => {
       },
       eventsByType: eventsByType.map(e => ({
         type: e.event_type,
-        count: e._count
+        count: toNumber(e._count)
       })),
       topCourses,
-      dailyStats,
+      dailyStats: dailyStatsRaw.map(day => ({
+        date: day.date,
+        total: toNumber(day.total),
+        views: toNumber(day.views),
+        clicks: toNumber(day.clicks),
+        searches: toNumber(day.searches)
+      })),
       bySegment: bySegment.map(s => ({
         segmento: s.segmento,
-        courses: s._count,
-        views: s._sum.views_count || 0,
-        clicks: s._sum.clicks_count || 0
+        courses: toNumber(s._count),
+        views: toNumber(s._sum.views_count || 0),
+        clicks: toNumber(s._sum.clicks_count || 0)
       })),
       byCompany: byCompany.map(c => ({
         empresa: c.empresa,
-        courses: c._count,
-        views: c._sum.views_count || 0,
-        clicks: c._sum.clicks_count || 0
+        courses: toNumber(c._count),
+        views: toNumber(c._sum.views_count || 0),
+        clicks: toNumber(c._sum.clicks_count || 0)
       }))
-    });
+    }, 'Detailed analytics fetched');
   } catch (error) {
     console.error('Erro ao buscar analytics detalhados:', error);
-    res.status(500).json({ error: 'Erro ao buscar analytics' });
+    res.apiError('Erro ao buscar analytics', 500, 'ANALYTICS_ERROR');
   }
 };
 
@@ -338,7 +349,7 @@ exports.getAIMetrics = async (req, res) => {
       ORDER BY month ASC
     `;
 
-    res.json({
+    res.apiResponse({
       overview: {
         coursesCreatedByAI: coursesWithAI,
         totalCourses,
@@ -368,9 +379,9 @@ exports.getAIMetrics = async (req, res) => {
         avgTime: Number(t.avg_time) / 1000, // segundos
         avgConfidence: parseFloat((Number(t.avg_confidence) * 100).toFixed(1))
       }))
-    });
+    }, 'AI metrics fetched');
   } catch (error) {
     console.error('Erro ao buscar métricas de IA:', error);
-    res.status(500).json({ error: 'Erro ao buscar métricas de IA' });
+    res.apiError('Erro ao buscar métricas de IA', 500, 'AI_METRICS_ERROR');
   }
 };

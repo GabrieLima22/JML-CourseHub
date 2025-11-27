@@ -1,4 +1,4 @@
-// src/app.js
+﻿// src/app.js
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -11,13 +11,14 @@ const path = require('path');
 const coursesRoutes = require('./routes/courses');
 const adminRoutes = require('./routes/admin');
 const uploadRoutes = require('./routes/upload');
+const taxonomyRoutes = require('./routes/taxonomies');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// 🛡️ Security & Performance Middleware
+// Security & performance middleware
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
 
 app.use(compression());
@@ -28,33 +29,36 @@ app.use(cors({
   optionsSuccessStatus: 200
 }));
 
-// 🚦 Rate Limiting (Design: Elegant error responses)
+// Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // máximo 100 requests por IP
+  max: 1000, // maximo 1000 requests por IP (aumentado para desenvolvimento)
   message: {
     success: false,
-    message: 'Muitas requisições. Tente novamente em 15 minutos.',
+    message: 'Muitas requisicoes. Tente novamente em 15 minutos.',
     error: 'RATE_LIMIT_EXCEEDED',
     retryAfter: '15 minutes'
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skipSuccessfulRequests: true, // nao conta requisicoes bem-sucedidas
+  skip: (req) =>
+    req.path.startsWith('/api/upload') || req.path.startsWith('/api/admin')
 });
 
 app.use(limiter);
 
-// 📦 Body parsing
+// Body parsing
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// 📁 Static files (PDFs, uploads)
+// Static files (PDFs, uploads)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/pdfs', express.static(path.join(__dirname, '../uploads/pdfs')));
 
-// 🎨 Custom middleware for consistent API responses
+// Custom middleware for consistent API responses
 app.use((req, res, next) => {
-  // Função helper para respostas consistentes
+  // Helper para respostas consistentes
   res.apiResponse = (data, message = 'Success', success = true, statusCode = 200) => {
     res.status(statusCode).json({
       success,
@@ -66,10 +70,11 @@ app.use((req, res, next) => {
     });
   };
 
-  // Função helper para erros
+  // Helper para erros padronizados
   res.apiError = (message = 'Internal Server Error', statusCode = 500, errorCode = null) => {
     res.status(statusCode).json({
       success: false,
+      message,
       error: {
         message,
         code: errorCode,
@@ -84,12 +89,13 @@ app.use((req, res, next) => {
   next();
 });
 
-// 🛣️ Routes
+// Routes
 app.use('/api/courses', coursesRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/admin/taxonomies', taxonomyRoutes);
 
-// 🏠 Health check endpoint
+// Health check endpoint
 app.get('/api/health', (req, res) => {
   res.apiResponse({
     status: 'healthy',
@@ -100,7 +106,7 @@ app.get('/api/health', (req, res) => {
   }, 'Servidor funcionando perfeitamente');
 });
 
-// 📊 API Info endpoint (Design: Useful for frontend)
+// API info endpoint
 app.get('/api', (req, res) => {
   res.apiResponse({
     name: 'JML CourseHub API',
@@ -116,15 +122,15 @@ app.get('/api', (req, res) => {
   }, 'API JML CourseHub v1.0');
 });
 
-// 🚫 404 Handler (Design: Helpful error messages)
+// 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
     error: {
-      message: `Rota '${req.originalUrl}' não encontrada`,
+      message: `Rota '${req.originalUrl}' nao encontrada`,
       code: 'ROUTE_NOT_FOUND',
       status: 404,
-      suggestion: 'Verifique a documentação da API em /api'
+      suggestion: 'Verifique a documentacao da API em /api'
     },
     timestamp: new Date().toISOString(),
     path: req.path,
@@ -132,62 +138,70 @@ app.use('*', (req, res) => {
   });
 });
 
-// 🚨 Global Error Handler (Design: User-friendly errors)
+// Global error handler
 app.use((err, req, res, next) => {
-  console.error('❌ Error:', err);
+  console.error('API Error:', err);
 
-  // Prisma errors
+  const sendStructuredError = (message, statusCode, errorCode) => {
+    if (typeof res.apiError === 'function') {
+      return res.apiError(message, statusCode, errorCode);
+    }
+    return res.status(statusCode).json({
+      success: false,
+      error: {
+        message,
+        code: errorCode,
+        status: statusCode
+      },
+      timestamp: new Date().toISOString(),
+      path: req.path,
+      method: req.method
+    });
+  };
+
   if (err.code === 'P2002') {
-    return res.apiError('Registro já existe', 409, 'DUPLICATE_ENTRY');
+    return sendStructuredError('Registro ja existe', 409, 'DUPLICATE_ENTRY');
   }
 
   if (err.code === 'P2025') {
-    return res.apiError('Registro não encontrado', 404, 'NOT_FOUND');
+    return sendStructuredError('Registro nao encontrado', 404, 'NOT_FOUND');
   }
 
-  // Multer errors (file upload)
   if (err.code === 'LIMIT_FILE_SIZE') {
-    return res.apiError('Arquivo muito grande (máximo 10MB)', 413, 'FILE_TOO_LARGE');
+    return sendStructuredError('Arquivo muito grande (maximo 10MB)', 413, 'FILE_TOO_LARGE');
   }
 
   if (err.code === 'LIMIT_FILE_COUNT') {
-    return res.apiError('Muitos arquivos enviados', 413, 'TOO_MANY_FILES');
+    return sendStructuredError('Muitos arquivos enviados', 413, 'TOO_MANY_FILES');
   }
 
-  // JWT errors
   if (err.name === 'JsonWebTokenError') {
-    return res.apiError('Token inválido', 401, 'INVALID_TOKEN');
+    return sendStructuredError('Token invalido', 401, 'INVALID_TOKEN');
   }
 
   if (err.name === 'TokenExpiredError') {
-    return res.apiError('Token expirado', 401, 'TOKEN_EXPIRED');
+    return sendStructuredError('Token expirado', 401, 'TOKEN_EXPIRED');
   }
 
-  // Validation errors
   if (err.name === 'ValidationError') {
-    return res.apiError(`Erro de validação: ${err.message}`, 400, 'VALIDATION_ERROR');
+    return sendStructuredError(`Erro de validacao: ${err.message}`, 400, 'VALIDATION_ERROR');
   }
 
-  // Default error
-  res.apiError(
+  return sendStructuredError(
     process.env.NODE_ENV === 'development' ? err.message : 'Erro interno do servidor',
     500,
     'INTERNAL_SERVER_ERROR'
   );
 });
 
-// 🚀 Start server
+// Start server
 app.listen(PORT, () => {
-  console.log(`
-    🚀 JML CourseHub API
-    ┌─────────────────────────────────────┐
-    │  🌟 Servidor rodando na porta ${PORT}    │
-    │  🌍 Environment: ${process.env.NODE_ENV || 'development'}        │
-    │  📡 URL: http://localhost:${PORT}     │
-    │  📚 Health: /api/health             │
-    │  📋 Docs: /api                      │
-    └─────────────────────────────────────┘
-  `);
+  console.log('JML CourseHub API');
+  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`URL: http://localhost:${PORT}`);
+  console.log('Health: /api/health');
+  console.log('Docs: /api');
 });
 
 module.exports = app;

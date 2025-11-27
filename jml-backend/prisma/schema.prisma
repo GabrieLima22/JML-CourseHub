@@ -10,12 +10,14 @@ datasource db {
 model Course {
   id                String      @id @default(cuid())
   titulo            String
+  titulo_complemento String?
   slug              String      @unique
   categoria         String
   empresa           String
   tipo              String
   modalidade        String[]
   segmento          String
+  segmentos_adicionais String[]  @default([])
   data_inicio       DateTime?
   data_fim          DateTime?
   local             String?
@@ -25,20 +27,26 @@ model Course {
   description       String
   objetivos         String[]
   publico_alvo      String[]
-  nivel             String
+  aprendizados      String[]    @default([])
   professores       Json[]
   coordenacao       Json?
   investimento      Json
   forma_pagamento   String[]
   programacao       Json[]
   metodologia       String?
+  logistica_detalhes String?
+  preco_resumido    String?
   pdf_original      String?
   pdf_url           String?
   landing_page      String?
   inscricao_url     String?
   tags              String[]
+  badges            String[]    @default([])
   deliverables      String[]
   related_ids       String[]
+  motivos_participar String[]   @default([])
+  orientacoes_inscricao String[] @default([])
+  contatos          Json?
   views_count       Int         @default(0)
   clicks_count      Int         @default(0)
   conversions_count Int         @default(0)

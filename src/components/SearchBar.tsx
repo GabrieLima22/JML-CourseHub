@@ -1,10 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
-import { Search, X, ArrowUpRight, Plus, GraduationCap, Clock } from 'lucide-react';
-import { Input } from './ui/input';
-import { Button } from './ui/button';
-import { useSearch } from '@/hooks/useSearch';
-import { CourseCard } from './CourseCard';
-import { Card } from './ui/card';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Search, X, ArrowRight, Sparkles, ChevronRight, Clock, BarChart } from "lucide-react";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { useSearch, type Course } from "@/hooks/useSearch";
+import { Card } from "./ui/card";
+import { cn } from "@/lib/utils";
 
 type SearchBarProps = {
   onSearch: (query: string) => void;
@@ -12,61 +12,113 @@ type SearchBarProps = {
   initialValue?: string;
 };
 
-export function SearchBar({ onSearch, placeholder, initialValue = '' }: SearchBarProps) {
+type CategorizedResults = Record<string, Course[]>;
+
+const categoryStyles: Record<string, { bg: string; border: string; text: string; icon: string }> = {
+  "Curso aberto JML": {
+    bg: "bg-violet-50/50 hover:bg-violet-50",
+    border: "border-violet-200",
+    text: "text-violet-700",
+    icon: "text-violet-500",
+  },
+  "Curso aberto Conecta": {
+    bg: "bg-cyan-50/50 hover:bg-cyan-50",
+    border: "border-cyan-200",
+    text: "text-cyan-700",
+    icon: "text-cyan-500",
+  },
+  "Curso InCompany JML": {
+    bg: "bg-purple-50/50 hover:bg-purple-50",
+    border: "border-purple-200",
+    text: "text-purple-700",
+    icon: "text-purple-500",
+  },
+  "Curso InCompany Conecta": {
+    bg: "bg-indigo-50/50 hover:bg-indigo-50",
+    border: "border-indigo-200",
+    text: "text-indigo-700",
+    icon: "text-indigo-500",
+  },
+  "Curso EAD JML": {
+    bg: "bg-emerald-50/50 hover:bg-emerald-50",
+    border: "border-emerald-200",
+    text: "text-emerald-700",
+    icon: "text-emerald-500",
+  },
+  "Curso Híbrido JML": {
+    bg: "bg-amber-50/50 hover:bg-amber-50",
+    border: "border-amber-200",
+    text: "text-amber-700",
+    icon: "text-amber-500",
+  },
+};
+
+export function SearchBar({ onSearch, placeholder, initialValue = "" }: SearchBarProps) {
   const [query, setQuery] = useState(initialValue);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<CategorizedResults>({});
+  const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { allCourses, search } = useSearch();
+
+  const allTitles = useMemo(() => allCourses.map((c) => c.title), [allCourses]);
 
   useEffect(() => {
     if (query.trim().length < 2) {
       setSuggestions([]);
       return;
     }
-
-    const allTitles = allCourses.map(c => c.title);
-    const filtered = allTitles.filter(t =>
-      t.toLowerCase().includes(query.toLowerCase())
-    ).slice(0, 5);
+    const filtered = allTitles
+      .filter((t) => t.toLowerCase().includes(query.toLowerCase()))
+      .slice(0, 5);
     setSuggestions(filtered);
-  }, [query, allCourses]);
+  }, [query, allTitles]);
+
+  const categoryOrder = Object.keys(categoryStyles);
+
+  const categorize = (results: Course[]): CategorizedResults => {
+    const base: CategorizedResults = {
+      "Curso aberto JML": [],
+      "Curso aberto Conecta": [],
+      "Curso InCompany JML": [],
+      "Curso InCompany Conecta": [],
+      "Curso EAD JML": [],
+      "Curso Híbrido JML": [],
+    };
+    results.forEach((c) => {
+      if (c.modality.includes("Curso aberto JML")) base["Curso aberto JML"].push(c);
+      if (c.modality.includes("Curso aberto Conecta")) base["Curso aberto Conecta"].push(c);
+      if (c.modality.includes("Curso InCompany JML")) base["Curso InCompany JML"].push(c);
+      if (c.modality.includes("Curso InCompany Conecta")) base["Curso InCompany Conecta"].push(c);
+      if (c.modality.includes("Curso EAD JML")) base["Curso EAD JML"].push(c);
+      if (c.modality.includes("Curso Híbrido JML")) base["Curso Híbrido JML"].push(c);
+    });
+    return base;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
 
-    // TRANSFORMERS ANIMATION! 🤖
     setIsExpanded(true);
     setShowSuggestions(false);
 
-    // Buscar e organizar resultados por categoria
     const results = search(query, {
       companies: [],
       course_types: [],
       segments: [],
       levels: [],
     });
-
-    // Organizar por modalidade (categorias)
-    const categorizedResults = {
-      'Curso aberto JML': results.filter(c => c.modality.includes('Curso aberto JML')),
-      'Curso aberto Conecta': results.filter(c => c.modality.includes('Curso aberto Conecta')),
-      'Curso InCompany JML': results.filter(c => c.modality.includes('Curso InCompany JML')),
-      'Curso InCompany Conecta': results.filter(c => c.modality.includes('Curso InCompany Conecta')),
-      'Curso EAD JML': results.filter(c => c.modality.includes('Curso EAD JML')),
-      'Curso Híbrido JML': results.filter(c => c.modality.includes('Curso Híbrido JML')),
-    };
-
-    setSearchResults(categorizedResults);
+    const resultsToUse = results.length > 0 ? results : allCourses;
+    setSearchResults(categorize(resultsToUse));
   };
 
   const handleClear = () => {
-    setQuery('');
+    setQuery("");
     setIsExpanded(false);
-    setSearchResults([]);
+    setSearchResults({});
     setShowSuggestions(false);
     inputRef.current?.focus();
   };
@@ -74,204 +126,238 @@ export function SearchBar({ onSearch, placeholder, initialValue = '' }: SearchBa
   const handleSuggestionClick = (suggestion: string) => {
     setQuery(suggestion);
     setShowSuggestions(false);
-    // Simular submit com a sugestão
     const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
     handleSubmit(fakeEvent);
   };
 
-  // Cores das categorias
-  const categoryColors: Record<string, string> = {
-    'Curso aberto JML': 'from-violet-500 to-purple-600',
-    'Curso aberto Conecta': 'from-blue-500 to-cyan-600',
-    'Curso InCompany JML': 'from-purple-500 to-blue-600',
-    'Curso InCompany Conecta': 'from-indigo-500 to-purple-600',
-    'Curso EAD JML': 'from-green-500 to-emerald-600',
-    'Curso Híbrido JML': 'from-orange-500 to-amber-600',
-  };
+  const totalResults = Object.values(searchResults).flat().length;
 
   return (
-    <div className="relative w-full max-w-3xl mx-auto">
-      {/* Barra de busca */}
-      <form onSubmit={handleSubmit} className="relative">
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-          <Input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onFocus={() => setShowSuggestions(true)}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-            placeholder={placeholder || "O que o cliente perguntou?"}
-            className="h-14 pl-12 pr-20 rounded-2xl border-2 text-lg font-medium transition-all duration-300 focus:border-primary/50 focus:ring-4 focus:ring-primary/20"
-          />
-          {query && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={handleClear}
-              className="absolute right-12 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full hover:bg-muted"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-          <Button
-            type="submit"
-            className="absolute right-2 top-1/2 -translate-y-1/2 h-10 px-6 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 transition-all duration-200"
-          >
-            Buscar
-          </Button>
-        </div>
+    <div className="w-full max-w-full mx-auto px-6 py-4 relative z-50">
+      {/* Área da barra de busca com glow e elasticidade */}
+      <div className="relative transition-all duration-[800ms] ease-[cubic-bezier(0.34,1.56,0.64,1)]">
 
-        {/* Sugestões */}
-        {showSuggestions && suggestions.length > 0 && !isExpanded && (
-          <Card className="absolute top-full left-0 right-0 mt-2 p-2 border shadow-lg z-50">
-            {suggestions.map((suggestion, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleSuggestionClick(suggestion)}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-muted transition-colors text-sm"
-              >
-                {suggestion}
-              </button>
-            ))}
-          </Card>
-        )}
-      </form>
+        <form onSubmit={handleSubmit} className="relative max-w-2xl mx-auto z-50">
+          <div className="relative group">
+            {/* Glow */}
+            <div
+              className={`pointer-events-none absolute -inset-1 bg-gradient-to-r from-violet-500 via-blue-500 to-emerald-500 rounded-2xl blur-md transition duration-400 ${
+                isExpanded || isFocused ? "opacity-60" : "opacity-25"
+              }`}
+            />
 
-      {/* TRANSFORMERS EXPANSION! 🤖⚡ */}
-      <div 
-        className={`transition-all duration-1000 ease-in-out transform origin-top ${
-          isExpanded 
-            ? 'opacity-100 scale-100 translate-y-0' 
-            : 'opacity-0 scale-95 -translate-y-4 pointer-events-none'
-        }`}
-      >
-        {isExpanded && (
-          <div className="mt-8 space-y-8">
-            {/* Header com background consistente */}
-            <div className="text-center mb-10 relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-border/40 to-transparent h-px top-1/2" />
-              <div className="relative px-6 py-4 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/40 shadow-lg">
-                <h3 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-blue-600 to-emerald-600 bg-clip-text text-transparent mb-2">
-                  Painel Interativo de Apoio à Venda de Cursos
-                </h3>
-                <p className="text-muted-foreground">
-                  Cursos organizados por categoria para acelerar suas vendas
-                </p>
+            <div className="relative bg-white rounded-2xl shadow-xl border border-slate-100 flex items-center p-2">
+              <div className="pl-4 pr-3 text-slate-400">
+                <Search className="w-6 h-6" />
               </div>
-            </div>
+              <Input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onFocus={() => {
+                  setShowSuggestions(true);
+                  setIsFocused(true);
+                }}
+                onBlur={() => {
+                  setIsFocused(false);
+                  setTimeout(() => setShowSuggestions(false), 200);
+                }}
+                placeholder={placeholder || "Digite um tema, ex: Licitação..."}
+                className="flex-1 border-none shadow-none text-lg h-12 bg-transparent text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+              />
 
-            {/* Grid melhorado com espaçamento e bordas */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {Object.entries(searchResults).map(([category, courses], index) => (
-                <div
-                  key={category}
-                  className={`transform transition-all duration-700 ease-out ${
-                    isExpanded 
-                      ? 'opacity-100 translate-y-0' 
-                      : 'opacity-0 translate-y-8'
-                  }`}
-                  style={{ 
-                    transitionDelay: `${index * 150}ms` // Animação escalonada
-                  }}
-                >
-                  <Card className={`group relative p-6 bg-gradient-to-br ${categoryColors[category]} text-white overflow-hidden h-full border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1`}>
-                    {/* Background overlay sutil e consistente */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-black/10 via-black/5 to-black/15 rounded-xl" />
-                    
-                    {/* Efeito de brilho sutil no hover */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-800 ease-out" />
-                    
-                    <div className="relative z-10 h-full flex flex-col">
-                      {/* Header da categoria limpo */}
-                      <div className="mb-4 pb-4 border-b border-white/25">
-                        <h4 className="text-xl font-bold mb-2 text-white">{category}</h4>
-                        <div className="flex items-center justify-between">
-                          <p className="text-white/90 text-sm">
-                            {courses.length} curso{courses.length !== 1 ? 's' : ''} disponível{courses.length !== 1 ? 'is' : ''}
-                          </p>
-                          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center border border-white/30">
-                            <span className="text-sm font-bold text-white">{courses.length}</span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Lista de cursos com layout profissional */}
-                      <div className="flex-1 space-y-3 max-h-64">
-                        <div className="space-y-3 overflow-y-auto scrollbar-none" style={{ maxHeight: '15rem' }}>
-                          {courses.slice(0, 3).map((course: any, courseIndex) => (
-                            <div 
-                              key={course.id}
-                              className="group/course bg-white/10 backdrop-blur-sm rounded-lg p-3 hover:bg-white/15 transition-all duration-200 cursor-pointer border border-white/10 hover:border-white/20"
-                              onClick={() => onSearch(course.title)}
-                              style={{
-                                animationDelay: `${(index * 100) + (courseIndex * 50)}ms`
-                              }}
-                            >
-                              <div className="flex items-start gap-3">
-                                {/* Conteúdo principal */}
-                                <div className="flex-1 min-w-0">
-                                  <h5 className="font-medium text-sm text-white mb-1 line-clamp-1 group-hover/course:text-white/90 transition-colors">
-                                    {course.title}
-                                  </h5>
-                                  <p className="text-white/80 text-xs leading-relaxed line-clamp-2 mb-2">
-                                    {course.summary}
-                                  </p>
-                                  
-                                  {/* Meta info */}
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-xs bg-white/15 px-2 py-0.5 rounded-md text-white/90">
-                                      {course.level}
-                                    </span>
-                                    <span className="text-xs text-white/70 flex items-center gap-1">
-                                      <Clock className="h-3 w-3" />
-                                      {course.duration_hours}h
-                                    </span>
-                                  </div>
-                                </div>
-
-                                {/* Ícone de ação sutil */}
-                                <div className="shrink-0 w-6 h-6 rounded-full bg-white/10 flex items-center justify-center group-hover/course:bg-white/20 transition-colors">
-                                  <ArrowUpRight className="h-3 w-3 text-white/60 group-hover/course:text-white transition-colors" />
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                        
-                        {courses.length > 3 && (
-                          <button 
-                            className="w-full text-center text-white/80 hover:text-white text-sm transition-colors py-2 rounded-lg hover:bg-white/10 border border-white/20 border-dashed hover:border-white/30"
-                            onClick={() => onSearch(query)}
-                          >
-                            + {courses.length - 3} curso{courses.length - 3 !== 1 ? 's' : ''} adicional{courses.length - 3 !== 1 ? 'is' : ''}
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-              ))}
-            </div>
-
-            {/* Botão final melhorado */}
-            <div className="text-center mt-10 relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/20 to-transparent h-px top-1/2" />
-              <div className="relative bg-background px-6">
+              {query && (
                 <Button
-                  onClick={() => onSearch(query)}
-                  size="lg"
-                  className="px-8 py-4 text-lg font-semibold bg-gradient-to-r from-violet-600 via-blue-600 to-emerald-600 hover:from-violet-700 hover:via-blue-700 hover:to-emerald-700 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-200"
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleClear}
+                  className="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl mr-1"
                 >
-                  🚀 Ver todos os {Object.values(searchResults).flat().length} resultados detalhados
+                  <X className="h-5 w-5" />
                 </Button>
-              </div>
+              )}
+
+              <Button
+                type="submit"
+                className="rounded-xl px-6 h-12 bg-slate-900 text-white hover:bg-slate-800 transition-all duration-300 shadow-lg hover:shadow-slate-900/20 active:scale-95"
+              >
+                Buscar
+              </Button>
             </div>
           </div>
-        )}
+
+          {showSuggestions && suggestions.length > 0 && !isExpanded && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white/90 backdrop-blur-xl rounded-xl border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 z-50">
+              {suggestions.map((suggestion, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  className="w-full text-left px-5 py-3 hover:bg-slate-50 transition-colors text-slate-700 flex items-center justify-between group"
+                >
+                  <span>{suggestion}</span>
+                  <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-violet-500" />
+                </button>
+              ))}
+            </div>
+          )}
+        </form>
       </div>
+
+      {/* Resultados animados */}
+      <div className={`grid transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] ${isExpanded ? "grid-rows-[1fr] opacity-100 mt-12" : "grid-rows-[0fr] opacity-0 mt-0"}`}>
+        <div className="overflow-hidden min-h-0">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4 pb-12 w-full items-start">
+            {categoryOrder.map((category, colIndex) => {
+              const courses = searchResults[category] || [];
+              const style = categoryStyles[category] || {
+                bg: "bg-slate-50",
+                border: "border-slate-200",
+                text: "text-slate-700",
+                icon: "text-slate-500",
+              };
+
+              return (
+                <div
+                  key={category}
+                  className={`rounded-3xl border ${style.border} ${style.bg} p-1 backdrop-blur-sm`}
+                  style={{
+                    animation: isExpanded
+                      ? `columnEnter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards ${colIndex * 0.1}s`
+                      : "none",
+                  }}
+                >
+                  <div className="px-5 py-4 flex items-center justify-between border-b border-white/40 mb-2">
+                    <h3 className={cn("font-semibold text-base flex items-center gap-2", style.text)}>
+                      <span className="w-2 h-2 rounded-full bg-current opacity-60" />
+                      {category}
+                    </h3>
+                    <span className={cn("text-xs font-bold px-2 py-1 rounded-full bg-white/60", style.text)}>
+                      {courses.length}
+                    </span>
+                  </div>
+
+                  <div className="space-y-2 p-2 max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
+                    {courses.slice(0, 6).map((course, itemIndex) => (
+                      <div
+                        key={course.id}
+                        style={{
+                          animation: isExpanded
+                            ? `cardElasticPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) backwards ${
+                                colIndex * 0.15 + itemIndex * 0.1 + 0.3
+                              }s`
+                            : "none",
+                        }}
+                      >
+                        <Card
+                          onClick={() => onSearch(course.title)}
+                          className="group relative bg-white rounded-2xl p-4 border border-transparent shadow-sm hover:shadow-lg hover:border-slate-200 transition-all duration-500 cursor-pointer overflow-hidden isolate hover:-translate-y-1"
+                        >
+                          <div className={cn("absolute left-0 top-0 bottom-0 w-1 bg-current opacity-0 group-hover:opacity-100 transition-opacity duration-300", style.text)} />
+
+                          <div className="flex flex-col gap-2">
+                            <div className="flex justify-between items-start gap-3">
+                              <h4 className="font-semibold text-slate-800 text-sm leading-snug group-hover:text-slate-900 line-clamp-2 transition-colors">
+                                {course.title}
+                              </h4>
+                              <ChevronRight className={cn("w-4 h-4 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300 shrink-0", style.text)} />
+                            </div>
+
+                            <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                              {course.summary || "Sem descrição disponível"}
+                            </p>
+
+                            <div className="flex items-center gap-3 mt-2 pt-2 border-t border-slate-50">
+                              <div className="flex items-center gap-1 text-[10px] font-medium text-slate-400 uppercase tracking-wide">
+                                <Clock className="w-3 h-3" />
+                                {course.duration_hours}h
+                              </div>
+
+                              {course.level && (
+                                <div className="flex items-center gap-1 text-[10px] font-medium text-slate-400 uppercase tracking-wide">
+                                  <BarChart className="w-3 h-3" />
+                                  {course.level}
+                                </div>
+                              )}
+
+                              <span className="ml-auto text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200">
+                                {course.company}
+                              </span>
+                            </div>
+                          </div>
+                        </Card>
+                      </div>
+                    ))}
+
+                    {courses.length === 0 && (
+                      <div className="px-4 py-6 text-sm text-slate-500 text-center">
+                        Nenhum curso nesta categoria.
+                      </div>
+                    )}
+
+                    {courses.length > 6 && (
+                      <button
+                        onClick={() => onSearch(query)}
+                        className={cn(
+                          "w-full py-3 text-xs font-medium uppercase tracking-wider rounded-xl transition-colors flex items-center justify-center gap-2 group",
+                          style.text
+                        )}
+                        style={{
+                          animation: isExpanded ? `fadeIn 0.5s backwards ${colIndex * 0.15 + 0.8}s` : "none",
+                        }}
+                      >
+                        Ver mais {courses.length - 6} opções
+                        <ChevronRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {totalResults > 0 && (
+            <div
+              className="flex justify-center"
+              style={{
+                animation: isExpanded ? "floatUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards 1.4s" : "none",
+              }}
+            >
+              <Button
+                onClick={() => onSearch(query)}
+                size="lg"
+                className="bg-slate-900 text-white hover:bg-slate-800 rounded-full px-8 shadow-2xl hover:scale-105 transition-transform duration-300"
+              >
+                Visualizar detalhamento completo
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes columnEnter {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes cardElasticPop {
+          0% { opacity: 0; transform: translateY(40px) scale(0.9); filter: blur(8px); }
+          60% { opacity: 1; filter: blur(0px); }
+          100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+
+        @keyframes floatUp {
+          from { opacity: 0; transform: translateY(20px) scale(0.95); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }

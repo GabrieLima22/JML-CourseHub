@@ -112,7 +112,6 @@ export default function Home() {
     companies: [],
     course_types: [],
     segments: [],
-    levels: [],
   });
 
   const handleSearch = (query: string) => {
@@ -175,9 +174,9 @@ export default function Home() {
 
         <main className="container relative z-10 flex-1 space-y-16 px-4 py-12 lg:space-y-20 lg:py-20">
           {/* Seção hero refinada com novo título */}
-          <section className="relative overflow-hidden rounded-[32px] border border-border/60 bg-card/80 px-6 py-16 shadow-[0_32px_120px_-70px_rgba(15,23,42,0.6)] transition-colors dark:bg-card/60">
+          <section className="relative overflow-visible rounded-[32px] border border-border/60 bg-card/80 px-6 py-14 shadow-[0_32px_120px_-70px_rgba(15,23,42,0.6)] transition-colors dark:bg-card/60">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(139,92,246,0.18),_transparent_65%)] dark:bg-[radial-gradient(circle_at_top,_rgba(139,92,246,0.28),_transparent_70%)]" />
-            <div className="relative mx-auto flex max-w-4xl flex-col items-center gap-10 text-center">
+            <div className="relative mx-auto flex max-w-6xl w-full flex-col items-center gap-4 text-center px-2">
               <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/80 px-6 py-2 text-sm font-medium uppercase tracking-[0.22em] text-primary backdrop-blur-sm">
                 <Sparkles className="h-4 w-4" />
                 Descubra o próximo passo
@@ -187,10 +186,10 @@ export default function Home() {
                   Encontre a Solução perfeita
                 </h2>
                 <p className="mx-auto max-w-2xl text-lg text-muted-foreground sm:text-xl">
-                  Digite a necessidade do cliente e navegue por recomendações preparadas para acelerar suas vendas consultivas.
+                  Digite a necessidade do cliente e navegue por recomendações preparadas para acelerar suas vendas.
                 </p>
               </div>
-              <div className="w-full max-w-2xl">
+              <div className="w-full max-w-2xl mt-1">
                 <SearchBar onSearch={handleSearch} />
               </div>
             </div>
@@ -203,7 +202,7 @@ export default function Home() {
                 <span className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">Explorar</span>
                 <h3 className="text-3xl font-semibold leading-tight">Personalize a jornada de descoberta</h3>
                 <p className="max-w-2xl text-sm text-muted-foreground">
-                  Navegue pelos cursos JML e Conecta organizados por tipo e segmento, incluindo os novos cursos híbridos.
+                  Navegue pelos cursos JML e Conecta organizados por tipo e segmento.
                 </p>
               </div>
               <div className="inline-flex gap-2 rounded-full border border-border/60 bg-background/80 p-1 shadow-sm backdrop-blur">
@@ -329,7 +328,7 @@ export default function Home() {
               </h3>
               <p className="text-sm text-muted-foreground">
                 Os cursos que mais aparecem nas pesquisas recentes da equipe comercial.
-              </p>
+              </p>  
               <div className="grid grid-cols-1 gap-4">
                 {mostSearched.map((course) => (
                   <CourseCard
@@ -347,7 +346,7 @@ export default function Home() {
                 Novos cursos
               </h3>
               <p className="text-sm text-muted-foreground">
-                Destaques recém-chegados incluindo os novos cursos híbridos da JML.
+                Destaques recém-chegados.
               </p>
               <div className="grid grid-cols-1 gap-4">
                 {newCourses.map((course) => (
@@ -364,7 +363,7 @@ export default function Home() {
 
         <footer className="border-t border-border/60 bg-background/70 py-8 backdrop-blur-sm">
           <div className="container px-4 text-center text-sm text-muted-foreground">
-            <p>© 2024 JML Cursos. Todos os direitos reservados.</p>
+            <p>© 2026 JML Cursos. Todos os direitos reservados.</p>
           </div>
         </footer>
       </div>

@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const {
   getAllCourses,
   getCourseById,
@@ -6,6 +6,7 @@ const {
   getCourseStats,
   getSearchSuggestions,
 } = require('../controllers/coursesController');
+const { createCourse, updateCourse, setCourseStatus } = require('../controllers/coursesController');
 
 const router = express.Router();
 
@@ -16,4 +17,10 @@ router.get('/search/suggestions', getSearchSuggestions);
 router.get('/:id/related', getRelatedCourses);
 router.get('/:id', getCourseById);
 
+// Admin write endpoints (simple, no auth)
+router.post('/', createCourse);
+router.patch('/:id', updateCourse);
+router.post('/:id/status', setCourseStatus);
+
 module.exports = router;
+

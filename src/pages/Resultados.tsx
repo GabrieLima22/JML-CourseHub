@@ -206,26 +206,6 @@ export default function Resultados() {
                     ))}
                   </div>
                 </div>
-
-                <Separator />
-
-                {/* Filtro por Nível */}
-                <div>
-                  <h3 className="mb-3 text-sm font-medium">Nível</h3>
-                  <div className="space-y-2">
-                    {getUniqueLevels().map(level => (
-                      <label key={level} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={filters.levels.includes(level)}
-                          onChange={() => toggleFilter('levels', level)}
-                          className="rounded border-border"
-                        />
-                        <span className="text-sm">{level}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
               </div>
             </Card>
           </aside>

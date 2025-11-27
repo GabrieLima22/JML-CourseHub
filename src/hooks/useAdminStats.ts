@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import { api } from '../services/api';
 
-interface DashboardStats {
+export interface DashboardStats {
   overview: {
     totalCourses: number;
     publishedCourses: number;
@@ -22,7 +22,7 @@ interface DashboardStats {
   };
 }
 
-interface RecentActivity {
+export interface RecentActivity {
   type: string;
   action: string;
   title: string;
@@ -31,7 +31,9 @@ interface RecentActivity {
   metadata: Record<string, any>;
 }
 
-interface DetailedAnalytics {
+export type RecentActivitiesResponse = { activities: RecentActivity[] };
+
+export interface DetailedAnalytics {
   period: {
     days: number;
     startDate: string;
@@ -73,7 +75,7 @@ interface DetailedAnalytics {
   }>;
 }
 
-interface AIMetrics {
+export interface AIMetrics {
   overview: {
     coursesCreatedByAI: number;
     totalCourses: number;
@@ -108,11 +110,11 @@ interface AIMetrics {
 /**
  * Hook para buscar estatísticas do dashboard admin
  */
-export function useDashboardStats() {
+export function useDashboardStats(): UseQueryResult<DashboardStats> {
   return useQuery<DashboardStats>({
     queryKey: ['admin', 'stats', 'dashboard'],
     queryFn: async () => {
-      const response = await api.get('/admin/stats/dashboard');
+      const response = await api.get('/api/admin/stats/dashboard');
       return response.data;
     },
     refetchInterval: 30000, // Atualiza a cada 30 segundos
@@ -123,11 +125,11 @@ export function useDashboardStats() {
 /**
  * Hook para buscar atividades recentes
  */
-export function useRecentActivities(limit: number = 10) {
-  return useQuery<{ activities: RecentActivity[] }>({
+export function useRecentActivities(limit: number = 10): UseQueryResult<RecentActivitiesResponse> {
+  return useQuery<RecentActivitiesResponse>({
     queryKey: ['admin', 'activities', limit],
     queryFn: async () => {
-      const response = await api.get(`/admin/stats/activities?limit=${limit}`);
+      const response = await api.get(`/api/admin/stats/activities?limit=${limit}`);
       return response.data;
     },
     refetchInterval: 15000, // Atualiza a cada 15 segundos
@@ -138,11 +140,11 @@ export function useRecentActivities(limit: number = 10) {
 /**
  * Hook para buscar analytics detalhados
  */
-export function useDetailedAnalytics(days: number = 30) {
+export function useDetailedAnalytics(days: number = 30): UseQueryResult<DetailedAnalytics> {
   return useQuery<DetailedAnalytics>({
     queryKey: ['admin', 'analytics', days],
     queryFn: async () => {
-      const response = await api.get(`/admin/stats/analytics?days=${days}`);
+      const response = await api.get(`/api/admin/stats/analytics?days=${days}`);
       return response.data;
     },
     refetchInterval: 60000, // Atualiza a cada 1 minuto
@@ -153,11 +155,11 @@ export function useDetailedAnalytics(days: number = 30) {
 /**
  * Hook para buscar métricas de IA
  */
-export function useAIMetrics() {
+export function useAIMetrics(): UseQueryResult<AIMetrics> {
   return useQuery<AIMetrics>({
     queryKey: ['admin', 'ai-metrics'],
     queryFn: async () => {
-      const response = await api.get('/admin/stats/ai-metrics');
+      const response = await api.get('/api/admin/stats/ai-metrics');
       return response.data;
     },
     refetchInterval: 30000,
