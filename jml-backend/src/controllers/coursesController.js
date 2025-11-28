@@ -488,6 +488,27 @@ async function setCourseStatus(req,res){
   }
 }
 
+async function deleteCourse(req, res) {
+  try {
+    const { id } = req.params;
+
+    // Verificar se o curso existe
+    const course = await prisma.course.findUnique({ where: { id } });
+    if (!course) {
+      return res.apiError('Curso não encontrado', 404, 'COURSE_NOT_FOUND');
+    }
+
+    // Deletar o curso
+    await prisma.course.delete({ where: { id } });
+
+    return res.apiResponse({ id }, 'Curso deletado com sucesso');
+  } catch (error) {
+    console.error('Erro em deleteCourse', error);
+    return res.apiError('Erro ao deletar curso', 500, 'COURSE_DELETE_ERROR');
+  }
+}
+
 module.exports.createCourse = createCourse;
 module.exports.updateCourse = updateCourse;
 module.exports.setCourseStatus = setCourseStatus;
+module.exports.deleteCourse = deleteCourse;

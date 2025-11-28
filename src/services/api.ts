@@ -195,6 +195,9 @@ export function uploadPdf(file: File, courseId?: string | null) {
 export const api = {
   get: apiGet,
   post: apiPost,
+  patch: apiPatch,
+  put: apiPut,
+  delete: apiDelete,
   uploadPdf,
 };
 
@@ -203,5 +206,6 @@ export type { ApiResponse };
 export const adminApi = {
   createCourse: (payload: any) => apiPost('/api/courses', payload),
   updateCourse: (id: string, payload: any) => apiPatch(`/api/courses/${id}`, payload),
-  setCourseStatus: (id: string, status: 'draft'|'published'|'archived') => apiPost(`/api/courses/${id}/status`, { status })
+  setCourseStatus: (id: string, status: 'draft'|'published'|'archived') => apiPost(`/api/courses/${id}/status`, { status }),
+  deleteCourse: (id: string) => apiDelete(`/api/courses/${id}`)
 };

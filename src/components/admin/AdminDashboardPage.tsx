@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from "react";
+﻿import { useState, useMemo, useEffect } from "react";
 import { useNavigate, useLocation, Routes, Route } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -6,13 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
 import {
   FileText,
   BarChart3,
@@ -43,21 +36,24 @@ import {
   Building2,
   Zap,
   ChevronRight,
-  CheckCircle
+  CheckCircle,
+  BookOpenCheck,
+  CreditCard,
+  Gift,
+  Calendar,
+  MapPin,
+  Presentation
 } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { useDashboardStats, useRecentActivities } from "@/hooks/useAdminStats";
-
+// ? CORREÇÃO: Importação como default
 import CourseManager from "@/components/admin/CourseManager";
 import { PDFUploadManager } from "@/components/admin/PDFUploadManager";
 import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
 import { AIImpactWidget } from "@/components/admin/AIImpactWidget";
 import { TaxonomyManager } from "@/components/admin/TaxonomyManager";
 import { cn } from "@/lib/utils";
-import { useSearch, type Course } from "@/hooks/useSearch";
-import { SearchBar } from "@/components/SearchBar";
 
-// Correção: importação como default
 type CourseManagerEventDetail = {
   courseId?: string | null;
   title?: string | null;
@@ -83,7 +79,7 @@ export function AdminDashboardPage() {
     : 'dashboard';
 
   const handleLogout = () => {
-    // FASE 1: Logout simples e limpo
+    // ? FASE 1: Logout simples e limpo
     logout();
     navigate('/');
   };
@@ -105,7 +101,7 @@ export function AdminDashboardPage() {
   const systemStats = useMemo(() => {
     if (!dashboardStats?.system) {
       return {
-        uptime: "—",
+        uptime: '—',
         lastBackup: 'Aguardando backup',
         activeSessions: 0,
         aiProcessing: 0,
@@ -382,7 +378,7 @@ export function AdminDashboardPage() {
                 })}
               </div>
             ) : (
-              // Dados de exemplo quando nÃ£o hÃ¡ atividades
+              // Dados de exemplo quando não há atividades
               <div className="space-y-3">
                 {[
                   { type: 'course', action: 'Curso publicado', title: 'Licitações Sustentáveis e Critérios ESG', time: '2 horas' },
@@ -433,7 +429,7 @@ export function AdminDashboardPage() {
     </div>
   );
 
-  // --- NOVA VISUALIZAÃ‡ÃƒO DE CONFIGURAÃ‡Ã•ES ---
+  // --- NOVA VISUALIZAÇÃO DE CONFIGURAÇÕES ---
   const ConfigView = () => {
     const [showTaxonomy, setShowTaxonomy] = useState(false);
 
@@ -467,7 +463,7 @@ export function AdminDashboardPage() {
                       Gerenciar Taxonomias
                     </h3>
                     <p className="text-slate-600 dark:text-slate-400 max-w-md mt-2">
-                      Configure segmentos, públicos-alvo, empresas e tipos de curso disponÃ­veis no sistema.
+                      Configure segmentos, públicos-alvo, empresas e tipos de curso disponíveis no sistema.
                     </p>
                   </div>
                 </div>
@@ -485,25 +481,25 @@ export function AdminDashboardPage() {
                 <div className="p-4 rounded-xl bg-white/60 dark:bg-slate-800/60 border border-violet-100 dark:border-violet-900/30 shadow-sm">
                   <div className="flex items-center gap-3 mb-2">
                     <Layers className="h-5 w-5 text-blue-500" />
-                    <span className="font-semibold text-sm text-slate-700 dark:text-slate-300">Segmentos</span>
+                    <span className="font-semibold text-sm text-slate-700 dark:text-slate-300">Áreas</span>
                   </div>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">Estatais, JudiciÃ¡rio, Sistema S</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Agenda JML, Setorial, Soft Skills</span>
                 </div>
                 
                 <div className="p-4 rounded-xl bg-white/60 dark:bg-slate-800/60 border border-violet-100 dark:border-violet-900/30 shadow-sm">
                   <div className="flex items-center gap-3 mb-2">
-                    <Building2 className="h-5 w-5 text-emerald-500" />
-                    <span className="font-semibold text-sm text-slate-700 dark:text-slate-300">Empresas</span>
+                    <Activity className="h-5 w-5 text-emerald-500" />
+                    <span className="font-semibold text-sm text-slate-700 dark:text-slate-300">Modalidades</span>
                   </div>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">JML, Conecta</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">EAD, Presencial, In Company</span>
                 </div>
                 
                 <div className="p-4 rounded-xl bg-white/60 dark:bg-slate-800/60 border border-violet-100 dark:border-violet-900/30 shadow-sm">
                   <div className="flex items-center gap-3 mb-2">
-                    <Users className="h-5 w-5 text-amber-500" />
-                    <span className="font-semibold text-sm text-slate-700 dark:text-slate-300">Tipos</span>
+                    <Target className="h-5 w-5 text-amber-500" />
+                    <span className="font-semibold text-sm text-slate-700 dark:text-slate-300">Níveis</span>
                   </div>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">EAD, Presencial, HÃ­brido</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Básico, Intermediário, Avançado</span>
                 </div>
                 
                 <div className="p-4 rounded-xl bg-white/60 dark:bg-slate-800/60 border border-violet-100 dark:border-violet-900/30 shadow-sm">
@@ -511,7 +507,7 @@ export function AdminDashboardPage() {
                     <Tag className="h-5 w-5 text-pink-500" />
                     <span className="font-semibold text-sm text-slate-700 dark:text-slate-300">Tags</span>
                   </div>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">Sistema dinÃ¢mico</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Sistema dinâmico</span>
                 </div>
               </div>
             </div>
@@ -544,18 +540,18 @@ export function AdminDashboardPage() {
               
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-600 dark:text-slate-400">Segmentos ativos</span>
+                  <span className="text-slate-600 dark:text-slate-400">Áreas ativas</span>
                   <span className="font-semibold text-emerald-600 dark:text-emerald-400">3</span>
                 </div>
                 
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-600 dark:text-slate-400">Empresas cadastradas</span>
-                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">2</span>
+                  <span className="text-slate-600 dark:text-slate-400">Modalidades</span>
+                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">4</span>
                 </div>
                 
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-600 dark:text-slate-400">Tipos de curso</span>
-                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">4</span>
+                  <span className="text-slate-600 dark:text-slate-400">Níveis disponíveis</span>
+                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">3</span>
                 </div>
               </div>
             </div>
@@ -608,10 +604,36 @@ export function AdminDashboardPage() {
         .custom-scrollbar::-webkit-scrollbar-corner {
           background: transparent;
         }
+
+        .jml-surface {
+          position: relative;
+          overflow: hidden;
+        }
+        .jml-surface::before {
+          content: "";
+          position: absolute;
+          inset: -25%;
+          background: linear-gradient(120deg, rgba(124, 58, 237, 0.14), rgba(59, 130, 246, 0.14), rgba(16, 185, 129, 0.10));
+          background-size: 200% 200%;
+          animation: jmlShift 12s ease-in-out infinite;
+          z-index: 0;
+        }
+        .dark .jml-surface::before {
+          background: linear-gradient(120deg, rgba(124, 58, 237, 0.22), rgba(59, 130, 246, 0.18), rgba(16, 185, 129, 0.16));
+        }
+        .jml-surface > * {
+          position: relative;
+          z-index: 1;
+        }
+        @keyframes jmlShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
       `}</style>
       
       {/* HEADER PROFISSIONAL FIXO */}
-      <header className="sticky top-0 z-50 border-b border-white/20 dark:border-slate-800/50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm">
+      <header className="sticky top-0 z-50 border-b border-white/20 dark:border-slate-800/50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm jml-surface">
         <div className="relative overflow-hidden">
           {/* Gradiente sutil JML */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/5 to-transparent dark:via-violet-400/10"></div>
@@ -664,16 +686,19 @@ export function AdminDashboardPage() {
       </header>
 
       {/* LAYOUT PRINCIPAL */}
-      <div className="flex flex-1 overflow-hidden relative z-10">
-        {/* SIDEBAR ELEGANTE E EXPANSÃVEL */}
-        <aside className={cn(
-          "border-r border-white/20 dark:border-slate-800/50 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl flex flex-col transition-all duration-300 ease-in-out shadow-lg",
-          sidebarCollapsed ? "w-20" : "w-72"
-        )}>
+      <div className="relative flex flex-1">
+        {/* SIDEBAR FIXA */}
+        <aside
+          className={cn(
+            "fixed top-[72px] left-0 h-[calc(100vh-72px)] border-r border-white/20 dark:border-slate-800/50 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl flex flex-col transition-all duration-300 ease-in-out shadow-lg jml-surface z-20",
+            sidebarCollapsed ? "w-20" : "w-72"
+          )}
+          style={{ width: sidebarCollapsed ? "5rem" : "18rem" }}
+        >
           {/* Navegação */}
           <div className="p-4 flex-1">
             {!sidebarCollapsed && (
-              <h3 className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold mb-4 px-2">
+              <h3 className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold mb-4 px-2 pt-4">
                 Navegação
               </h3>
             )}
@@ -714,7 +739,7 @@ export function AdminDashboardPage() {
             </nav>
           </div>
           
-          {/* RodapÃ© da sidebar */}
+          {/* Rodapé da sidebar */}
           {!sidebarCollapsed && (
             <div className="p-4 border-t border-white/10 dark:border-slate-800/50">
               <div className="text-center">
@@ -727,9 +752,16 @@ export function AdminDashboardPage() {
           )}
         </aside>
 
-        {/* ÃREA DE CONTEÃšDO PRINCIPAL COM SCROLL */}
-        <main className="flex-1 overflow-y-auto">
-          <div className="p-8 max-w-[1600px] mx-auto h-full">
+        {/* ÁREA DE CONTEÚDO PRINCIPAL COM SCROLL */}
+        <main
+          className="flex-1 overflow-y-auto"
+          style={{
+            marginLeft: sidebarCollapsed ? "5rem" : "18rem",
+            paddingTop: "32px",
+            minHeight: "calc(100vh - 72px)",
+          }}
+        >
+          <div className="px-8 pb-12 max-w-[1600px] mx-auto">
             <Routes>
               <Route path="/" element={<DashboardView />} />
               <Route path="/dashboard" element={<DashboardView />} />
@@ -745,7 +777,7 @@ export function AdminDashboardPage() {
       </div>
 
       {/* MODAIS DOS SUBSISTEMAS */}
-      {/* âœ… CORREÃ‡ÃƒO: Uso correto como componente default */}
+      {/* ? CORREÇÃO: Uso correto como componente default */}
       <CourseManager
         open={showCourseManager}
         onClose={() => {
@@ -769,115 +801,666 @@ type CoursesViewProps = {
 };
 
 function CoursesView({ onClose }: CoursesViewProps) {
-  const { allCourses, isLoading: loadingCourses, getUniqueCompanies, getUniqueCourseTypes, getUniqueSegments } = useSearch({ status: "all" });
+  const apiBase = (import.meta as any).env?.VITE_API_URL || "http://localhost:3001/api";
   const [showNewCourseModal, setShowNewCourseModal] = useState(false);
   const [showCourseManager, setShowCourseManager] = useState(false);
   const [showPDFUpload, setShowPDFUpload] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [editingCourse, setEditingCourse] = useState<any>(null);
+  const [courses, setCourses] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState("basic");
+  const [loadingCourses, setLoadingCourses] = useState(false);
+  const [coursesError, setCoursesError] = useState<string | null>(null);
   const [filters, setFilters] = useState({
-    empresa: "all",
+    search: "",
+    empresas: [] as string[],
+    tipos: [] as string[],
     segmentos: [] as string[],
-    tipo: "all",
-    search: ""
   });
 
-  const empresas = getUniqueCompanies() ?? [];
-  const segmentosDisponiveis = getUniqueSegments() ?? [];
-  const tipos = getUniqueCourseTypes() ?? [];
+  const companyOptions = [
+    { id: "JML", label: "JML" },
+    { id: "Conecta", label: "Conecta" },
+  ];
 
-  const handleSegmentToggle = (segmento: string) => {
+  const courseTypeOptions = [
+    { id: "hibrido", label: "Híbrido" },
+    { id: "aberto", label: "Aberto" },
+    { id: "incompany", label: "InCompany" },
+    { id: "ead", label: "EAD" },
+  ];
+
+  const segmentOptions = [
+    { id: "Estatais", label: "Estatais" },
+    { id: "Judiciário", label: "Judiciário" },
+    { id: "Sistema S", label: "Sistema S" },
+  ];
+
+  const normalizeTipo = (tipo?: string) => {
+    const value = (tipo || "").toLowerCase();
+    if (value.includes("hibrid")) return "hibrido";
+    if (value.includes("abert")) return "aberto";
+    if (value.includes("company")) return "incompany";
+    if (value.includes("ead") || value.includes("online")) return "ead";
+    return value || "aberto";
+  };
+
+  const normalizeModalidades = (modalidade?: string[] | string) => {
+    if (!modalidade) return [];
+    const list = Array.isArray(modalidade) ? modalidade : [modalidade];
+    return list.map((m) => {
+      const norm = m.toLowerCase();
+      if (norm.includes("in company") || norm.includes("incompany")) return "InCompany";
+      if (norm.includes("abert")) return "Aberto";
+      if (norm.includes("hibrid")) return "Híbrido";
+      if (norm.includes("ead") || norm.includes("online")) return "EAD";
+      return m;
+    });
+  };
+
+  const mapStatus = (status?: string) => {
+    if (status === "published") return "Publicado";
+    if (status === "archived") return "Arquivado";
+    return "Rascunho";
+  };
+
+  const mapLevel = (nivel?: string) => {
+    const value = (nivel || "").toLowerCase();
+    if (value.includes("avan")) return "Avançado";
+    if (value.includes("inter")) return "Intermediário";
+    return "Básico";
+  };
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      setLoadingCourses(true);
+      setCoursesError(null);
+      try {
+        const res = await fetch(`${apiBase}/courses?status=all&limit=200`);
+        if (!res.ok) throw new Error(`Erro ao carregar cursos (${res.status})`);
+        const contentType = res.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+          throw new Error("Resposta inesperada do backend (conteúdo não JSON)");
+        }
+        const json = await res.json();
+        const apiCourses = json?.data?.courses || json?.courses || [];
+        if (!Array.isArray(apiCourses)) throw new Error("Resposta inesperada da API");
+
+        const mapped = apiCourses.map((c: any) => ({
+          id: c.id,
+          title: c.titulo || c.title || "Sem título",
+          slug: c.slug,
+          area: c.segmento || c.categoria || c.empresa || "JML",
+          empresa: c.empresa || "JML",
+          tipo: normalizeTipo(c.tipo),
+          segmento: c.segmento || "",
+          modality: normalizeModalidades(c.modalidade || c.tipo),
+          tags: c.tags || [],
+          summary: c.summary || "Sem descrição disponível",
+          description: c.description || "",
+          duration_hours: c.carga_horaria || c.duration_hours || 0,
+          level: mapLevel(c.nivel || c.level),
+          target_audience: c.publico_alvo || c.target_audience,
+          deliverables: c.deliverables || [],
+          visualizacoes: c.views_count || c.visualizacoes || 0,
+          status: mapStatus(c.status),
+        }));
+
+        setCourses(mapped);
+      } catch (err: any) {
+        console.error(err);
+        setCoursesError("Não foi possível carregar os cursos do backend. Exibindo dados locais.");
+        setCourses([]);
+      } finally {
+        setLoadingCourses(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  const filteredCourses = useMemo(() => {
+    return courses.filter((course) => {
+      const matchesSearch =
+        !filters.search ||
+        course.title.toLowerCase().includes(filters.search.toLowerCase()) ||
+        (course.summary || "").toLowerCase().includes(filters.search.toLowerCase());
+
+      const matchesEmpresa =
+        filters.empresas.length === 0 || filters.empresas.includes(course.empresa);
+
+      const matchesTipo =
+        filters.tipos.length === 0 ||
+        filters.tipos.includes(course.tipo) ||
+        filters.tipos.some((t) =>
+          (course.modality || []).some((m: string) => normalizeTipo(m).includes(t))
+        );
+
+      const matchesSegmento =
+        filters.segmentos.length === 0 ||
+        (course.segmento && filters.segmentos.includes(course.segmento));
+
+      return matchesSearch && matchesEmpresa && matchesTipo && matchesSegmento;
+    });
+  }, [courses, filters]);
+
+  const toggleFilter = (key: "empresas" | "tipos" | "segmentos", value: string) => {
     setFilters((prev) => ({
       ...prev,
-      segmentos: prev.segmentos.includes(segmento)
-        ? prev.segmentos.filter((s) => s !== segmento)
-        : [...prev.segmentos, segmento]
+      [key]: prev[key].includes(value)
+        ? prev[key].filter((v) => v !== value)
+        : [...prev[key], value],
     }));
   };
 
-  const filteredCourses = useMemo(() => {
-    return allCourses.filter((course) => {
-      if (filters.empresa !== "all" && course.company !== filters.empresa) return false;
-      if (filters.tipo !== "all" && course.course_type !== filters.tipo) return false;
-      if (
-        filters.segmentos.length > 0 &&
-        !filters.segmentos.some(
-          (s) =>
-            course.segment === s ||
-            (Array.isArray(course.segments) && course.segments.includes(s))
-        )
-      ) {
-        return false;
-      }
-      if (
-        filters.search &&
-        !course.title.toLowerCase().includes(filters.search.toLowerCase())
-      ) {
-        return false;
-      }
-      return true;
-    });
-  }, [allCourses, filters]);
+  const activeFiltersCount =
+    (filters.empresas?.length || 0) +
+    (filters.tipos?.length || 0) +
+    (filters.segmentos?.length || 0);
 
-  const getStatusColor = (status?: string) => {
+  const handleCourseClick = (course: any) => {
+    setActiveTab("basic");
+    setEditingCourse(course);
+  };
+
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case "published":
-      case "Publicado":
-        return "bg-emerald-100 text-emerald-700 border-emerald-200";
-      case "draft":
-      case "Rascunho":
-        return "bg-amber-100 text-amber-700 border-amber-200";
-      case "archived":
-      case "Arquivado":
-        return "bg-slate-100 text-slate-700 border-slate-200";
-      default:
-        return "bg-slate-100 text-slate-700 border-slate-200";
+      case 'Publicado': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+      case 'Rascunho': return 'bg-amber-100 text-amber-700 border-amber-200';
+      case 'Arquivado': return 'bg-slate-100 text-slate-700 border-slate-200';
+      default: return 'bg-slate-100 text-slate-700 border-slate-200';
     }
   };
 
-  const getStatusLabel = (status?: string) => {
-    switch (status) {
-      case "published":
-        return "Publicado";
-      case "draft":
-        return "Rascunho";
-      case "archived":
-        return "Arquivado";
-      default:
-        return "Publicado";
+  const getAreaIcon = (area: string) => {
+    switch (area) {
+      case 'Agenda JML': return FileText;
+      case 'Setorial': return Building2;
+      case 'Soft Skills': return Users;
+      default: return FileText;
     }
   };
 
-  const getAccentClass = (company?: string) => {
-    switch (company) {
-      case "JML":
-        return "from-blue-500 to-indigo-600 border-blue-200/50 dark:border-blue-800/40";
-      case "Conecta":
-        return "from-emerald-500 to-teal-600 border-emerald-200/50 dark:border-emerald-800/40";
-      default:
-        return "from-violet-500 to-purple-600 border-violet-200/50 dark:border-violet-800/40";
+  const getAreaColor = (area: string) => {
+    switch (area) {
+      case 'Agenda JML': return 'from-blue-500 to-indigo-600';
+      case 'Setorial': return 'from-emerald-500 to-teal-600';
+      case 'Soft Skills': return 'from-violet-500 to-purple-600';
+      default: return 'from-slate-500 to-slate-600';
     }
   };
 
-  const getIconGradient = (company?: string) => {
-    switch (company) {
-      case "JML":
-        return "from-blue-500 to-indigo-600";
-      case "Conecta":
-        return "from-emerald-500 to-teal-600";
-      default:
-        return "from-violet-500 to-purple-600";
-    }
+  const handleSaveCourse = () => {
+    // Aqui implementaria a lógica de salvar
+    console.log('Salvando curso:', editingCourse);
+    setEditingCourse(null);
+    setActiveTab("basic");
   };
 
-  const openEditCourse = (course: Course) => {
-    setSelectedCourse(course);
-    setShowCourseManager(true);
+  const handleCancelEdit = () => {
+    setEditingCourse(null);
+    setActiveTab("basic");
   };
 
-  const handleSearch = (query: string) => {
-    console.log('Searching for:', query);
-  };
+  // Se está editando um curso, mostra o formulário de edição
+  if (editingCourse) {
+    const tabs = [
+      { id: 'basic', label: 'Informações Básicas', icon: FileText },
+      { id: 'content', label: 'Conteúdo', icon: BookOpenCheck },
+      { id: 'pricing', label: 'Preços & Datas', icon: CreditCard },
+      { id: 'delivery', label: 'Entregáveis', icon: Gift }
+    ];
 
+    const modalidades = ["EAD", "Aberto", "In Company", "Híbrido"];
+    const segmentos = ["Estatais", "Judiciário", "Sistema S"];
+    const empresas = ["JML", "Conecta"];
+    const niveis = ["Básico", "Intermediário", "Avançado"];
+
+    return (
+      <div className="space-y-8 animate-in fade-in duration-500 relative z-10">
+        {/* HEADER DE EDIÇÃO */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-slate-800 via-violet-600 to-blue-600 dark:from-slate-200 dark:via-violet-400 dark:to-blue-400 bg-clip-text text-transparent">
+              Editar Curso
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 mt-2 text-lg">
+              Modifique as informações do curso "{editingCourse.title}"
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={handleCancelEdit}
+              className="h-12 px-6 rounded-xl border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-200"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleSaveCourse}
+              className="bg-gradient-to-r from-violet-500 to-blue-500 hover:from-violet-600 hover:to-blue-600 text-white shadow-lg shadow-violet-500/25 hover:shadow-xl hover:shadow-violet-500/30 transition-all duration-300 h-12 px-8 rounded-xl"
+            >
+              <CheckCircle className="h-5 w-5 mr-2" />
+              Salvar Alterações
+            </Button>
+          </div>
+        </div>
+
+        {/* FORMULÁRIO COM ABAS */}
+        <Card className="p-0 overflow-hidden bg-gradient-to-br from-white via-slate-50/50 to-violet-50/30 dark:from-slate-900 dark:via-slate-800/50 dark:to-violet-950/20 border border-slate-200/50 dark:border-slate-800/50 shadow-xl shadow-slate-500/5">
+          {/* BARRA DE ABAS */}
+          <div className="relative">
+            {/* Gradiente de fundo */}
+            <div className="absolute inset-0 bg-gradient-to-r from-violet-500/10 via-blue-500/10 to-emerald-500/10 dark:from-violet-400/20 dark:via-blue-400/20 dark:to-emerald-400/20"></div>
+            
+            <div className="relative flex border-b border-slate-200/50 dark:border-slate-800/50">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={cn(
+                      "flex items-center gap-3 px-6 py-4 font-semibold transition-all duration-300 relative",
+                      isActive
+                        ? "bg-white dark:bg-slate-900 text-violet-600 dark:text-violet-400 border-b-2 border-violet-500"
+                        : "text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-white/50 dark:hover:bg-slate-800/50"
+                    )}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span className="text-sm">{tab.label}</span>
+                    {isActive && (
+                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-violet-500 to-blue-500" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* CONTEÚDO DAS ABAS */}
+          <div className="p-8">
+            {/* ABA 1: INFORMAÇÕES BÁSICAS */}
+            {activeTab === 'basic' && (
+              <div className="space-y-8 animate-in fade-in duration-500">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* COLUNA ESQUERDA */}
+                  <div className="space-y-6">
+                    {/* Título */}
+                    <div>
+                      <label className="flex items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+                          <FileText className="h-5 w-5 text-white" />
+                        </div>
+                        Título do Curso
+                      </label>
+                      <input
+                        type="text"
+                        value={editingCourse.title}
+                        onChange={(e) => setEditingCourse(prev => ({ ...prev, title: e.target.value }))}
+                        className="w-full h-12 px-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
+                      />
+                    </div>
+
+                    {/* Empresa e Área */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="flex items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                            <Building2 className="h-5 w-5 text-white" />
+                          </div>
+                          Empresa
+                        </label>
+                        <select
+                          value={editingCourse.empresa || 'JML'}
+                          onChange={(e) => setEditingCourse(prev => ({ ...prev, empresa: e.target.value }))}
+                          className="w-full h-12 px-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
+                        >
+                          {empresas.map(empresa => (
+                            <option key={empresa} value={empresa}>{empresa}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Carga Horária */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="flex items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/25">
+                            <Clock className="h-5 w-5 text-white" />
+                          </div>
+                          Carga Horária
+                        </label>
+                        <input
+                          type="number"
+                          value={editingCourse.duration_hours}
+                          onChange={(e) => setEditingCourse(prev => ({ ...prev, duration_hours: parseInt(e.target.value) }))}
+                          className="w-full h-12 px-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
+                          placeholder="Ex: 8"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Modalidade (única escolha) */}
+                    <div>
+                      <label className="flex items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
+                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+                          <Activity className="h-5 w-5 text-white" />
+                        </div>
+                        Modalidade
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {["EAD", "Aberto", "In Company", "Híbrido"].map((modalidade) => (
+                          <label
+                            key={modalidade}
+                            className="flex items-center gap-3 p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-violet-300 dark:hover:border-violet-700 cursor-pointer transition-all duration-200"
+                          >
+                            <input
+                              type="radio"
+                              name="modalidade"
+                              checked={editingCourse.modality?.[0] === modalidade}
+                              onChange={() =>
+                                setEditingCourse((prev: any) => ({ ...prev, modality: [modalidade] }))
+                              }
+                              className="w-4 h-4 text-violet-600 border-slate-300 dark:border-slate-600 rounded-full focus:ring-violet-500 focus:ring-2 bg-white dark:bg-slate-800"
+                            />
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                              {modalidade}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* COLUNA DIREITA */}
+                  <div className="space-y-6">
+                    {/* Segmentos */}
+                    <div>
+                      <label className="flex items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
+                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-600 flex items-center justify-center shadow-lg shadow-cyan-500/25">
+                          <Users className="h-5 w-5 text-white" />
+                        </div>
+                        Segmentos
+                      </label>
+                      <div className="space-y-3">
+                        {segmentos.map(segmento => (
+                          <label key={segmento} className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-violet-300 dark:hover:border-violet-700 cursor-pointer transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={editingCourse.segmentos?.includes(segmento) || false}
+                              onChange={() => {
+                                const currentSegmentos = editingCourse.segmentos || [];
+                                const newSegmentos = currentSegmentos.includes(segmento)
+                                  ? currentSegmentos.filter(s => s !== segmento)
+                                  : [...currentSegmentos, segmento];
+                                setEditingCourse(prev => ({ ...prev, segmentos: newSegmentos }));
+                              }}
+                              className="w-4 h-4 text-violet-600 border-slate-300 dark:border-slate-600 rounded focus:ring-violet-500 focus:ring-2"
+                            />
+                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                              {segmento}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Resumo Executivo */}
+                    <div>
+                      <label className="flex items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-green-500/25">
+                          <Eye className="h-5 w-5 text-white" />
+                        </div>
+                        Resumo Executivo
+                      </label>
+                      <textarea
+                        value={editingCourse.summary}
+                        onChange={(e) => setEditingCourse(prev => ({ ...prev, summary: e.target.value }))}
+                        rows={4}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 resize-none"
+                        placeholder="Descrição curta e objetiva do curso..."
+                      />
+                    </div>
+
+                    {/* Público-alvo */}
+                    <div>
+                      <label className="flex items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg shadow-orange-500/25">
+                          <Users className="h-5 w-5 text-white" />
+                        </div>
+                        Público-alvo
+                      </label>
+                      <input
+                        type="text"
+                        value={editingCourse.target_audience}
+                        onChange={(e) => setEditingCourse(prev => ({ ...prev, target_audience: e.target.value }))}
+                        className="w-full h-12 px-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
+                        placeholder="Ex: Gestores públicos, pregoeiros, advogados..."
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ABA 2: CONTEÚDO */}
+            {activeTab === 'content' && (
+              <div className="space-y-8 animate-in fade-in duration-500">
+                {/* Conteúdo Programático */}
+                <div>
+                  <label className="flex items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+                      <BookOpenCheck className="h-5 w-5 text-white" />
+                    </div>
+                    Conteúdo Programático (Módulos)
+                  </label>
+                  <textarea
+                    value={editingCourse.description}
+                    onChange={(e) => setEditingCourse(prev => ({ ...prev, description: e.target.value }))}
+                    rows={8}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 resize-none"
+                    placeholder="Módulo 1: ... | Módulo 2: ... | Módulo 3: ..."
+                  />
+                </div>
+
+                {/* Apresentação */}
+                <div>
+                  <label className="flex items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg shadow-purple-500/25">
+                      <Presentation className="h-5 w-5 text-white" />
+                    </div>
+                    Apresentação do Curso
+                  </label>
+                  <textarea
+                    value={editingCourse.apresentacao || ''}
+                    onChange={(e) => setEditingCourse(prev => ({ ...prev, apresentacao: e.target.value }))}
+                    rows={6}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 resize-none"
+                    placeholder="Descreva como o curso será apresentado, metodologia, recursos utilizados..."
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* ABA 3: PREÇOS & DATAS */}
+            {activeTab === 'pricing' && (
+              <div className="space-y-8 animate-in fade-in duration-500">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* COLUNA ESQUERDA - Datas */}
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                        <Calendar className="h-4 w-4 text-white" />
+                      </div>
+                      Período do Curso
+                    </h3>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                          Data de Início
+                        </label>
+                        <input
+                          type="date"
+                          value={editingCourse.data_inicio || ''}
+                          onChange={(e) => setEditingCourse(prev => ({ ...prev, data_inicio: e.target.value }))}
+                          className="w-full h-12 px-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                          Data de Fim
+                        </label>
+                        <input
+                          type="date"
+                          value={editingCourse.data_fim || ''}
+                          onChange={(e) => setEditingCourse(prev => ({ ...prev, data_fim: e.target.value }))}
+                          className="w-full h-12 px-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Local (se presencial) */}
+                    {(editingCourse.modality?.includes('Aberto') || editingCourse.modality?.includes('In Company') || editingCourse.modality?.includes('Híbrido')) && (
+                      <div>
+                        <label className="flex items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                            <MapPin className="h-4 w-4 text-white" />
+                          </div>
+                          Local
+                        </label>
+                        <input
+                          type="text"
+                          value={editingCourse.local || ''}
+                          onChange={(e) => setEditingCourse(prev => ({ ...prev, local: e.target.value }))}
+                          className="w-full h-12 px-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
+                          placeholder="Ex: Auditório JML, Brasília - DF"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* COLUNA DIREITA - Preços */}
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                        <CreditCard className="h-4 w-4 text-white" />
+                      </div>
+                      Precificação
+                    </h3>
+
+                    {/* Preço EAD/Online */}
+                    {(editingCourse.modality?.includes('EAD') || editingCourse.modality?.includes('Híbrido')) && (
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                          Preço Online (EAD)
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 dark:text-slate-400">R$</span>
+                          <input
+                            type="number"
+                            value={editingCourse.preco_online || ''}
+                            onChange={(e) => setEditingCourse(prev => ({ ...prev, preco_online: e.target.value }))}
+                            className="w-full h-12 pl-10 pr-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
+                            placeholder="0,00"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Preço Presencial */}
+                    {(editingCourse.modality?.includes('Aberto') || editingCourse.modality?.includes('Híbrido')) && (
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                          Preço Presencial (Aberto)
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 dark:text-slate-400">R$</span>
+                          <input
+                            type="number"
+                            value={editingCourse.preco_presencial || ''}
+                            onChange={(e) => setEditingCourse(prev => ({ ...prev, preco_presencial: e.target.value }))}
+                            className="w-full h-12 pl-10 pr-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
+                            placeholder="0,00"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Preço In Company */}
+                    {editingCourse.modality?.includes('In Company') && (
+                      <div>
+                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                          Preço In Company
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 dark:text-slate-400">R$</span>
+                          <input
+                            type="number"
+                            value={editingCourse.preco_incompany || ''}
+                            onChange={(e) => setEditingCourse(prev => ({ ...prev, preco_incompany: e.target.value }))}
+                            className="w-full h-12 pl-10 pr-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200"
+                            placeholder="0,00"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ABA 4: ENTREGÁVEIS */}
+            {activeTab === 'delivery' && (
+              <div className="space-y-8 animate-in fade-in duration-500">
+                {/* Entregáveis */}
+                <div>
+                  <label className="flex items-center gap-3 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-green-500/25">
+                      <Gift className="h-5 w-5 text-white" />
+                    </div>
+                    Entregáveis
+                  </label>
+                  <textarea
+                    value={editingCourse.deliverables?.join('\n') || ''}
+                    onChange={(e) => setEditingCourse(prev => ({ 
+                      ...prev, 
+                      deliverables: e.target.value.split('\n').filter(item => item.trim() !== '')
+                    }))}
+                    rows={6}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all duration-200 resize-none"
+                    placeholder="Digite cada entregável em uma linha separada&#10;Ex:&#10;Certificado digital&#10;Material didático em PDF&#10;Toolkit prático&#10;Acesso à plataforma por 6 meses"
+                  />
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                    Digite cada entregável em uma linha separada
+                  </p>
+                </div>
+
+                {/* Preview dos Entregáveis */}
+                {editingCourse.deliverables && editingCourse.deliverables.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Preview:</h4>
+                    <div className="space-y-2">
+                      {editingCourse.deliverables.map((item, index) => (
+                        <div key={index} className="flex items-center gap-2 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/30">
+                          <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                          <span className="text-sm text-emerald-700 dark:text-emerald-300">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // View normal da lista de cursos
   return (
     <div className="space-y-8 animate-in fade-in duration-500 relative z-10">
       {/* MODAL DE ESCOLHA - IA vs MANUAL */}
@@ -897,6 +1480,7 @@ function CoursesView({ onClose }: CoursesViewProps) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {/* IA Upload */}
               <button
                 onClick={() => {
                   setShowNewCourseModal(false);
@@ -913,6 +1497,7 @@ function CoursesView({ onClose }: CoursesViewProps) {
                 </p>
               </button>
 
+              {/* Manual */}
               <button
                 onClick={() => {
                   setShowNewCourseModal(false);
@@ -964,220 +1549,187 @@ function CoursesView({ onClose }: CoursesViewProps) {
       </div>
 
       {/* FILTROS */}
-      <Card className="p-6 bg-gradient-to-br from-white via-slate-50/50 to-violet-50/30 dark:from-slate-900 dark:via-slate-800/50 dark:to-violet-950/20 border border-slate-200/50 dark:border-slate-800/50 shadow-xl shadow-slate-500/5">
+      <Card className="p-6 bg-gradient-to-br from-white via-slate-50/60 to-violet-50/30 dark:from-slate-900 dark:via-slate-800/60 dark:to-violet-950/30 border border-slate-200/60 dark:border-slate-800/60 shadow-xl shadow-slate-500/5">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-violet-500 to-blue-500 flex items-center justify-center text-white shadow-lg shadow-violet-500/20">
+              <Activity className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Filtros</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Refine por empresa, tipo e segmento</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {activeFiltersCount > 0 && (
+              <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200 border border-blue-200 dark:border-blue-800">
+                {activeFiltersCount}
+              </Badge>
+            )}
+            {(activeFiltersCount > 0 || filters.search) && (
+              <button
+                onClick={() => setFilters({ search: "", empresas: [], tipos: [], segmentos: [] })}
+                className="text-sm text-slate-600 dark:text-slate-300 hover:text-violet-600 dark:hover:text-violet-400 underline-offset-4 hover:underline"
+              >
+                Limpar
+              </button>
+            )}
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Busca */}
           <div className="lg:col-span-1">
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">
               Buscar curso
             </label>
             <Input
               type="text"
-              placeholder="Digite o nome do curso..."
+              placeholder="Digite o nome ou palavra-chave..."
               value={filters.search}
               onChange={(e) => setFilters((prev) => ({ ...prev, search: e.target.value }))}
-              className="h-11 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+              className="h-11"
             />
           </div>
 
+          {/* Empresa */}
           <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-              Empresa
-            </label>
-            <Select
-              value={filters.empresa}
-              onValueChange={(value) => setFilters((prev) => ({ ...prev, empresa: value }))}
-            >
-              <SelectTrigger className="h-11 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
-                <SelectValue placeholder="Todas as empresas" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas as empresas</SelectItem>
-                {empresas.map((empresa) => (
-                  <SelectItem key={empresa} value={empresa}>{empresa}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-              Tipo do curso
-            </label>
-            <Select
-              value={filters.tipo}
-              onValueChange={(value) => setFilters((prev) => ({ ...prev, tipo: value }))}
-            >
-              <SelectTrigger className="h-11 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
-                <SelectValue placeholder="Todos os tipos" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos os tipos</SelectItem>
-                {tipos.map((tipo) => (
-                  <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-              Segmentos
-            </label>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Empresa</p>
             <div className="space-y-2">
-              {segmentosDisponiveis.map((segmento) => (
-                <label key={segmento} className="flex items-center gap-2 cursor-pointer group">
+              {companyOptions.map((opt) => (
+                <label key={opt.id} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={filters.segmentos.includes(segmento)}
-                    onChange={() => handleSegmentToggle(segmento)}
+                    checked={filters.empresas.includes(opt.id)}
+                    onChange={() => toggleFilter("empresas", opt.id)}
                     className="w-4 h-4 text-violet-600 border-slate-300 dark:border-slate-600 rounded focus:ring-violet-500 focus:ring-2 bg-white dark:bg-slate-800"
                   />
-                  <span className="text-sm text-slate-700 dark:text-slate-300 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
-                    {segmento}
-                  </span>
+                  {opt.label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Tipo de Curso */}
+          <div>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Tipo de Curso</p>
+            <div className="space-y-2">
+              {courseTypeOptions.map((opt) => (
+                <label key={opt.id} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={filters.tipos.includes(opt.id)}
+                    onChange={() => toggleFilter("tipos", opt.id)}
+                    className="w-4 h-4 text-violet-600 border-slate-300 dark:border-slate-600 rounded focus:ring-violet-500 focus:ring-2 bg-white dark:bg-slate-800"
+                  />
+                  {opt.label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Segmento */}
+          <div>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Segmento</p>
+            <div className="space-y-2">
+              {segmentOptions.map((opt) => (
+                <label key={opt.id} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={filters.segmentos.includes(opt.id)}
+                    onChange={() => toggleFilter("segmentos", opt.id)}
+                    className="w-4 h-4 text-violet-600 border-slate-300 dark:border-slate-600 rounded focus:ring-violet-500 focus:ring-2 bg-white dark:bg-slate-800"
+                  />
+                  {opt.label}
                 </label>
               ))}
             </div>
           </div>
         </div>
 
-        {(filters.search || filters.empresa || filters.tipo || filters.segmentos.length > 0) && (
-          <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
-            <span className="text-sm text-slate-500 dark:text-slate-400">
-              {filteredCourses.length} curso(s) encontrado(s)
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setFilters({ empresa: "all", segmentos: [], tipo: "all", search: "" })}
-              className="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
-            >
-              Limpar filtros
-            </Button>
-          </div>
+        {coursesError && (
+          <p className="mt-4 text-sm text-amber-600 dark:text-amber-300">{coursesError}</p>
         )}
       </Card>
 
       {/* LISTA DE CURSOS */}
       <div className="space-y-4">
         {loadingCourses && (
-          <div className="flex justify-center py-12 text-muted-foreground">Carregando cursos...</div>
+          <Card className="p-6 flex items-center gap-3 border-dashed border-2 border-slate-200 dark:border-slate-800">
+            <Loader2 className="h-5 w-5 animate-spin text-violet-600" />
+            <span className="text-sm text-slate-600 dark:text-slate-300">Carregando cursos...</span>
+          </Card>
         )}
 
-        {!loadingCourses && filteredCourses.map((course, index) => {
-          const accent = getAccentClass(course.company);
-          const statusColor = getStatusColor(course.status);
-          const statusLabel = getStatusLabel(course.status);
-          const primarySegment = course.segment ? [course.segment] : [];
-          const extraSegments = Array.isArray(course.segments) ? course.segments : [];
-          const segments = Array.from(new Set([...primarySegment, ...extraSegments].filter(Boolean)));
-          const modality = Array.isArray(course.modality) && course.modality.length > 0 ? course.modality[0] : null;
-          const views = (course as any).views_count ?? (course as any).views ?? null;
-
+        {!loadingCourses && filteredCourses.map((course) => {
+          const segmentLabel = course.segmento || course.area || "Geral";
+          const modalityLabel = course.modality?.[0] || "";
+          const AreaIcon = getAreaIcon(course.area || "Setorial");
+          const areaColor = getAreaColor(course.area || "Setorial");
+          
           return (
-            <Card
+            <Card 
               key={course.id}
-              className={cn(
-                "p-6 transition-all duration-300 hover:scale-[1.01] cursor-pointer border-2 bg-gradient-to-r",
-                accent,
-                index % 2 === 0
-                  ? "from-white to-slate-50 dark:from-slate-900 dark:to-slate-950"
-                  : "from-white to-violet-50/40 dark:from-slate-900 dark:to-violet-950/30"
-              )}
-              onClick={() => openEditCourse(course)}
+              onClick={() => handleCourseClick(course)}
+              className="p-6 transition-all duration-300 hover:scale-[1.01] cursor-pointer border bg-gradient-to-r from-white via-slate-50/60 to-violet-50/30 dark:from-slate-900 dark:via-slate-800/60 dark:to-violet-900/20 border-slate-200/70 dark:border-slate-800/50 shadow-md hover:shadow-2xl hover:shadow-violet-500/15 hover:border-violet-200/80 dark:hover:border-violet-700/60"
             >
+              <div className="h-1 w-full bg-gradient-to-r from-violet-300/50 via-blue-300/50 to-emerald-300/50 rounded-full mb-4" />
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start gap-4">
-                    <div
-                      className={cn(
-                        "h-12 w-12 rounded-xl flex items-center justify-center shadow-sm bg-gradient-to-br text-white",
-                        getIconGradient(course.company)
-                      )}
-                    >
-                      {course.status === "draft" ? (
-                        <Wand2 className="h-6 w-6" />
-                      ) : (
-                        <FileText className="h-6 w-6" />
-                      )}
+                    <div className={cn(
+                      "h-12 w-12 rounded-xl flex items-center justify-center shadow-sm bg-gradient-to-br",
+                      areaColor
+                    )}>
+                      <AreaIcon className="h-6 w-6 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200 mb-2 line-clamp-1">
                         {course.title}
                       </h3>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mb-2">
-                        {course.summary || "Sem descrição disponível"}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-2 text-sm">
-                        <Badge variant="secondary" className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                          {course.company || "Empresa"}
+                      <div className="flex flex-wrap items-center gap-3 text-sm mb-3">
+                        <Badge variant="outline" className="text-xs">
+                          {segmentLabel}
                         </Badge>
-                        {course.course_type && (
-                          <Badge variant="secondary" className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                            {course.course_type}
-                          </Badge>
-                        )}
-                        {modality && (
-                          <Badge variant="secondary" className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                            {modality}
-                          </Badge>
-                        )}
-                        {course.duration_hours ? (
-                          <span className="text-slate-600 dark:text-slate-400">
-                            {course.duration_hours}h
-                          </span>
-                        ) : null}
-                        {views ? (
+                        <span className="text-slate-600 dark:text-slate-400">{course.duration_hours}h</span>
+                        {course.visualizacoes && course.visualizacoes > 0 && (
                           <span className="text-slate-600 dark:text-slate-400 flex items-center gap-1">
                             <Eye className="h-3 w-3" />
-                            {views}
+                            {course.visualizacoes}
                           </span>
-                        ) : null}
+                        )}
                       </div>
-                      {segments.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-3">
-                          {segments.map((segmento) => (
-                            <span
-                              key={segmento}
-                              className="px-2 py-1 text-xs rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
-                            >
-                              {segmento}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                      <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mb-3">
+                        {course.summary}
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {modalityLabel && (
+                          <span 
+                            className="px-2 py-1 text-xs rounded-md bg-gradient-to-r from-violet-100 to-blue-100 dark:from-violet-900/40 dark:to-blue-900/40 text-violet-800 dark:text-violet-200 border border-violet-200/60 dark:border-violet-700/60"
+                          >
+                            {modalityLabel}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <Badge className={cn("text-xs px-3 py-1 border", statusColor)}>
-                    {statusLabel}
+                  <Badge className={cn("text-xs px-3 py-1 border", getStatusColor(course.status))}>
+                    {course.status}
                   </Badge>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openEditCourse(course);
-                      }}
-                      className="h-9 w-9 rounded-lg"
-                    >
-                      <Settings className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowPDFUpload(true);
-                      }}
-                      className="h-9 w-9 rounded-lg"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Pré-visualização
+                    }}
+                    className="h-8 w-8 p-0 rounded-lg"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             </Card>
@@ -1193,14 +1745,14 @@ function CoursesView({ onClose }: CoursesViewProps) {
               Nenhum curso encontrado
             </h3>
             <p className="text-slate-500 dark:text-slate-400 mb-6">
-              Ajuste os filtros ou crie um novo curso.
+              Tente ajustar os filtros ou criar um novo curso.
             </p>
             <Button
               onClick={() => setShowNewCourseModal(true)}
               className="bg-gradient-to-r from-violet-500 to-blue-500 hover:from-violet-600 hover:to-blue-600 text-white"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Criar curso
+              Criar Primeiro Curso
             </Button>
           </div>
         )}
@@ -1210,12 +1762,7 @@ function CoursesView({ onClose }: CoursesViewProps) {
       {showCourseManager && (
         <CourseManager
           open={showCourseManager}
-          onClose={() => {
-            setShowCourseManager(false);
-            setSelectedCourse(null);
-          }}
-          focusCourseId={selectedCourse?.id}
-          focusCourseTitle={selectedCourse?.title}
+          onClose={() => setShowCourseManager(false)}
         />
       )}
 

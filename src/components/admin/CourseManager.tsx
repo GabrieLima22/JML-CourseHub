@@ -33,7 +33,7 @@ import {
 } from "lucide-react";
 import { useSearch, Course } from "@/hooks/useSearch";
 import { cn } from "@/lib/utils";
-import { apiPost, apiPatch } from "@/services/api";
+import { apiPost, apiPatch, apiDelete } from "@/services/api";
 import { useToast } from "@/hooks/use-toast";
 import { useTaxonomies } from "@/hooks/useTaxonomies";
 
@@ -187,9 +187,25 @@ const CourseManager: React.FC<CourseManagerProps> = ({
     setShowForm(true);
   };
 
-  const handleDeleteCourse = (courseId: string) => {
-    if (confirm("Tem certeza que deseja excluir este curso?")) {
-      setCourses(prev => prev.filter(course => course.id !== courseId));
+  const handleDeleteCourse = async (courseId: string) => {
+    if (!confirm("Tem certeza que deseja excluir este curso? Esta ação não pode ser desfeita.")) {
+      return;
+    }
+
+    try {
+      await apiDelete(`/api/courses/${courseId}`);
+      toast({
+        title: "Curso deletado!",
+        description: "O curso foi removido com sucesso.",
+      });
+      await refetch();
+    } catch (error) {
+      console.error('Erro ao deletar curso:', error);
+      toast({
+        title: "Erro ao deletar",
+        description: error instanceof Error ? error.message : "Ocorreu um erro ao deletar o curso.",
+        variant: "destructive",
+      });
     }
   };
 

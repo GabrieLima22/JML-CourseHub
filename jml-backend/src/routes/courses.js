@@ -5,8 +5,11 @@ const {
   getRelatedCourses,
   getCourseStats,
   getSearchSuggestions,
+  createCourse,
+  updateCourse,
+  setCourseStatus,
+  deleteCourse,
 } = require('../controllers/coursesController');
-const { createCourse, updateCourse, setCourseStatus } = require('../controllers/coursesController');
 
 const router = express.Router();
 
@@ -21,6 +24,7 @@ router.get('/:id', getCourseById);
 router.post('/', createCourse);
 router.patch('/:id', updateCourse);
 router.post('/:id/status', setCourseStatus);
+router.delete('/:id', deleteCourse);
 
 module.exports = router;
 
