@@ -120,6 +120,8 @@ const CourseManager: React.FC<CourseManagerProps> = ({
   const [activeFormTab, setActiveFormTab] = useState("basic");
   const [isSaving, setIsSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [newSpeaker, setNewSpeaker] = useState({ name: "", role: "", company: "", bio: "" });
+  const [newTargetAudience, setNewTargetAudience] = useState("");
   const { toast } = useToast();
   const { data: taxonomies } = useTaxonomies();
 
@@ -243,11 +245,12 @@ const CourseManager: React.FC<CourseManagerProps> = ({
           ? formData.duration_hours
           : emptyFormData.duration_hours,
         summary: formData.summary,
+        apresentacao: formData.description,
         description: formData.description,
         objetivos: formData.objectives || [],
         publico_alvo: formData.target_audience,
         aprendizados: formData.learning_points,
-        professores: formData.speakers.map(s => ({ name: s.name, role: s.role, company: s.company, bio: s.bio })),
+        palestrantes: formData.speakers.map(s => ({ name: s.name, role: s.role, company: s.company, bio: s.bio })),
         investimento: formData.investment_details || { summary: formData.price_summary },
         preco_resumido: formData.price_summary,
         forma_pagamento: formData.payment_methods,
@@ -305,6 +308,28 @@ const CourseManager: React.FC<CourseManagerProps> = ({
 
   const updateFormData = (field: keyof CourseFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleAddTargetAudience = () => {
+    if (newTargetAudience.trim()) {
+      updateFormData('target_audience', [...(formData.target_audience || []), newTargetAudience.trim()]);
+      setNewTargetAudience("");
+    }
+  };
+
+  const handleRemoveTargetAudience = (index: number) => {
+    updateFormData('target_audience', (formData.target_audience || []).filter((_, i) => i !== index));
+  };
+
+  const handleAddSpeaker = () => {
+    if (newSpeaker.name.trim() && newSpeaker.role.trim()) {
+      updateFormData('speakers', [...(formData.speakers || []), newSpeaker]);
+      setNewSpeaker({ name: "", role: "", company: "", bio: "" });
+    }
+  };
+
+  const handleRemoveSpeaker = (index: number) => {
+    updateFormData('speakers', formData.speakers.filter((_, i) => i !== index));
   };
 
   const addArrayItem = (field: keyof CourseFormData, item: string) => {
@@ -607,19 +632,113 @@ const CourseManager: React.FC<CourseManagerProps> = ({
                   </Card>
                 </TabsContent>
 
-                {/* Outras abas... (simplificadas para corrigir o erro) */}
-                <TabsContent value="content">
-                  <div className="text-center py-12">
-                    <FileText className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                    <p>Aba de conteúdo em desenvolvimento...</p>
-                  </div>
+                {/* Aba Conteúdo */}
+                <TabsContent value="content" className="space-y-6">
+                  <Card className="p-6 bg-gradient-to-br from-white to-blue-50/30 dark:from-slate-800 dark:to-blue-950/20 border-2 border-blue-100 dark:border-blue-900/50">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
+                        <FileText className="h-4 w-4 text-white" />
+                      </div>
+                      <h4 className="font-semibold text-lg text-foreground">Apresentação Geral</h4>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="description" className="text-sm font-semibold text-blue-900 dark:text-blue-300">Descrição Completa</Label>
+                      <Textarea
+                        id="description"
+                        value={formData.description}
+                        onChange={(e) => updateFormData('description', e.target.value)}
+                        placeholder="Detalhe o que será abordado no curso, a metodologia, etc."
+                        rows={10}
+                        className="border-2 border-blue-200 dark:border-blue-800 focus:border-blue-500 bg-white dark:bg-slate-900"
+                      />
+                    </div>
+                  </Card>
                 </TabsContent>
 
-                <TabsContent value="details">
-                  <div className="text-center py-12">
-                    <Target className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                    <p>Aba de detalhes em desenvolvimento...</p>
-                  </div>
+                {/* Aba Detalhes */}
+                <TabsContent value="details" className="space-y-6">
+                  <Card className="p-6 bg-gradient-to-br from-white to-green-50/30 dark:from-slate-800 dark:to-green-950/20 border-2 border-green-100 dark:border-green-900/50">
+                      <div className="flex items-center gap-2 mb-4">
+                          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                              <Target className="h-4 w-4 text-white" />
+                          </div>
+                          <h4 className="font-semibold text-lg text-foreground">Público-Alvo</h4>
+                      </div>
+                      <div className="flex gap-2 mb-2">
+                          <Input
+                              value={newTargetAudience}
+                              onChange={(e) => setNewTargetAudience(e.target.value)}
+                              placeholder="Adicionar item ao público-alvo"
+                              onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                      handleAddTargetAudience();
+                                  }
+                              }}
+                          />
+                          <Button onClick={handleAddTargetAudience} variant="outline"><Plus className="h-4 w-4 mr-2" /> Adicionar</Button>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                          {(formData.target_audience || []).map((item, index) => (
+                              <Badge key={index} className="flex items-center gap-1.5 py-1 px-2 bg-green-100 text-green-800 border-green-200">
+                                  {item}
+                                  <button onClick={() => handleRemoveTargetAudience(index)} className="rounded-full hover:bg-black/10 p-0.5">
+                                      <X className="h-3 w-3" />
+                                  </button>
+                              </Badge>
+                          ))}
+                      </div>
+                  </Card>
+
+                  <Card className="p-6 bg-gradient-to-br from-white to-red-50/30 dark:from-slate-800 dark:to-red-950/20 border-2 border-red-100 dark:border-red-900/50">
+                      <div className="flex items-center gap-2 mb-4">
+                          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center">
+                              <DollarSign className="h-4 w-4 text-white" />
+                          </div>
+                          <h4 className="font-semibold text-lg text-foreground">Preço</h4>
+                      </div>
+                      <div className="space-y-2">
+                          <Label htmlFor="price_summary" className="text-sm font-semibold text-red-900 dark:text-red-300">Resumo do Preço</Label>
+                          <Input
+                              id="price_summary"
+                              value={formData.price_summary || ''}
+                              onChange={(e) => updateFormData('price_summary', e.target.value)}
+                              placeholder="Ex: R$ 1.299,00"
+                              className="border-2 border-red-200 dark:border-red-800 focus:border-red-500 bg-white dark:bg-slate-900"
+                          />
+                      </div>
+                  </Card>
+
+                  <Card className="p-6 bg-gradient-to-br from-white to-yellow-50/30 dark:from-slate-800 dark:to-yellow-950/20 border-2 border-yellow-100 dark:border-yellow-900/50">
+                      <div className="flex items-center gap-2 mb-4">
+                          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center">
+                              <Users className="h-4 w-4 text-white" />
+                          </div>
+                          <h4 className="font-semibold text-lg text-foreground">Palestrantes</h4>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          <Input value={newSpeaker.name} onChange={e => setNewSpeaker(s => ({...s, name: e.target.value}))} placeholder="Nome do palestrante" />
+                          <Input value={newSpeaker.role} onChange={e => setNewSpeaker(s => ({...s, role: e.target.value}))} placeholder="Cargo/Função" />
+                          <Input value={newSpeaker.company} onChange={e => setNewSpeaker(s => ({...s, company: e.target.value}))} placeholder="Empresa (opcional)" />
+                          <Textarea value={newSpeaker.bio} onChange={e => setNewSpeaker(s => ({...s, bio: e.target.value}))} placeholder="Mini-bio (opcional)" className="md:col-span-2" rows={2}/>
+                      </div>
+                      <Button onClick={handleAddSpeaker}><Plus className="h-4 w-4 mr-2" /> Adicionar Palestrante</Button>
+
+                      <div className="mt-4 space-y-2">
+                          {(formData.speakers || []).map((speaker, index) => (
+                              <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-yellow-50 dark:bg-yellow-900/20">
+                                  <div>
+                                      <p className="font-semibold">{speaker.name}</p>
+                                      <p className="text-sm text-muted-foreground">{speaker.role} {speaker.company && `- ${speaker.company}`}</p>
+                                  </div>
+                                  <Button variant="ghost" size="icon" onClick={() => handleRemoveSpeaker(index)}>
+                                      <Trash2 className="h-4 w-4 text-red-500"/>
+                                  </Button>
+                              </div>
+                          ))}
+                      </div>
+                  </Card>
                 </TabsContent>
 
                 <TabsContent value="config">

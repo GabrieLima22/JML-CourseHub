@@ -66,10 +66,6 @@ export function CourseCard({ course, onClick, matchReason }: CourseCardProps) {
             <Clock className="w-3.5 h-3.5" />
             {course.duration_hours}h
           </span>
-          <span className="flex items-center gap-1">
-            <GraduationCap className="w-3.5 h-3.5" />
-            {course.level}
-          </span>
         </div>
       </div>
     </Card>

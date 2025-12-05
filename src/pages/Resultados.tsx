@@ -14,45 +14,42 @@ import { useSearch, type Course, type FilterOptions } from '@/hooks/useSearch';
 export default function Resultados() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { search, getRelatedCourses, getUniqueCompanies, getUniqueCourseTypes, getUniqueSegments, getUniqueLevels } = useSearch();
+  
+  // Removido getUniqueLevels
+  const { search, getRelatedCourses, getUniqueCompanies, getUniqueCourseTypes, getUniqueSegments } = useSearch();
 
-  // Estado dos filtros atualizado para nova estrutura
   const [filters, setFilters] = useState<FilterOptions>({
     companies: [],
     course_types: [],
     segments: [],
-    levels: [],
+    // levels removido
   });
 
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
-  // Inicialização baseada nos parâmetros da URL
   const initialQuery = searchParams.get('q') || '';
   const [query, setQuery] = useState(initialQuery);
 
-  // Parse inicial dos filtros da URL
+  // Parse inicial da URL
   useEffect(() => {
     const newFilters: FilterOptions = {
       companies: searchParams.get('empresa')?.split(',').filter(Boolean) || [],
       course_types: searchParams.get('tipo')?.split(',').filter(Boolean) || [],
       segments: searchParams.get('segmento')?.split(',').filter(Boolean) || [],
-      levels: searchParams.get('nivel')?.split(',').filter(Boolean) || [],
     };
     setFilters(newFilters);
   }, [searchParams]);
 
-  // Execução da busca
+  // Executa a busca
   const results = useMemo(() => {
     return search(query, filters);
   }, [query, filters, search]);
 
-  // Cursos relacionados para o drawer
   const relatedCourses = useMemo(() => {
     if (!selectedCourse) return [];
     return getRelatedCourses(selectedCourse.related_ids);
   }, [selectedCourse, getRelatedCourses]);
 
-  // Handlers para filtros
   const toggleFilter = (category: keyof FilterOptions, value: string) => {
     setFilters(prev => ({
       ...prev,
@@ -67,13 +64,11 @@ export default function Resultados() {
       companies: [],
       course_types: [],
       segments: [],
-      levels: [],
     });
   };
 
   const activeFilterCount = Object.values(filters).flat().length;
 
-  // Mapeamento para labels amigáveis
   const typeLabels: Record<string, string> = {
     'aberto': 'Aberto',
     'incompany': 'InCompany', 
@@ -88,16 +83,11 @@ export default function Resultados() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header FIXO com gradiente */}
+      {/* Header */}
       <header className="header-fixed">
         <div className="container flex items-center justify-between gap-4 px-4 py-4">
           <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-              className="rounded-full"
-            >
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="rounded-full">
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
@@ -111,9 +101,8 @@ export default function Resultados() {
         </div>
       </header>
 
-      {/* Conteúdo principal com padding para header fixo */}
+      {/* Main */}
       <div className="main-content container px-4 py-6">
-        {/* Barra de busca SIMPLES */}
         <div className="mb-6">
           <SearchBarSimple
             onSearch={setQuery}
@@ -122,9 +111,9 @@ export default function Resultados() {
           />
         </div>
 
-        <div className="flex gap-6">
-          {/* Sidebar de Filtros */}
-          <aside className="w-80 shrink-0">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Sidebar Filtros */}
+          <aside className="w-full lg:w-80 shrink-0">
             <Card className="sticky top-24 p-6">
               <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -137,19 +126,14 @@ export default function Resultados() {
                   )}
                 </div>
                 {activeFilterCount > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearAllFilters}
-                    className="h-7 text-xs"
-                  >
+                  <Button variant="ghost" size="sm" onClick={clearAllFilters} className="h-7 text-xs">
                     Limpar
                   </Button>
                 )}
               </div>
 
               <div className="space-y-6">
-                {/* Filtro por Empresa */}
+                {/* Empresa */}
                 <div>
                   <h3 className="mb-3 text-sm font-medium">Empresa</h3>
                   <div className="space-y-2">
@@ -169,7 +153,7 @@ export default function Resultados() {
 
                 <Separator />
 
-                {/* Filtro por Tipo de Curso */}
+                {/* Tipo */}
                 <div>
                   <h3 className="mb-3 text-sm font-medium">Tipo de Curso</h3>
                   <div className="space-y-2">
@@ -189,7 +173,7 @@ export default function Resultados() {
 
                 <Separator />
 
-                {/* Filtro por Segmento */}
+                {/* Segmento */}
                 <div>
                   <h3 className="mb-3 text-sm font-medium">Segmento</h3>
                   <div className="space-y-2">
@@ -210,7 +194,7 @@ export default function Resultados() {
             </Card>
           </aside>
 
-          {/* Resultados */}
+          {/* Lista Resultados */}
           <main className="flex-1">
             {results.length === 0 ? (
               <Card className="p-12 text-center">
@@ -241,7 +225,6 @@ export default function Resultados() {
         </div>
       </div>
 
-      {/* Course Drawer */}
       <CourseDrawer
         course={selectedCourse}
         open={!!selectedCourse}

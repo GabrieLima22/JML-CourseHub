@@ -12,6 +12,7 @@ const coursesRoutes = require('./routes/courses');
 const adminRoutes = require('./routes/admin');
 const uploadRoutes = require('./routes/upload');
 const taxonomyRoutes = require('./routes/taxonomies');
+const fieldsRoutes = require('./routes/fields');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -94,6 +95,7 @@ app.use('/api/courses', coursesRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/admin/taxonomies', taxonomyRoutes);
+app.use('/api/admin/fields', fieldsRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

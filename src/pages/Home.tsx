@@ -24,6 +24,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { useSearch, type Course, type FilterOptions } from '@/hooks/useSearch';
 import { useSearchHistory, type HistoryEntry } from '@/hooks/useSearchHistory';
 import { Card } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const normalizeText = (value: string) =>
   value.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
@@ -51,42 +52,42 @@ const categories: CategoryConfig[] = [
     name: 'Curso aberto JML',
     icon: GraduationCap,
     color: 'primary',
-    match: (course) => course.modality.some((m) => normalizeText(m) === normalizeText('Curso aberto JML')),
+    match: (course) => normalizeText(course.company) === normalizeText('JML') && normalizeText(course.course_type) === normalizeText('aberto'),
     buildParams: () => ({ empresa: 'JML', tipo: 'aberto' }),
   },
   {
     name: 'Curso aberto Conecta',
     icon: Share2,
     color: 'secondary',
-    match: (course) => course.modality.some((m) => normalizeText(m) === normalizeText('Curso aberto Conecta')),
+    match: (course) => normalizeText(course.company) === normalizeText('Conecta') && normalizeText(course.course_type) === normalizeText('aberto'),
     buildParams: () => ({ empresa: 'Conecta', tipo: 'aberto' }),
   },
   {
     name: 'Curso InCompany JML',
     icon: BriefcaseBusiness,
     color: 'tertiary',
-    match: (course) => course.modality.some((m) => normalizeText(m) === normalizeText('Curso InCompany JML')),
+    match: (course) => normalizeText(course.company) === normalizeText('JML') && normalizeText(course.course_type) === normalizeText('incompany'),
     buildParams: () => ({ empresa: 'JML', tipo: 'incompany' }),
   },
   {
     name: 'Curso InCompany Conecta',
     icon: Building2,
     color: 'quaternary',
-    match: (course) => course.modality.some((m) => normalizeText(m) === normalizeText('Curso InCompany Conecta')),
+    match: (course) => normalizeText(course.company) === normalizeText('Conecta') && normalizeText(course.course_type) === normalizeText('incompany'),
     buildParams: () => ({ empresa: 'Conecta', tipo: 'incompany' }),
   },
   {
     name: 'Curso EAD JML',
     icon: MonitorPlay,
     color: 'quinary',
-    match: (course) => course.modality.some((m) => normalizeText(m) === normalizeText('Curso EAD JML')),
+    match: (course) => normalizeText(course.company) === normalizeText('JML') && normalizeText(course.course_type) === normalizeText('ead'),
     buildParams: () => ({ empresa: 'JML', tipo: 'ead' }),
   },
   {
     name: 'Curso Híbrido JML',
     icon: Blend,
     color: 'senary',
-    match: (course) => course.modality.some((m) => normalizeText(m) === normalizeText('Curso Híbrido JML')),
+    match: (course) => normalizeText(course.company) === normalizeText('JML') && normalizeText(course.course_type) === normalizeText('hibrido'),
     buildParams: () => ({ empresa: 'JML', tipo: 'hibrido' }),
   },
 ];
@@ -132,6 +133,9 @@ export default function Home() {
   const newCourses = allCourses.slice(-3);
   const [exploreMode, setExploreMode] = useState<ExploreMode>('category');
 
+  
+
+  
   const sortedCourses = useMemo(
     () =>
       [...allCourses].sort((a, b) =>
@@ -151,50 +155,103 @@ export default function Home() {
     return getRelatedCourses(selectedCourse.related_ids);
   }, [selectedCourse, getRelatedCourses]);
 
+  
+  // Estados para os filtros locais
+  const [localFilters, setLocalFilters] = useState({
+    search: '',
+    company: '',
+    courseType: '',
+    segment: ''
+  });
+
+  // Lógica para extrair opções únicas (para os selects)
+  const filterOptions = useMemo(() => {
+    const companies = Array.from(new Set(allCourses.map(c => c.company))).filter(Boolean).sort();
+    const segments = Array.from(new Set(allCourses.map(c => c.segment))).filter(Boolean).sort();
+    const courseTypes = Array.from(new Set(allCourses.map(c => c.course_type))).filter(Boolean).sort();
+    return { companies, segments, courseTypes };
+  }, [allCourses]);
+
+  // Lista Filtrada
+  const filteredExploreCourses = useMemo(() => {
+    return sortedCourses.filter(course => {
+      const matchSearch = course.title.toLowerCase().includes(localFilters.search.toLowerCase());
+      const matchCompany = localFilters.company ? course.company === localFilters.company : true;
+      const matchSegment = localFilters.segment ? course.segment === localFilters.segment : true;
+      const matchCourseType = localFilters.courseType ? course.course_type === localFilters.courseType : true;
+
+      return matchSearch && matchCompany && matchSegment && matchCourseType;
+    });
+  }, [sortedCourses, localFilters]);
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
-      {/* Background animado agora está no CSS body */}
-      <div className="main-content relative z-10 flex min-h-screen flex-col">
-        {/* Header refinado e fixo */}
-     <header className="header-fixed">
-  <div className="container flex items-center justify-between gap-4 px-4 py-4">
-    <div className="flex items-center gap-3">
-      <AdminIcon />  {/* ← NOVA LINHA */}
-      <div>
-        <p className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">Plataforma JML</p>
-        <h1 className="text-xl font-semibold sm:text-2xl">Centro de Cursos</h1>
+    <div className="relative min-h-screen overflow-x-hidden bg-[#F8F9FC] dark:bg-[#050505] text-foreground selection:bg-violet-500/30">
+      
+      {/* === BACKGROUND ESTILO JML (GRADIENTES) === */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+          {/* Base */}
+          <div className="absolute inset-0 bg-[#F8F9FC] dark:bg-[#02040a]" />
+          
+          {/* Blob Verde (Topo Esquerda) - JML Style */}
+          <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-emerald-400/20 dark:bg-emerald-600/10 blur-[130px] opacity-70" />
+          
+          {/* Blob Azul (Baixo Esquerda) - JML Style */}
+          <div className="absolute bottom-[0%] left-[-5%] w-[45vw] h-[45vw] rounded-full bg-blue-500/20 dark:bg-blue-600/10 blur-[130px] opacity-60" />
+          
+          {/* Blob Roxo (Topo Direita) - JML Style */}
+          <div className="absolute top-[0%] right-[-10%] w-[50vw] h-[60vw] rounded-full bg-violet-500/20 dark:bg-violet-600/10 blur-[140px] opacity-50" />
       </div>
-    </div>
-    <div className="flex items-center gap-2">
-      <HistoryPopover onSelectHistory={handleHistorySelect} />
-      <ThemeToggle />
-    </div>
-  </div>
-</header>
+
+      <div className="main-content relative z-10 flex min-h-screen flex-col">
+        
+        {/* === HEADER (EXATAMENTE O SEU CÓDIGO ORIGINAL) === */}
+        <header className="header-fixed">
+          <div className="container flex items-center justify-between gap-4 px-4 py-4">
+            <div className="flex items-center gap-3">
+              <AdminIcon /> 
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">Plataforma JML</p>
+                <h1 className="text-xl font-semibold sm:text-2xl">Centro de Cursos</h1>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <HistoryPopover onSelectHistory={handleHistorySelect} />
+              <ThemeToggle />
+            </div>
+          </div>
+        </header>
 
         <main className="container relative z-10 flex-1 space-y-16 px-4 py-12 lg:space-y-20 lg:py-20">
-          {/* Seção hero refinada com novo título */}
-          <section className="relative overflow-visible rounded-[32px] border border-border/60 bg-card/80 px-6 py-14 shadow-[0_32px_120px_-70px_rgba(15,23,42,0.6)] transition-colors dark:bg-card/60">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(139,92,246,0.18),_transparent_65%)] dark:bg-[radial-gradient(circle_at_top,_rgba(139,92,246,0.28),_transparent_70%)]" />
-            <div className="relative mx-auto flex max-w-6xl w-full flex-col items-center gap-4 text-center px-2">
-              <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/80 px-6 py-2 text-sm font-medium uppercase tracking-[0.22em] text-primary backdrop-blur-sm">
-                <Sparkles className="h-4 w-4" />
-                Descubra o próximo passo
-              </span>
-              <div className="space-y-6">
-                <h2 className="bg-gradient-to-r from-violet-600 via-blue-600 to-emerald-600 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-6xl lg:text-7xl">
-                  Encontre a Solução perfeita
+          
+          {/* === NOVA HERO SECTION (DESIGN "WOW" + SEARCHBAR) === */}
+          <section className="relative flex flex-col items-center gap-8 text-center pt-8 pb-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <div className="space-y-4 max-w-4xl mx-auto">
+                {/* Badge Clean */}
+                <span className="inline-flex items-center gap-2 rounded-full border border-violet-200/50 bg-white/60 dark:bg-white/5 dark:border-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-300 backdrop-blur-md shadow-sm">
+                  <Sparkles className="h-3 w-3" />
+                  Descubra o próximo passo
+                </span>
+                
+                {/* Título com Gradiente JML */}
+                <h2 className="text-5xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl text-slate-900 dark:text-white">
+                  Encontre a Solução <br className="hidden sm:block" />
+                  <span className="bg-gradient-to-r from-violet-600 via-blue-600 to-emerald-500 bg-clip-text text-transparent">
+                    perfeita.
+                  </span>
                 </h2>
-                <p className="mx-auto max-w-2xl text-lg text-muted-foreground sm:text-xl">
+                
+                <p className="mx-auto max-w-2xl text-lg text-slate-600 dark:text-slate-300">
                   Digite a necessidade do cliente e navegue por recomendações preparadas para acelerar suas vendas.
                 </p>
               </div>
-              <div className="w-full max-w-2xl mt-1">
+
+              {/* Barra de Pesquisa */}
+              <div className="w-full mt-4 max-w-3xl">
                 <SearchBar onSearch={handleSearch} />
               </div>
-            </div>
           </section>
 
+          {/* === RESTANTE DO CÓDIGO (EXATAMENTE O SEU ORIGINAL) === */}
+          
           {/* Seção de exploração */}
           <section className="space-y-10">
             <div className="flex flex-wrap items-end justify-between gap-6">
@@ -251,10 +308,10 @@ export default function Home() {
                       key={category.name}
                       onClick={() => handleCategoryClick(category)}
                       role="button"
-                      className="category-card group relative flex h-full cursor-pointer flex-col gap-6 overflow-hidden rounded-3xl border border-border/70 bg-card/80 p-8 transition-all duration-300 ease-out hover:-translate-y-2 hover:border-transparent hover:shadow-xl dark:bg-card/60"
+                      className="category-card group relative flex h-full cursor-pointer flex-col gap-6 overflow-hidden rounded-3xl border border-border/70 bg-white dark:bg-card p-8 transition-all duration-300 ease-out hover:-translate-y-2 hover:border-transparent hover:shadow-xl"
                       style={{
                         boxShadow: accentShadow,
-                        background: `linear-gradient(140deg, ${getAccent(category.color, 0.12)}, transparent 70%)`,
+                        backgroundImage: `linear-gradient(140deg, ${getAccent(category.color, 0.12)}, transparent 70%)`,
                         '--accent-overlay-color': accentOverlay,
                         '--accent-shadow-color': getAccent(category.color, 0.15),
                       } as CSSProperties}
@@ -284,7 +341,7 @@ export default function Home() {
                               }
                             </p>
                           </div>
-                          <span className="rounded-full bg-background/90 px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm">
+                          <span className="rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/50 px-3 py-1 text-xs font-medium text-slate-700 dark:text-slate-300 shadow-sm whitespace-nowrap">
                             {coursesInCategory.length} cursos
                           </span>
                         </div>
@@ -300,14 +357,75 @@ export default function Home() {
                 role="region"
                 aria-label="Explorar por curso"
               >
-                <div className="flex flex-col gap-3 rounded-3xl border border-border/60 bg-background/80 p-6 shadow-inner backdrop-blur">
-                  <h4 className="text-lg font-semibold text-foreground">Todos os cursos</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Visualize rapidamente as opções completas incluindo os novos cursos híbridos exclusivos da JML.
-                  </p>
-                </div>
+                {/* Barra de Filtros Modernizada */}
+<div className="sticky top-20 z-30 mb-6 rounded-2xl border border-border/40 bg-gradient-to-r from-white/95 to-white/90 dark:from-slate-900/95 dark:to-slate-800/95 p-4 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.3)] backdrop-blur-xl transition-all">
+  <div className="flex flex-col md:flex-row gap-3">
+
+    {/* Campo de Busca Rápida */}
+    <div className="relative flex-1 group">
+      <input
+        type="text"
+        placeholder="Buscar curso por nome..."
+        value={localFilters.search}
+        onChange={(e) => setLocalFilters(prev => ({...prev, search: e.target.value}))}
+        className="h-11 w-full rounded-xl bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 px-4 pl-10 text-sm shadow-sm outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-violet-500 dark:focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all"
+      />
+      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 group-focus-within:text-violet-500 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      </div>
+    </div>
+
+    {/* Separador visual (apenas desktop) */}
+    <div className="hidden md:block w-px bg-gradient-to-b from-transparent via-border/60 to-transparent my-1"></div>
+
+    {/* Selects Customizados */}
+    <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
+      <Select value={localFilters.company || undefined} onValueChange={(value) => setLocalFilters(prev => ({...prev, company: value}))}>
+        <SelectTrigger className="min-w-[140px]">
+          <SelectValue placeholder="Todas Empresas" />
+        </SelectTrigger>
+        <SelectContent>
+          {filterOptions.companies.map(c => (
+            <SelectItem key={c} value={c}>{c}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select value={localFilters.courseType || undefined} onValueChange={(value) => setLocalFilters(prev => ({...prev, courseType: value}))}>
+        <SelectTrigger className="min-w-[160px]">
+          <SelectValue placeholder="Todos Tipos" />
+        </SelectTrigger>
+        <SelectContent>
+          {filterOptions.courseTypes.map(t => (
+            <SelectItem key={t} value={t}>{t}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select value={localFilters.segment || undefined} onValueChange={(value) => setLocalFilters(prev => ({...prev, segment: value}))}>
+        <SelectTrigger className="min-w-[150px]">
+          <SelectValue placeholder="Todos Segmentos" />
+        </SelectTrigger>
+        <SelectContent>
+          {filterOptions.segments.map(s => (
+            <SelectItem key={s} value={s}>{s}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      {(localFilters.search || localFilters.company || localFilters.courseType || localFilters.segment) && (
+         <button
+           onClick={() => setLocalFilters({ search: '', company: '', courseType: '', segment: '' })}
+           className="h-11 px-4 rounded-xl text-sm font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 border border-red-200/60 dark:border-red-800/60 shadow-sm transition-all whitespace-nowrap"
+         >
+           Limpar
+         </button>
+      )}
+    </div>
+  </div>
+</div>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                  {sortedCourses.map((course) => (
+                  {filteredExploreCourses.map((course) => (
                     <CourseCard
                       key={course.id}
                       course={course}

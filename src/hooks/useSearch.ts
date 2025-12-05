@@ -1,8 +1,9 @@
 ﻿import { useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Fuse from 'fuse.js';
-import coursesData from '@/data/courses.json';
-import { apiGet } from '@/services/api';
+import { apiGet, apiPost } from '@/services/api';
+
+// --- TIPAGENS ---
 
 export type CourseProgramItem = {
   title?: string;
@@ -53,23 +54,32 @@ export type Course = {
   badges: string[];
   summary: string;
   description: string;
+  apresentacao?: string;
   duration_hours: number;
   startDate?: string | null;
   endDate?: string | null;
   location?: string | null;
   address?: string | null;
-  schedule_details?: string | null;
   price_summary?: string | null;
+  preco_resumido?: string | null;
+  preco_online?: number | null;
+  preco_presencial?: number | null;
+  preco_incompany?: number | null;
   target_audience: string[];
   deliverables: string[];
   learning_points: string[];
   objectives?: string[];
   program_sections: CourseProgramItem[];
+  programacao?: any[];
   methodology?: string | null;
   speakers: CourseSpeaker[];
+  palestrantes?: any[];
+  convidados?: any[];
   investment_details?: CourseInvestment;
   payment_methods: string[];
   reasons_to_attend: string[];
+  vantagens?: string[];
+  vantagens_ead?: string[];
   registration_guidelines: string[];
   contacts?: CourseContacts;
   links: {
@@ -82,6 +92,9 @@ export type Course = {
   novo?: boolean;
   imagem_capa?: string;
   cor_categoria?: string;
+  custom_schema?: any[];
+  custom_fields?: Record<string, any>;
+  _searchableText?: string;
 };
 
 export type FilterOptions = {
@@ -92,46 +105,6 @@ export type FilterOptions = {
 
 export type SearchResult = Course & {
   matchReason?: string;
-};
-
-type LegacyCourse = {
-  id: number;
-  title: string;
-  slug: string;
-  company: string;
-  course_type: string;
-  segment: string;
-  modality: string[];
-  tags: string[];
-  summary: string;
-  description: string;
-  duration_hours: number;
-  level: string;
-  target_audience?: string;
-  deliverables?: string[];
-  links?: {
-    landing?: string;
-    pdf?: string;
-  };
-  related_ids?: number[];
-  subtitle?: string;
-  category?: string;
-  segments?: string[];
-  badges?: string[];
-  startDate?: string;
-  endDate?: string;
-  location?: string;
-  address?: string;
-  schedule_details?: string;
-  price_summary?: string;
-  learning_points?: string[];
-  methodology?: string;
-  speakers?: CourseSpeaker[];
-  investment_details?: CourseInvestment;
-  payment_methods?: string[];
-  reasons_to_attend?: string[];
-  registration_guidelines?: string[];
-  contacts?: CourseContacts;
 };
 
 type ApiCourse = {
@@ -148,8 +121,8 @@ type ApiCourse = {
   tags?: string[] | null;
   summary?: string | null;
   description?: string | null;
+  apresentacao?: string | null;
   carga_horaria?: number | null;
-  nivel?: string | null;
   publico_alvo?: string[] | null;
   aprendizados?: string[] | null;
   deliverables?: string[] | null;
@@ -161,196 +134,159 @@ type ApiCourse = {
   endereco_completo?: string | null;
   objetivos?: string[] | null;
   programacao?: any[] | null;
+  palestrantes?: any[] | null;
+  professores?: any[] | null;
+  convidados?: any[] | null;
   metodologia?: string | null;
-  logistica_detalhes?: string | null;
   preco_resumido?: string | null;
+  preco_online?: number | null;
+  preco_presencial?: number | null;
+  preco_incompany?: number | null;
   badges?: string[] | null;
   motivos_participar?: string[] | null;
+  vantagens?: string[] | null;
+  vantagens_ead?: string[] | null;
   orientacoes_inscricao?: string[] | null;
   contatos?: any | null;
-  professores?: any[] | null;
-  coordenacao?: any | null;
   investimento?: any | null;
   forma_pagamento?: string[] | null;
-  inscricao_url?: string | null;
   related_ids?: string[] | null;
   status?: string | null;
   destaque?: boolean | null;
   novo?: boolean | null;
   cor_categoria?: string | null;
   imagem_capa?: string | null;
+  custom_fields?: Record<string, any> | null;
+  custom_schema?: any[] | null;
 };
 
 type CoursesApiPayload = {
   courses: ApiCourse[];
 };
 
+// --- UTILITÁRIOS (Mantidos) ---
+
+const extractCustomFieldsText = (course: Course): string => {
+  if (!course.custom_fields || typeof course.custom_fields !== 'object') return '';
+  const values: string[] = [];
+  Object.values(course.custom_fields).forEach(value => {
+    if (typeof value === 'string') values.push(value);
+    else if (Array.isArray(value)) values.push(...value.filter(v => typeof v === 'string'));
+    else if (typeof value === 'number' || typeof value === 'boolean') values.push(String(value));
+  });
+  return values.join(' ');
+};
+
+const extractProgramText = (course: Course): string => {
+  if (!Array.isArray(course.program_sections)) return '';
+  return course.program_sections
+    .map(section => {
+      const parts: string[] = [];
+      if (section.title) parts.push(section.title);
+      if (section.description) parts.push(section.description);
+      if (Array.isArray(section.topics)) parts.push(...section.topics);
+      return parts.join(' ');
+    })
+    .join(' ');
+};
+
+const generateSearchableText = (course: Course): string => {
+  const parts: string[] = [
+    course.title,
+    course.subtitle || '',
+    course.summary,
+    course.description,
+    course.area || '',
+    course.segment,
+    course.segments.join(' '),
+    course.tags.join(' '),
+    course.badges.join(' '),
+    course.objectives?.join(' ') || '',
+    course.target_audience.join(' '),
+    course.learning_points.join(' '),
+    course.deliverables.join(' '),
+    course.reasons_to_attend.join(' '),
+    course.vantagens?.join(' ') || '',
+    course.vantagens_ead?.join(' ') || '',
+    course.methodology || '',
+    extractProgramText(course),
+    extractCustomFieldsText(course),
+    course.speakers.map(s => `${s.name} ${s.role || ''} ${s.bio || ''}`).join(' '),
+  ];
+
+  return parts.filter(Boolean).join(' ').toLowerCase().replace(/\s+/g, ' ').trim();
+};
+
 const fuseOptions = {
   keys: [
-    { name: 'title', weight: 3 },
-    { name: 'summary', weight: 2 },
-    { name: 'tags', weight: 2 },
-    { name: 'description', weight: 1 },
+    { name: '_searchableText', weight: 10 },
+    { name: 'title', weight: 5 },
+    { name: 'subtitle', weight: 4 },
+    { name: 'summary', weight: 4 },
+    { name: 'tags', weight: 4 },
+    { name: 'segment', weight: 3 },
+    { name: 'description', weight: 3 },
+    { name: 'objectives', weight: 3 },
+    { name: 'target_audience', weight: 3 },
+    { name: 'program_sections.title', weight: 2.5 },
+    { name: 'speakers.name', weight: 2 },
+    { name: 'company', weight: 1 },
+    { name: 'course_type', weight: 1 },
   ],
   threshold: 0.4,
   includeScore: true,
   includeMatches: true,
+  ignoreLocation: true,
+  useExtendedSearch: true,
 };
 
 const toArray = (value?: string | string[] | null) => {
   if (!value) return [];
   if (Array.isArray(value)) return value;
-  return value
-    .split(',')
-    .map(v => v.trim())
-    .filter(Boolean);
+  return value.split(/[,|]/).map(v => v.trim()).filter(Boolean);
 };
 
+// Normalizadores
 function normalizeProgramacao(value?: any[] | null): CourseProgramItem[] {
   if (!Array.isArray(value)) return [];
-  return value
-    .map(item => {
-      if (typeof item === 'string') {
-        return { title: item };
-      }
-      if (item && typeof item === 'object') {
-        return {
-          title: item.titulo ?? item.title ?? '',
-          description: item.descricao ?? item.description ?? undefined,
-          topics: Array.isArray(item.topicos ?? item.topics)
-            ? (item.topicos ?? item.topics)
-                .map((t: string) => `${t}`.trim())
-                .filter(Boolean)
-            : undefined,
-        };
-      }
-      return null;
-    })
-    .filter((section): section is CourseProgramItem => Boolean(section && (section.title || section.description)));
+  return value.map(item => {
+    if (typeof item === 'string') return { title: item };
+    if (item && typeof item === 'object') {
+      return {
+        title: item.titulo ?? item.title ?? '',
+        description: item.descricao ?? item.description ?? undefined,
+        topics: Array.isArray(item.topicos ?? item.topics) ? item.topicos ?? item.topics : undefined,
+      };
+    }
+    return null;
+  }).filter(Boolean) as CourseProgramItem[];
 }
 
-function normalizeSpeakers(value?: any[] | CourseSpeaker[] | null): CourseSpeaker[] {
+function normalizeSpeakers(value?: any[] | null): CourseSpeaker[] {
   if (!Array.isArray(value)) return [];
-  return value
-    .map(item => {
-      if (typeof item === 'string') {
-        return { name: item };
-      }
-      if (item && typeof item === 'object') {
-        return {
-          name: item.name ?? item.nome ?? '',
-          role: item.role ?? item.cargo ?? item.funcao ?? undefined,
-          company: item.company ?? item.empresa ?? undefined,
-          bio: item.bio ?? item.descricao ?? undefined,
-          avatar: item.avatar ?? item.foto ?? undefined,
-        };
-      }
-      return null;
-    })
-    .filter((speaker): speaker is CourseSpeaker => Boolean(speaker && speaker.name.trim().length > 0));
+  return value.map(item => {
+    if (typeof item === 'string') return { name: item };
+    if (item && typeof item === 'object') {
+      return {
+        name: item.name ?? item.nome ?? '',
+        role: item.role ?? item.cargo ?? item.funcao ?? undefined,
+        company: item.company ?? item.empresa ?? undefined,
+        bio: item.bio ?? item.curriculo ?? item.descricao ?? undefined,
+        avatar: item.avatar ?? item.foto ?? item.imagem ?? undefined,
+      };
+    }
+    return null;
+  }).filter((s): s is CourseSpeaker => !!s && !!s.name);
 }
 
-function normalizeInvestment(value?: any | null): CourseInvestment | undefined {
-  if (!value) return undefined;
-  if (typeof value !== 'object') {
-    return { summary: String(value) };
-  }
-  const options = Array.isArray(value.options ?? value.opcoes)
-    ? (value.options ?? value.opcoes).map((opt: any) => ({
-        title: opt.title ?? opt.nome ?? undefined,
-        price: opt.price ?? opt.valor ?? undefined,
-        includes: Array.isArray(opt.includes ?? opt.inclui)
-          ? (opt.includes ?? opt.inclui).map((entry: string) => `${entry}`.trim()).filter(Boolean)
-          : undefined,
-      }))
-    : undefined;
-  return {
-    summary: value.summary ?? value.resumo ?? undefined,
-    options,
-    notes: value.notes ?? value.observacoes ?? undefined,
-  };
-}
-
-function normalizeContacts(value?: any | null): CourseContacts | undefined {
-  if (!value || typeof value !== 'object') return undefined;
-  return {
-    email: value.email ?? value.contato_email ?? undefined,
-    phone: value.phone ?? value.telefone ?? undefined,
-    whatsapp: value.whatsapp ?? value.whats ?? undefined,
-    website: value.website ?? value.site ?? undefined,
-    hours: value.hours ?? value.horario ?? undefined,
-  };
-}
-
-function normalizeArray(value?: string | string[] | null): string[] {
-  if (!value) return [];
-  if (Array.isArray(value)) return value.map(v => v.trim()).filter(Boolean);
-  return value
-    .split(/[,|]/)
-    .map(part => part.trim())
-    .filter(Boolean);
-}
-
-function mapLegacyCourse(course: LegacyCourse): Course {
-  const fallbackProgram = course.description ? course.description.split('|').map(section => ({ titulo: section })) : [];
-  const programSections = course.program_sections ?? normalizeProgramacao(fallbackProgram);
-  return {
-    id: String(course.id),
-    title: course.title,
-    subtitle: course.subtitle,
-    slug: course.slug,
-    area: course.segment,
-    category: course.category ?? course.segment,
-    company: course.company,
-    course_type: course.course_type,
-    segment: course.segment,
-    segments: course.segments ?? (course.segment ? [course.segment] : []),
-    modality: course.modality ?? [],
-    tags: course.tags ?? [],
-    badges: course.badges ?? [],
-    summary: course.summary ?? '',
-    description: course.description ?? '',
-    duration_hours: course.duration_hours,
-    level: course.level,
-    startDate: course.startDate ?? null,
-    endDate: course.endDate ?? null,
-    location: course.location ?? null,
-    address: course.address ?? null,
-    schedule_details: course.schedule_details ?? null,
-    price_summary: course.price_summary ?? null,
-    target_audience: normalizeArray(course.target_audience),
-    deliverables: course.deliverables ?? [],
-    learning_points: course.learning_points ?? [],
-    objectives: [],
-    program_sections: programSections,
-    methodology: course.methodology ?? undefined,
-    speakers: normalizeSpeakers(course.speakers),
-    investment_details: course.investment_details,
-    payment_methods: course.payment_methods ?? [],
-    reasons_to_attend: course.reasons_to_attend ?? [],
-    registration_guidelines: course.registration_guidelines ?? [],
-    contacts: course.contacts,
-    links: {
-      landing: course.links?.landing ?? '',
-      pdf: course.links?.pdf ?? '',
-    },
-    related_ids: (course.related_ids ?? []).map(id => String(id)),
-    status: undefined,
-    destaque: undefined,
-    novo: undefined,
-    imagem_capa: undefined,
-    cor_categoria: undefined,
-  };
-}
-
+// Mapeamento
 function mapApiCourse(course: ApiCourse): Course {
-  return {
+  const mapped: Course = {
     id: course.id,
     title: course.titulo ?? course.slug ?? 'Curso sem título',
     subtitle: course.titulo_complemento ?? undefined,
     slug: course.slug ?? course.id,
     area: course.categoria ?? course.segmento ?? undefined,
-    category: course.categoria ?? undefined,
     company: course.empresa ?? 'JML',
     course_type: course.tipo ?? 'aberto',
     segment: course.segmento ?? course.categoria ?? 'Geral',
@@ -359,27 +295,34 @@ function mapApiCourse(course: ApiCourse): Course {
     tags: course.tags ?? [],
     badges: course.badges ?? [],
     summary: course.summary ?? '',
-    description: course.description ?? '',
+    description: course.apresentacao || course.description || '',
+    apresentacao: course.apresentacao ?? undefined,
     duration_hours: course.carga_horaria ?? 0,
-    level: course.nivel ?? 'Básico',
     startDate: course.data_inicio ?? null,
     endDate: course.data_fim ?? null,
     location: course.local ?? null,
     address: course.endereco_completo ?? null,
-    schedule_details: course.logistica_detalhes ?? null,
     price_summary: course.preco_resumido ?? null,
+    preco_resumido: course.preco_resumido ?? null,
+    preco_online: course.preco_online ?? null,
+    preco_presencial: course.preco_presencial ?? null,
+    preco_incompany: course.preco_incompany ?? null,
     target_audience: toArray(course.publico_alvo),
-    deliverables: course.deliverables ?? [],
-    learning_points: course.aprendizados ?? [],
-    objectives: course.objetivos ?? [],
+    deliverables: toArray(course.deliverables),
+    learning_points: toArray(course.aprendizados),
+    objectives: toArray(course.objetivos),
     program_sections: normalizeProgramacao(course.programacao),
+    programacao: course.programacao ?? [],
     methodology: course.metodologia ?? undefined,
-    speakers: normalizeSpeakers(course.professores),
-    investment_details: normalizeInvestment(course.investimento),
+    speakers: normalizeSpeakers(course.palestrantes || course.professores),
+    palestrantes: course.palestrantes ?? [],
+    convidados: course.convidados ?? [],
     payment_methods: course.forma_pagamento ?? [],
-    reasons_to_attend: course.motivos_participar ?? [],
-    registration_guidelines: course.orientacoes_inscricao ?? [],
-    contacts: normalizeContacts(course.contatos),
+    reasons_to_attend: toArray(course.motivos_participar || course.vantagens),
+    vantagens: toArray(course.vantagens),
+    vantagens_ead: toArray(course.vantagens_ead),
+    registration_guidelines: toArray(course.orientacoes_inscricao),
+    contacts: course.contatos || undefined,
     links: {
       landing: course.landing_page ?? '',
       pdf: course.pdf_url ?? '',
@@ -390,14 +333,19 @@ function mapApiCourse(course: ApiCourse): Course {
     novo: course.novo ?? undefined,
     imagem_capa: course.imagem_capa ?? undefined,
     cor_categoria: course.cor_categoria ?? undefined,
+    custom_schema: course.custom_schema ?? [],
+    custom_fields: course.custom_fields ?? {},
   };
+
+  mapped._searchableText = generateSearchableText(mapped);
+  return mapped;
 }
+
 type UseSearchOptions = {
   status?: 'published' | 'draft' | 'all';
 };
 
 export function useSearch(options: UseSearchOptions = {}) {
-  const legacyCourses = coursesData as LegacyCourse[];
   const statusFilter = options.status ?? 'published';
 
   const {
@@ -411,25 +359,21 @@ export function useSearch(options: UseSearchOptions = {}) {
     queryKey: ['courses', statusFilter],
     queryFn: async () => {
       const statusQuery = statusFilter === 'all' ? '' : `&status=${statusFilter}`;
-      const response = await apiGet<CoursesApiPayload>(
-        `/api/courses?limit=500${statusQuery}`
-      );
+      const response = await apiGet<CoursesApiPayload>(`/api/courses?limit=500${statusQuery}`);
       return response.data?.courses?.map(mapApiCourse) ?? [];
     },
     staleTime: 1000 * 60 * 5,
     retry: 1,
   });
 
-  const fallbackCourses = useMemo(
-    () => legacyCourses.map(mapLegacyCourse),
-    [legacyCourses]
-  );
-
-  const usingFallback = !remoteCourses || remoteCourses.length === 0;
-  const courses = usingFallback ? fallbackCourses : remoteCourses;
+  // --- CORREÇÃO DO LOOP INFINITO AQUI ---
+  // Usamos useMemo para garantir que se remoteCourses não mudar, a referência do array é a mesma.
+  // Se for null/undefined, retorna um array vazio estático (mas o useMemo já resolve a recriação).
+  const courses = useMemo(() => remoteCourses ?? [], [remoteCourses]);
 
   const fuse = useMemo(() => new Fuse(courses, fuseOptions), [courses]);
 
+  // BUSCA LOCAL
   const search = useCallback(
     (query: string, filters: FilterOptions): SearchResult[] => {
       let results: SearchResult[] = [];
@@ -439,11 +383,7 @@ export function useSearch(options: UseSearchOptions = {}) {
         results = fuseResults.map(({ item, matches }) => {
           const matchedField = matches?.[0]?.key || 'tags';
           const matchReason =
-            matchedField === 'title'
-              ? `TÃ­tulo relacionado`
-              : matchedField === 'tags'
-              ? `Tag: "${matches?.[0]?.value}"`
-              : `Relacionado a "${query}"`;
+            matchedField === 'title' ? `Título relacionado` : matchedField === 'tags' ? `Tag: "${matches?.[0]?.value}"` : `Relacionado a "${query}"`;
           return { ...item, matchReason };
         });
       } else {
@@ -459,71 +399,91 @@ export function useSearch(options: UseSearchOptions = {}) {
       if (filters.segments.length > 0) {
         results = results.filter(c => filters.segments.includes(c.segment));
       }
-      if (filters.levels.length > 0) {
-        results = results.filter(c => filters.levels.includes(c.level));
-      }
 
       return results;
     },
     [courses, fuse]
   );
 
-  const getCourseById = useCallback(
-    (id: string): Course | undefined => courses.find(c => c.id === id),
-    [courses]
+  // BUSCA INTELIGENTE (IA)
+  const aiSearch = useCallback(
+    async (query: string, filters: FilterOptions): Promise<{
+      results: SearchResult[];
+      query: { original: string; expanded: string[]; intent: string; categories: string[]; };
+      meta: { totalFound: number; totalSearched: number; avgScore: number; hasHighRelevance: boolean; };
+      usedAI: boolean;
+    }> => {
+      try {
+        const payload = {
+          q: query,
+          empresa: filters.companies[0],
+          tipo: filters.course_types[0],
+          segmento: filters.segments[0],
+        };
+
+        const response = await apiPost<any>('/api/courses/ai-search', payload);
+        const data = response.data;
+
+        const aiResults: SearchResult[] = data.results.map((course: any) => ({
+          ...mapApiCourse(course),
+          matchReason: `IA: ${course._matchedTerms?.slice(0, 3).join(', ') || 'relevante'}`,
+        }));
+
+        return {
+          results: aiResults,
+          query: data.query,
+          meta: data.meta,
+          usedAI: true,
+        };
+      } catch (error) {
+        console.error('Erro na busca com IA, usando fallback local:', error);
+        const fallbackResults = search(query, filters);
+        return {
+          results: fallbackResults,
+          query: { original: query, expanded: [query], intent: query, categories: [] },
+          meta: { totalFound: fallbackResults.length, totalSearched: courses.length, avgScore: 0, hasHighRelevance: false },
+          usedAI: false,
+        };
+      }
+    },
+    [courses, search]
   );
 
-  const getRelatedCourses = useCallback(
-    (ids: string[] = []): Course[] => {
-      if (!ids.length) return [];
-      return courses.filter(c => ids.includes(c.id));
-    },
-    [courses]
-  );
+  const getCourseById = useCallback((id: string): Course | undefined => courses.find(c => c.id === id), [courses]);
+
+  const getRelatedCourses = useCallback((ids: string[] = []): Course[] => {
+    if (!ids.length) return [];
+    return courses.filter(c => ids.includes(c.id));
+  }, [courses]);
 
   const allowedCompanies = ['JML', 'Conecta'];
-  const allowedSegments = ['Estatais', 'Judiciário', 'Sistema S'];
+  const allowedSegments = ['Estatais', 'Judiciário', 'Sistema S', 'Municípios', 'Empresas Privadas', 'Administração Pública'];
 
-  const getUniqueCompanies = useCallback(
-    () =>
-      [...new Set(courses.map(c => c.company).filter(Boolean))].filter(c =>
-        allowedCompanies.includes(c)
-      ),
-    [courses]
-  );
+  const getUniqueCompanies = useCallback(() => 
+    [...new Set(courses.map(c => c.company).filter(Boolean))].filter(c => allowedCompanies.includes(c)).sort(), 
+  [courses]);
 
-  const getUniqueCourseTypes = useCallback(
-    () => [...new Set(courses.map(c => c.course_type).filter(Boolean))],
-    [courses]
-  );
+  const getUniqueCourseTypes = useCallback(() => 
+    [...new Set(courses.map(c => c.course_type).filter(Boolean))].sort(), 
+  [courses]);
 
-  const getUniqueSegments = useCallback(
-    () =>
-      [...new Set(courses.map(c => c.segment).filter(Boolean))].filter(s =>
-        allowedSegments.includes(s)
-      ),
-    [courses]
-  );
-
-  const getUniqueLevels = useCallback(
-    () => [...new Set(courses.map(c => c.level).filter(Boolean))],
-    [courses]
-  );
+  const getUniqueSegments = useCallback(() => 
+    [...new Set(courses.map(c => c.segment).filter(Boolean))].filter(s => allowedSegments.includes(s)).sort(), 
+  [courses]);
 
   return {
     search,
+    aiSearch,
     getCourseById,
     getRelatedCourses,
     allCourses: courses,
     getUniqueCompanies,
     getUniqueCourseTypes,
     getUniqueSegments,
-    getUniqueLevels,
     isLoading,
     isFetching,
     isError,
     errorMessage: error instanceof Error ? error.message : null,
     refetch,
-    isUsingFallback: usingFallback,
   };
 }

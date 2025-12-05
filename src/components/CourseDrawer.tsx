@@ -1,515 +1,577 @@
-﻿import { useMemo, useState } from 'react';
+﻿import { useMemo, useState, ReactNode } from 'react';
 import {
-  X,
-  Copy,
-  FileText,
-  Link as LinkIcon,
-  Clock,
-  GraduationCap,
-  MapPin,
-  Calendar,
-  DollarSign,
-  Users,
-  BookOpen,
-  Star,
-  Target,
-  Award,
-  Sparkles,
-  ListChecks,
+  X, Copy, FileText, Link as LinkIcon, Clock, GraduationCap, MapPin,
+  Calendar, DollarSign, Users, BookOpen, Target, Award, Sparkles,
+  ListChecks, Settings2, CheckCircle2, ArrowRight, Share2, Briefcase,
+  MonitorPlay, Phone, Mail, ChevronRight, Download
 } from 'lucide-react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from './ui/sheet';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Separator } from './ui/separator';
-import { Course, CourseProgramItem, CourseSpeaker, CourseInvestment } from '@/hooks/useSearch';
+import { ScrollArea } from './ui/scroll-area';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
-const companyLabels: Record<string, string> = {
-  JML: 'JML',
-  Conecta: 'Conecta',
-};
-
-const courseTypeLabels: Record<string, string> = {
-  aberto: 'Aberto',
-  incompany: 'InCompany',
-  ead: 'EAD',
-  hibrido: 'Híbrido',
-};
-
-type CourseDrawerProps = {
-  course: Course | null;
-  open: boolean;
-  onClose: () => void;
-  relatedCourses: Course[];
-  onCourseClick: (course: Course) => void;
-};
-
-const dateFormatter = new Intl.DateTimeFormat('pt-BR', {
-  day: '2-digit',
-  month: 'short',
-  year: 'numeric',
-});
-
-const formatDateRange = (start?: string | null, end?: string | null) => {
-  if (!start && !end) return null;
-  if (start && end) {
-    return `${dateFormatter.format(new Date(start))} - ${dateFormatter.format(new Date(end))}`;
+// --- CONFIGURAÇÃO DE TEMA (JML vs CONECTA) ---
+const getTheme = (company: string) => {
+  if (company === 'Conecta') {
+    return {
+      gradient: "from-cyan-500 to-emerald-500",
+      bgLight: "bg-cyan-50/50 dark:bg-cyan-950/10",
+      border: "border-cyan-100 dark:border-cyan-900/30",
+      text: "text-cyan-700 dark:text-cyan-400",
+      iconBg: "bg-cyan-100 dark:bg-cyan-900/30",
+      marker: "bg-cyan-500",
+    };
   }
-  const date = start || end;
-  return date ? dateFormatter.format(new Date(date)) : null;
+  // Default JML
+  return {
+    gradient: "from-violet-600 to-indigo-600",
+    bgLight: "bg-violet-50/50 dark:bg-violet-950/10",
+    border: "border-violet-100 dark:border-violet-900/30",
+    text: "text-violet-700 dark:text-violet-400",
+    iconBg: "bg-violet-100 dark:bg-violet-900/30",
+    marker: "bg-violet-500",
+  };
 };
 
-const InfoPill = ({ label, value }: { label: string; value?: string | null }) => {
-  if (!value) return null;
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-xs text-muted-foreground flex items-center gap-1">{label}</span>
-      <span className="font-semibold text-sm leading-tight">{value}</span>
-    </div>
-  );
+const formatDate = (dateString?: string | null) => {
+  if (!dateString) return null;
+  try {
+    return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(dateString));
+  } catch { return dateString; }
 };
 
-const DrawerSection = ({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) => (
-  <section className="space-y-3">
-    <h4 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">{title}</h4>
-    <div className="text-sm text-muted-foreground leading-relaxed space-y-3">
-      {children}
+// --- COMPONENTES VISUAIS ---
+
+const SectionTitle = ({ icon: Icon, title, className }: { icon: any, title: string, className?: string }) => (
+  <div className={cn("flex items-center gap-3 mb-6 pb-2 border-b border-border/40", className)}>
+    <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+      <Icon className="w-5 h-5" />
     </div>
-  </section>
-);
-
-const List = ({ items }: { items: string[] }) => (
-  <ul className="space-y-2">
-    {items.map((item, index) => (
-      <li key={`${item}-${index}`} className="flex items-start gap-2 text-sm text-foreground">
-        <span className="text-primary mt-1">•</span>
-        <span>{item}</span>
-      </li>
-    ))}
-  </ul>
-);
-
-const ProgramList = ({ sections }: { sections: CourseProgramItem[] }) => (
-  <div className="space-y-4">
-    {sections.map((section, index) => (
-      <div key={`${section.title}-${index}`} className="rounded-xl border border-border p-4">
-        {section.title && <h5 className="font-semibold text-sm mb-1">{section.title}</h5>}
-        {section.description && <p className="text-sm text-muted-foreground leading-relaxed">{section.description}</p>}
-        {section.topics && section.topics.length > 0 && (
-          <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-            {section.topics.map((topic, topicIdx) => (
-              <li key={`${topic}-${topicIdx}`} className="flex items-start gap-2">
-                <span className="text-primary mt-1">•</span>
-                <span>{topic}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    ))}
+    <h3 className="font-bold text-lg text-foreground tracking-tight">{title}</h3>
   </div>
 );
 
-const Speakers = ({ speakers }: { speakers: CourseSpeaker[] }) => (
-  <div className="grid gap-4 sm:grid-cols-2">
-    {speakers.map((speaker) => (
-      <div
-        key={speaker.name}
-        className="rounded-xl border border-border p-4 flex flex-col gap-1"
-      >
-        <span className="font-semibold">{speaker.name}</span>
-        {speaker.role && (
-          <span className="text-sm text-muted-foreground">{speaker.role}</span>
-        )}
-        {speaker.company && (
-          <span className="text-sm text-muted-foreground">{speaker.company}</span>
-        )}
-        {speaker.bio && (
-          <p className="text-sm text-muted-foreground mt-2">{speaker.bio}</p>
-        )}
-      </div>
-    ))}
+const HighlightCard = ({ children, className }: { children: ReactNode, className?: string }) => (
+  <div className={cn("rounded-2xl border bg-card/50 backdrop-blur-sm p-6 shadow-sm transition-all hover:shadow-md", className)}>
+    {children}
   </div>
 );
 
-const Investment = ({ investment }: { investment?: CourseInvestment }) => {
-  if (!investment) return null;
+const SpeakerCard = ({ speaker, theme }: { speaker: any, theme: any }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const bio = speaker.bio || speaker.curriculo || '';
+  const needsExpansion = bio.length > 200;
+
   return (
-    <div className="space-y-3">
-      {investment.summary && (
-        <p className="text-sm text-muted-foreground leading-relaxed">{investment.summary}</p>
-      )}
-      {investment.options && investment.options.length > 0 && (
-        <div className="grid gap-3">
-          {investment.options.map((option, index) => (
-            <div key={`${option.title}-${index}`} className="rounded-xl border border-border p-4">
-              {option.title && <p className="font-semibold mb-1">{option.title}</p>}
-              {option.price && (
-                <p className="text-sm text-primary font-semibold mb-2">{option.price}</p>
+    <div className="group relative overflow-hidden rounded-2xl border border-border/60 bg-white/50 dark:bg-slate-900/50 p-6 hover:border-border transition-all hover:shadow-md">
+      <div className="flex gap-5">
+        <Avatar className="h-20 w-20 border-2 border-background shadow-lg shrink-0">
+          <AvatarImage src={speaker.foto || speaker.imagem || speaker.photo} className="object-cover" />
+          <AvatarFallback className={cn("font-bold text-2xl", theme.text, theme.bgLight)}>
+            {(speaker.name || speaker.nome)?.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1 min-w-0">
+          <h4 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors mb-1">
+            {speaker.name || speaker.nome}
+          </h4>
+          <p className={cn("text-sm font-medium mb-3", theme.text)}>
+            {speaker.role || speaker.cargo}
+          </p>
+          {bio && (
+            <>
+              <p className={cn(
+                "text-sm text-muted-foreground leading-relaxed whitespace-pre-line",
+                !isExpanded && needsExpansion && "line-clamp-4"
+              )}>
+                {bio}
+              </p>
+              {needsExpansion && (
+                <button
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className={cn("text-xs font-semibold mt-2 hover:underline", theme.text)}
+                >
+                  {isExpanded ? 'Ver menos' : 'Ver mais'}
+                </button>
               )}
-              {option.includes && option.includes.length > 0 && (
-                <List items={option.includes} />
-              )}
-            </div>
-          ))}
+            </>
+          )}
         </div>
-      )}
-      {investment.notes && (
-        <p className="text-xs text-muted-foreground italic">{investment.notes}</p>
-      )}
+      </div>
     </div>
   );
 };
 
-export function CourseDrawer({ course, open, onClose, relatedCourses, onCourseClick }: CourseDrawerProps) {
-  const [activeTab, setActiveTab] = useState('breve');
-  const { toast } = useToast();
+// --- COMPONENTE PRINCIPAL ---
 
-  const segments = useMemo(() => {
-    if (!course) return [];
-    if (course.segments && course.segments.length > 0) return course.segments;
-    return course.segment ? [course.segment] : [];
-  }, [course]);
+export function CourseDrawer({ course, open, onClose, relatedCourses, onCourseClick }: any) {
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState("visão-geral");
 
   if (!course) return null;
 
-  const priceSummary = course.price_summary || course.investment_details?.summary || course.investment_details?.options?.[0]?.price;
-  const badges = course.badges.length > 0 ? course.badges : course.tags;
-  const dateRange = formatDateRange(course.startDate, course.endDate);
-  const pitchText = `${course.title}${course.subtitle ? ` - ${course.subtitle}` : ''}\n\n${course.summary}\n\nEmpresa: ${companyLabels[course.company] || course.company} | Tipo: ${courseTypeLabels[course.course_type] || course.course_type} | Segmentos: ${segments.join(', ')}\nCarga horária: ${course.duration_hours}h | Nível: ${course.level} | Modalidades: ${course.modality.join(', ')}`;
+  const theme = getTheme(course.empresa);
+  
+  // Normalização de Dados
+  const dateStart = formatDate(course.data_inicio || course.startDate);
+  const dateEnd = formatDate(course.data_fim || course.endDate);
+  const dateDisplay = dateStart ? (dateEnd && dateStart !== dateEnd ? `${dateStart} até ${dateEnd}` : dateStart) : "A definir";
+  
+  const segments = course.segmentos || (course.segmento ? [course.segmento] : []);
+  const customSchema = course.custom_schema || [];
+  const customValues = course.custom_fields || {};
 
-  const copyToClipboard = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    toast({
-      title: 'Copiado!',
-      description: `${label} copiado para a área de transferência.`,
+  // Formatação de Preço
+  const formatPrice = (value?: number | null) => {
+    if (!value) return null;
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+  };
+
+  const getPriceDisplay = () => {
+    console.log('🔍 Debug Preço:', {
+      preco_resumido: course.preco_resumido,
+      preco_online: course.preco_online,
+      preco_presencial: course.preco_presencial,
+      preco_incompany: course.preco_incompany,
+      modalidade: course.modalidade,
+      modality: course.modality
     });
+
+    if (course.preco_resumido) return course.preco_resumido;
+
+    // Determinar qual preço mostrar baseado na modalidade
+    const modality = course.modality?.[0] || course.modalidade?.[0] || '';
+    const isEAD = modality.toLowerCase().includes('ead');
+    const isPresencial = modality.toLowerCase().includes('aberto') || modality.toLowerCase().includes('presencial');
+    const isInCompany = modality.toLowerCase().includes('incompany');
+
+    console.log('🎯 Modalidade detectada:', { modality, isEAD, isPresencial, isInCompany });
+
+    if (isEAD && course.preco_online) return formatPrice(course.preco_online);
+    if (isPresencial && course.preco_presencial) return formatPrice(course.preco_presencial);
+    if (isInCompany && course.preco_incompany) return formatPrice(course.preco_incompany);
+
+    // Fallback: mostrar o primeiro disponível
+    if (course.preco_online) return formatPrice(course.preco_online);
+    if (course.preco_presencial) return formatPrice(course.preco_presencial);
+    if (course.preco_incompany) return formatPrice(course.preco_incompany);
+
+    return "Sob Consulta";
+  };
+
+  const getAvailablePrices = () => {
+    const prices = [];
+    if (course.preco_online) prices.push({ label: 'EAD', value: formatPrice(course.preco_online) });
+    if (course.preco_presencial) prices.push({ label: 'Presencial', value: formatPrice(course.preco_presencial) });
+    if (course.preco_incompany) prices.push({ label: 'In Company', value: formatPrice(course.preco_incompany) });
+    return prices;
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast({ title: "Link copiado", description: "Compartilhe este curso com sua equipe." });
   };
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto p-0">
-        <SheetHeader className="sticky top-0 bg-background/95 backdrop-blur-sm z-10 p-6 pb-4 border-b">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1 space-y-3">
-              <SheetTitle className="text-2xl font-semibold leading-tight">
-                {course.title}
-              </SheetTitle>
-              {course.subtitle && (
-                <p className="text-sm text-muted-foreground">{course.subtitle}</p>
-              )}
+      <SheetContent side="right" className="w-full sm:max-w-[900px] p-0 border-l border-border/40 shadow-2xl bg-[#F8F9FC] dark:bg-[#09090b] overflow-hidden flex flex-col">
+        
+        {/* --- HEADER: HERO SECTION --- */}
+        <div className="relative shrink-0">
+          {/* Background com Gradiente */}
+          <div className={cn("absolute inset-0 bg-gradient-to-br opacity-10 dark:opacity-20", theme.gradient)} />
+          
+          <div className="relative z-10 p-6 sm:p-8 flex flex-col gap-5 border-b border-border/40 bg-white/70 dark:bg-black/40 backdrop-blur-xl">
+            {/* Top Bar */}
+            <div className="flex items-start justify-between">
               <div className="flex flex-wrap gap-2">
-                <Badge variant="outline" className="text-xs font-medium">
-                  {companyLabels[course.company] || course.company}
+                <Badge variant="outline" className={cn("bg-white/80 dark:bg-white/10 backdrop-blur-md border-0 font-bold px-3", theme.text)}>
+                  {course.empresa || "JML"}
                 </Badge>
-                <Badge variant="outline" className="text-xs font-medium">
-                  {courseTypeLabels[course.course_type] || course.course_type}
+                <Badge variant="secondary" className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-3">
+                  {course.modality?.[0] || course.tipo || "Curso"}
                 </Badge>
-                {segments.map(segment => (
-                  <Badge key={segment} variant="secondary" className="text-xs font-medium">
-                    {segment}
+                {segments.slice(0, 2).map((seg: string) => (
+                  <Badge key={seg} variant="outline" className="border-slate-200 dark:border-slate-700 text-slate-500">
+                    {seg}
                   </Badge>
                 ))}
-                {course.category && (
-                  <Badge variant="secondary" className="text-xs font-medium">
-                    {course.category}
-                  </Badge>
-                )}
+              </div>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 transition-colors" onClick={handleCopyLink}>
+                   <Share2 className="w-4 h-4" />
+                </Button>
+                <SheetClose asChild>
+                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 transition-colors">
+                    <X className="w-4 h-4" />
+                  </Button>
+                </SheetClose>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
-              <X className="w-5 h-5" />
-            </Button>
+
+            {/* Title & Subtitle */}
+            <div className="space-y-3">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1]">
+                {course.title}
+              </h1>
+              {course.subtitle && (
+                <p className="text-lg text-muted-foreground font-medium line-clamp-2 max-w-3xl">{course.subtitle}</p>
+              )}
+            </div>
+
+            {/* Quick Info Bar */}
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-medium text-slate-600 dark:text-slate-400 mt-2">
+               <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-slate-400" />
+                  <span>{course.duration_hours || 0}h de conteúdo</span>
+               </div>
+               <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-slate-400" />
+                  <span>{dateDisplay}</span>
+               </div>
+               {course.local && (
+                 <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-slate-400" />
+                    <span>{course.local}</span>
+                 </div>
+               )}
+            </div>
           </div>
-        </SheetHeader>
+        </div>
 
-        <div className="p-6 space-y-6">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="breve">Visão Breve</TabsTrigger>
-              <TabsTrigger value="detalhada">Visão Detalhada</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="breve" className="space-y-6">
-              <div className="bg-gradient-to-br from-purple-50/50 to-blue-50/30 dark:from-purple-950/20 dark:to-blue-950/10 rounded-xl p-6 border-2 border-purple-100 dark:border-purple-900/30 shadow-sm">
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0">
-                    <FileText className="h-4 w-4 text-white" />
-                  </div>
-                  <h3 className="font-semibold text-lg text-foreground">Apresentação</h3>
-                </div>
-                <p className="text-base leading-relaxed text-muted-foreground pl-11">
-                  {course.summary}
-                </p>
-              </div>
-
-              <div className="bg-gradient-to-br from-blue-50/40 to-indigo-50/30 dark:from-blue-950/15 dark:to-indigo-950/10 rounded-xl p-5 border-2 border-blue-100 dark:border-blue-900/30">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
-                    <Calendar className="h-4 w-4 text-white" />
-                  </div>
-                  <h4 className="font-semibold text-foreground">Informações do Curso</h4>
-                </div>
-                <div className="grid gap-3 md:grid-cols-2">
-                  <InfoPill label="Formato / Modalidade" value={`${course.modality.join(', ')}${course.location ? ` · ${course.location}` : ''}`} />
-                  <InfoPill label="Segmentos" value={course.segments?.join(', ') || course.area || ''} />
-                  <InfoPill label="Datas" value={dateRange ?? 'Sob consulta'} />
-                  <InfoPill label="Local" value={course.address ?? course.location ?? 'Sob consulta'} />
-                  <InfoPill label="Carga horária" value={`${course.duration_hours}h`} />
-                  <InfoPill label="Investimento" value={priceSummary ?? 'Sob consulta'} />
-                </div>
-              </div>
-
-              {badges.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {badges.map(badge => (
-                    <Badge key={badge} variant="secondary" className="text-xs uppercase tracking-wide">
-                      {badge}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-
-              <div className="flex flex-wrap gap-3">
-                <Button className="flex-1" onClick={() => copyToClipboard(pitchText, 'Pitch')}>
-                  <Copy className="w-4 h-4 mr-2" /> Copiar Pitch
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => copyToClipboard(course.summary, 'Resumo')}
-                >
-                  <FileText className="w-4 h-4 mr-2" /> Copiar Resumo
-                </Button>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="detalhada" className="space-y-6">
-              <div className="bg-gradient-to-br from-purple-50/50 to-pink-50/30 dark:from-purple-950/20 dark:to-pink-950/10 rounded-xl p-6 border-2 border-purple-100 dark:border-purple-900/30">
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
-                    <FileText className="h-4 w-4 text-white" />
-                  </div>
-                  <h3 className="font-semibold text-lg text-foreground">Apresentação</h3>
-                </div>
-                <p className="text-muted-foreground leading-relaxed pl-11">{course.summary}</p>
-              </div>
-
-              {course.learning_points.length > 0 && (
-                <div className="bg-gradient-to-br from-blue-50/50 to-cyan-50/30 dark:from-blue-950/20 dark:to-cyan-950/10 rounded-xl p-6 border-2 border-blue-100 dark:border-blue-900/30">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
-                      <BookOpen className="h-4 w-4 text-white" />
-                    </div>
-                    <h3 className="font-semibold text-lg text-foreground">O que você vai aprender</h3>
-                  </div>
-                  <div className="pl-11">
-                    <List items={course.learning_points} />
-                  </div>
-                </div>
-              )}
-
-              {course.objectives && course.objectives.length > 0 && (
-                <div className="bg-gradient-to-br from-indigo-50/50 to-purple-50/30 dark:from-indigo-950/20 dark:to-purple-950/10 rounded-xl p-6 border-2 border-indigo-100 dark:border-indigo-900/30">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center flex-shrink-0">
-                      <Target className="h-4 w-4 text-white" />
-                    </div>
-                    <h3 className="font-semibold text-lg text-foreground">Objetivos</h3>
-                  </div>
-                  <div className="pl-11">
-                    <List items={course.objectives} />
-                  </div>
-                </div>
-              )}
-
-              {course.target_audience.length > 0 && (
-                <div className="bg-gradient-to-br from-green-50/50 to-emerald-50/30 dark:from-green-950/20 dark:to-emerald-950/10 rounded-xl p-6 border-2 border-green-100 dark:border-green-900/30">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center flex-shrink-0">
-                      <Users className="h-4 w-4 text-white" />
-                    </div>
-                    <h3 className="font-semibold text-lg text-foreground">Público-alvo</h3>
-                  </div>
-                  <div className="pl-11">
-                    <List items={course.target_audience} />
-                  </div>
-                </div>
-              )}
-
-              {course.program_sections.length > 0 && (
-                <div className="bg-gradient-to-br from-amber-50/50 to-orange-50/30 dark:from-amber-950/20 dark:to-orange-950/10 rounded-xl p-6 border-2 border-amber-100 dark:border-amber-900/30">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0">
-                      <ListChecks className="h-4 w-4 text-white" />
-                    </div>
-                    <h3 className="font-semibold text-lg text-foreground">Conteúdo Programático</h3>
-                  </div>
-                  <div className="pl-11">
-                    <ProgramList sections={course.program_sections} />
-                  </div>
-                </div>
-              )}
-
-              {course.methodology && (
-                <div className="bg-gradient-to-br from-teal-50/50 to-cyan-50/30 dark:from-teal-950/20 dark:to-cyan-950/10 rounded-xl p-6 border-2 border-teal-100 dark:border-teal-900/30">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
-                      <Sparkles className="h-4 w-4 text-white" />
-                    </div>
-                    <h3 className="font-semibold text-lg text-foreground">Metodologia e Vantagens do Formato</h3>
-                  </div>
-                  <p className="text-muted-foreground leading-relaxed pl-11">{course.methodology}</p>
-                </div>
-              )}
-
-              {course.deliverables.length > 0 && (
-                <div className="bg-gradient-to-br from-emerald-50/50 to-teal-50/30 dark:from-emerald-950/20 dark:to-teal-950/10 rounded-xl p-6 border-2 border-emerald-100 dark:border-emerald-900/30">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center flex-shrink-0">
-                      <Award className="h-4 w-4 text-white" />
-                    </div>
-                    <h3 className="font-semibold text-lg text-foreground">Entregáveis / O que inclui</h3>
-                  </div>
-                  <div className="pl-11">
-                    <List items={course.deliverables} />
-                  </div>
-                </div>
-              )}
-
-              {course.speakers.length > 0 && (
-                <div className="bg-gradient-to-br from-violet-50/50 to-purple-50/30 dark:from-violet-950/20 dark:to-purple-950/10 rounded-xl p-6 border-2 border-violet-100 dark:border-violet-900/30">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center flex-shrink-0">
-                      <Users className="h-4 w-4 text-white" />
-                    </div>
-                    <h3 className="font-semibold text-lg text-foreground">Palestrantes</h3>
-                  </div>
-                  <div className="pl-11">
-                    <Speakers speakers={course.speakers} />
-                  </div>
-                </div>
-              )}
-
-              {(dateRange || course.schedule_details || course.address) && (
-                <DrawerSection title="Datas, horários e local detalhados">
-                  {dateRange && (
-                    <p className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-primary" />
-                      {dateRange}
-                    </p>
-                  )}
-                  {course.schedule_details && <p>{course.schedule_details}</p>}
-                  {course.address && (
-                    <p className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-primary" />
-                      {course.address}
-                    </p>
-                  )}
-                </DrawerSection>
-              )}
-
-              <DrawerSection title="Investimento">
-                <Investment investment={course.investment_details} />
-              </DrawerSection>
-
-              {course.reasons_to_attend.length > 0 && (
-                <DrawerSection title="Por que participar do evento JML">
-                  <List items={course.reasons_to_attend} />
-                </DrawerSection>
-              )}
-
-              {(course.registration_guidelines.length > 0 || course.payment_methods.length > 0) && (
-                <DrawerSection title="Orientações para inscrição e pagamento">
-                  {course.registration_guidelines.length > 0 && (
-                    <List items={course.registration_guidelines} />
-                  )}
-                  {course.registration_guidelines.length === 0 && course.payment_methods.length > 0 && (
-                    <List items={course.payment_methods} />
-                  )}
-                </DrawerSection>
-              )}
-
-              {course.contacts && (
-                <DrawerSection title="Central de relacionamento">
-                  <div className="space-y-2">
-                    {course.contacts.email && (
-                      <p className="flex items-center gap-2 text-sm">
-                        <LinkIcon className="w-4 h-4 text-primary" />
-                        {course.contacts.email}
-                      </p>
-                    )}
-                    {course.contacts.phone && <p>{course.contacts.phone}</p>}
-                    {course.contacts.whatsapp && <p>WhatsApp: {course.contacts.whatsapp}</p>}
-                    {course.contacts.website && (
-                      <a
-                        href={course.contacts.website}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-primary hover:underline"
+        {/* --- MAIN CONTENT --- */}
+        <ScrollArea className="flex-1 w-full">
+          <div className="p-6 sm:p-8 pb-32">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+              
+              {/* COLUNA ESQUERDA: CONTEÚDO PRINCIPAL (8 cols) */}
+              <div className="lg:col-span-8 space-y-10">
+                
+                {/* Abas */}
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-b border-border/50 rounded-none gap-8">
+                    {["visão-geral", "programação", "palestrantes"].map((tab) => (
+                      <TabsTrigger 
+                        key={tab} 
+                        value={tab} 
+                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-3 text-sm font-bold text-muted-foreground data-[state=active]:text-foreground uppercase tracking-wide transition-all hover:text-foreground"
                       >
-                        {course.contacts.website}
-                      </a>
+                        {tab.replace('-', ' ')}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+
+                  {/* ABA: VISÃO GERAL */}
+                  <TabsContent value="visão-geral" className="space-y-10 mt-8 animate-in fade-in slide-in-from-left-2 duration-300">
+                    
+                    {/* Apresentação */}
+                    <div className="prose prose-slate dark:prose-invert max-w-none">
+                      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                         <FileText className="w-5 h-5 text-muted-foreground"/> Sobre o Curso
+                      </h3>
+                      <p className="text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line text-base">
+                        {course.apresentacao || course.summary || course.description}
+                      </p>
+                    </div>
+
+                    {/* Objetivos (Grid) */}
+                    {course.objectives?.length > 0 && (
+                      <HighlightCard className={theme.bgLight}>
+                        <SectionTitle icon={Target} title="Objetivos de Aprendizagem" className="border-border/20 mb-4" />
+                        <ul className="grid sm:grid-cols-2 gap-4">
+                          {course.objectives.map((obj: string, i: number) => (
+                            <li key={i} className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-200">
+                              <div className={cn("mt-1 w-1.5 h-1.5 rounded-full shrink-0", theme.marker)} />
+                              <span className="leading-relaxed">{obj}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </HighlightCard>
                     )}
-                    {course.contacts.hours && <p>{course.contacts.hours}</p>}
-                  </div>
-                </DrawerSection>
-              )}
 
-              <Separator />
+                    {/* Público Alvo */}
+                    <div className="space-y-4">
+                       <SectionTitle icon={Users} title="Público-Alvo" />
+                       <p className="text-sm text-muted-foreground mb-3">Este treinamento foi desenhado especificamente para:</p>
+                       <div className="flex flex-wrap gap-2">
+                          {(course.target_audience || course.publico_alvo || []).map((target: string, i: number) => (
+                             <span key={i} className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-slate-700 uppercase tracking-wide">
+                                {target}
+                             </span>
+                          ))}
+                       </div>
+                    </div>
 
-              <div className="flex flex-col gap-2">
-                {course.links.landing && (
-                  <Button variant="outline" size="sm" asChild>
-                    <a href={course.links.landing} target="_blank" rel="noopener noreferrer">
-                      <LinkIcon className="w-4 h-4 mr-2" /> Ver Landing Page
-                    </a>
-                  </Button>
-                )}
-                {course.links.pdf && (
-                  <Button variant="outline" size="sm" asChild>
-                    <a href={course.links.pdf} target="_blank" rel="noopener noreferrer">
-                      <FileText className="w-4 h-4 mr-2" /> Download PDF
-                    </a>
-                  </Button>
+                    {/* Entregáveis */}
+                    {course.deliverables?.length > 0 && (
+                       <div className="space-y-4">
+                          <SectionTitle icon={Award} title="O que está incluso" />
+                          <div className="grid sm:grid-cols-2 gap-4">
+                             {course.deliverables.map((item: string, i: number) => (
+                                <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card/40">
+                                   <div className={cn("p-1.5 rounded-full bg-opacity-10", theme.iconBg)}>
+                                      <Sparkles className={cn("w-3.5 h-3.5", theme.text)} />
+                                   </div>
+                                   <span className="text-sm font-medium">{item}</span>
+                                </div>
+                             ))}
+                          </div>
+                       </div>
+                    )}
+
+                    {/* Campos Personalizados */}
+                    {customSchema.length > 0 && (
+                      <div className="space-y-4">
+                        <SectionTitle icon={Settings2} title="Informações Adicionais" />
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          {customSchema
+                            .filter((f: any) => f.visibility?.page !== false)
+                            .map((field: any) => {
+                              const val = customValues[field.id];
+                              if (!val) return null;
+                              return (
+                                <div key={field.id} className="p-4 rounded-xl border bg-card/30">
+                                  <p className="text-xs uppercase font-bold text-muted-foreground mb-1">{field.label}</p>
+                                  <p className="text-sm font-medium">{String(val)}</p>
+                                </div>
+                              );
+                            })}
+                        </div>
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  {/* ABA: PROGRAMAÇÃO (TIMELINE VISUAL) */}
+                  <TabsContent value="programação" className="space-y-8 mt-8 animate-in fade-in slide-in-from-right-2 duration-300">
+                     <SectionTitle icon={ListChecks} title="Conteúdo Programático" />
+
+                     {((course.program_sections || course.programacao)?.length > 0) ? (
+                        <div className="relative border-l-2 border-slate-200 dark:border-slate-800 ml-3 space-y-8 pb-4">
+                           {(course.program_sections || course.programacao || []).map((section: any, idx: number) => (
+                              <div key={idx} className="relative pl-8 group">
+                                 {/* Marcador da Timeline */}
+                                 <div className={cn(
+                                    "absolute -left-[9px] top-0 w-4 h-4 rounded-full border-2 border-background ring-2 ring-slate-200 dark:ring-slate-800 transition-colors", 
+                                    theme.marker
+                                 )} />
+                                 
+                                 <div className="rounded-xl border border-border/60 bg-card/60 p-5 transition-all hover:border-primary/30 hover:shadow-sm">
+                                    <h4 className={cn("font-bold text-base mb-2", theme.text)}>
+                                       Módulo {idx + 1}: {section.title}
+                                    </h4>
+                                    {section.description && (
+                                       <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{section.description}</p>
+                                    )}
+                                    
+                                    {section.topics?.length > 0 && (
+                                       <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-4">
+                                          <ul className="grid gap-2">
+                                             {section.topics.map((t: string, i: number) => (
+                                                <li key={i} className="text-sm text-slate-600 dark:text-slate-300 flex items-start gap-2.5">
+                                                   <div className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 mt-1.5 shrink-0" />
+                                                   {t}
+                                                </li>
+                                             ))}
+                                          </ul>
+                                       </div>
+                                    )}
+                                 </div>
+                              </div>
+                           ))}
+                        </div>
+                     ) : (
+                        <div className="text-center py-12 text-muted-foreground bg-slate-50 dark:bg-slate-900 rounded-xl border border-dashed">
+                           <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                           <p>Conteúdo programático detalhado será disponibilizado em breve.</p>
+                        </div>
+                     )}
+                  </TabsContent>
+
+                  {/* ABA: PALESTRANTES (CARDS) */}
+                  <TabsContent value="palestrantes" className="space-y-8 mt-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                     <SectionTitle icon={Users} title="Corpo Docente" />
+
+                     <div className="grid gap-4">
+                        {((course.speakers && course.speakers.length > 0) || (course.palestrantes && course.palestrantes.length > 0)) ? (
+                           (course.speakers || course.palestrantes || []).map((speaker: any, idx: number) => (
+                              <SpeakerCard key={idx} speaker={speaker} theme={theme} />
+                           ))
+                        ) : (
+                           <div className="text-center py-12 text-muted-foreground bg-slate-50 dark:bg-slate-900 rounded-xl border border-dashed">
+                              <Users className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                              <p>Palestrantes a serem confirmados.</p>
+                           </div>
+                        )}
+                     </div>
+                  </TabsContent>
+                </Tabs>
+
+                {/* Seção Cursos Relacionados (Dentro do conteúdo principal) */}
+                {relatedCourses?.length > 0 && (
+                   <div className="pt-10 border-t border-dashed mt-12">
+                      <div className="flex items-center gap-2 mb-4">
+                         <Sparkles className="w-4 h-4 text-amber-500" />
+                         <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Você também pode se interessar</h4>
+                      </div>
+                      <div className="grid sm:grid-cols-2 gap-4">
+                         {relatedCourses.map((rel: any) => (
+                            <div 
+                               key={rel.id} 
+                               onClick={() => onCourseClick(rel)}
+                               className="group cursor-pointer p-4 rounded-xl border border-border hover:border-primary/50 hover:shadow-md transition-all bg-card flex flex-col justify-between h-full"
+                            >
+                               <div>
+                                  <h5 className="font-bold text-sm group-hover:text-primary transition-colors line-clamp-2">{rel.title}</h5>
+                               </div>
+                               <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
+                                  <Badge variant="secondary" className="text-[10px] h-5 px-1.5">{rel.empresa}</Badge>
+                                  <span>{rel.tipo}</span>
+                                  <ArrowRight className="w-3 h-3 ml-auto opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
+                               </div>
+                            </div>
+                         ))}
+                      </div>
+                   </div>
                 )}
               </div>
-            </TabsContent>
-          </Tabs>
 
-          {relatedCourses.length > 0 && (
-            <div className="space-y-4">
-              <Separator />
-              <h4 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">
-                Cursos Relacionados
-              </h4>
-              <div className="space-y-2">
-                {relatedCourses.map(related => (
-                  <button
-                    key={related.id}
-                    onClick={() => onCourseClick(related)}
-                    className="w-full text-left p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-muted/30 transition-all group"
-                  >
-                    <h5 className="font-medium text-sm mb-1 group-hover:text-primary transition-colors">
-                      {related.title}
-                    </h5>
-                    <p className="text-xs text-muted-foreground line-clamp-1">
-                      {related.summary}
-                    </p>
-                  </button>
-                ))}
+              {/* COLUNA DIREITA: SIDEBAR (4 cols) */}
+              <div className="lg:col-span-4 space-y-6">
+                 
+                 {/* Card de Informações/Preço (Sticky) */}
+                 <div className="sticky top-6 space-y-6">
+                    <div className="rounded-2xl border border-border/60 bg-white dark:bg-[#111623] shadow-xl p-6 overflow-hidden relative">
+                        {/* Faixa decorativa topo */}
+                        <div className={cn("absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r", theme.gradient)} />
+                        
+                        {/* Preço / Investimento */}
+                        <div className="mb-6 pb-6 border-b border-border/50">
+                           <p className="text-sm text-muted-foreground font-medium mb-2 uppercase tracking-wide">Investimento</p>
+                           <div className="flex flex-col gap-2">
+                              <span className={cn("text-3xl font-extrabold tracking-tight", theme.text)}>
+                                 {getPriceDisplay()}
+                              </span>
+                              {getAvailablePrices().length > 1 && (
+                                 <div className="flex flex-wrap gap-2 mt-2">
+                                    {getAvailablePrices().map((price, idx) => (
+                                       <div key={idx} className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
+                                          <span className="text-slate-500">{price.label}:</span>{' '}
+                                          <span className="font-semibold">{price.value}</span>
+                                       </div>
+                                    ))}
+                                 </div>
+                              )}
+                              {(course.investment_details?.notes) && (
+                                 <p className="text-xs text-muted-foreground mt-1 italic">{course.investment_details.notes}</p>
+                              )}
+                           </div>
+                        </div>
+
+                        {/* Detalhes Rápidos (Checklist) */}
+                        <div className="space-y-4 mb-6">
+                           <div className="flex items-start gap-3">
+                              <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg shrink-0">
+                                 <Briefcase className="w-4 h-4 text-slate-500" />
+                              </div>
+                              <div>
+                                 <p className="text-xs font-bold uppercase text-muted-foreground mb-0.5">Instituição</p>
+                                 <p className="text-sm font-medium">{course.empresa || course.company || "JML"}</p>
+                              </div>
+                           </div>
+
+                           {dateDisplay !== "A definir" && (
+                              <div className="flex items-start gap-3">
+                                 <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg shrink-0">
+                                    <Calendar className="w-4 h-4 text-slate-500" />
+                                 </div>
+                                 <div>
+                                    <p className="text-xs font-bold uppercase text-muted-foreground mb-0.5">Período</p>
+                                    <p className="text-sm font-medium">{dateDisplay}</p>
+                                 </div>
+                              </div>
+                           )}
+
+                           {course.local && course.local.trim() !== '' && (
+                              <div className="flex items-start gap-3">
+                                 <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg shrink-0">
+                                    <MapPin className="w-4 h-4 text-slate-500" />
+                                 </div>
+                                 <div>
+                                    <p className="text-xs font-bold uppercase text-muted-foreground mb-0.5">Localização</p>
+                                    <p className="text-sm font-medium">{course.local}</p>
+                                 </div>
+                              </div>
+                           )}
+
+                           <div className="flex items-start gap-3">
+                              <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg shrink-0">
+                                 <MonitorPlay className="w-4 h-4 text-slate-500" />
+                              </div>
+                              <div>
+                                 <p className="text-xs font-bold uppercase text-muted-foreground mb-0.5">Modalidade</p>
+                                 <p className="text-sm font-medium">{course.modality?.join(', ') || course.modalidade?.join(', ') || "A definir"}</p>
+                              </div>
+                           </div>
+                        </div>
+
+                        {/* Botões Secundários */}
+                        {course.links?.pdf && (
+                           <Button variant="outline" className="w-full h-11 border-dashed gap-2 group hover:border-primary hover:text-primary transition-colors" asChild>
+                              <a href={course.links.pdf} target="_blank">
+                                 <FileText className="w-4 h-4" /> 
+                                 <span>Baixar Programa (PDF)</span>
+                                 <Download className="w-3 h-3 ml-auto opacity-50 group-hover:opacity-100" />
+                              </a>
+                           </Button>
+                        )}
+                        
+                        {/* Contatos */}
+                        {course.contacts && (
+                           <div className="mt-6 pt-4 border-t border-border/50">
+                              <p className="text-xs font-bold text-center text-muted-foreground mb-3 uppercase">Precisa de ajuda?</p>
+                              <div className="flex justify-center gap-4">
+                                 {course.contacts.whatsapp && (
+                                    <Button size="sm" variant="ghost" className="h-9 w-9 rounded-full bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700">
+                                       <Phone className="w-4 h-4" />
+                                    </Button>
+                                 )}
+                                 {course.contacts.email && (
+                                    <Button size="sm" variant="ghost" className="h-9 w-9 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700">
+                                       <Mail className="w-4 h-4" />
+                                    </Button>
+                                 )}
+                              </div>
+                           </div>
+                        )}
+                    </div>
+
+                    {/* Card de Metodologia/Vantagens (Compacto) */}
+                    {course.reasons_to_attend?.length > 0 && (
+                       <div className="rounded-xl border bg-card/30 p-5 backdrop-blur-sm">
+                          <h4 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
+                             <Target className="w-4 h-4" /> Por que participar?
+                          </h4>
+                          <ul className="space-y-3">
+                             {course.reasons_to_attend.slice(0, 4).map((reason: string, i: number) => (
+                                <li key={i} className="flex gap-2.5 text-sm leading-snug text-slate-600 dark:text-slate-300">
+                                   <CheckCircle2 className={cn("w-4 h-4 shrink-0 mt-0.5", theme.text)} />
+                                   <span>{reason}</span>
+                                </li>
+                             ))}
+                          </ul>
+                       </div>
+                    )}
+                 </div>
+
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        </ScrollArea>
       </SheetContent>
     </Sheet>
   );

@@ -5,6 +5,7 @@ const {
   getRelatedCourses,
   getCourseStats,
   getSearchSuggestions,
+  aiSearch,
   createCourse,
   updateCourse,
   setCourseStatus,
@@ -17,6 +18,7 @@ const router = express.Router();
 router.get('/', getAllCourses);
 router.get('/stats', getCourseStats);
 router.get('/search/suggestions', getSearchSuggestions);
+router.post('/ai-search', aiSearch); // 🤖 Busca inteligente com IA
 router.get('/:id/related', getRelatedCourses);
 router.get('/:id', getCourseById);
 

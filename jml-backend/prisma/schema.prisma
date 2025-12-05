@@ -25,12 +25,20 @@ model Course {
   carga_horaria     Int
   summary           String
   description       String
-  objetivos         String[]
+  apresentacao      String?
   publico_alvo      String[]
+  objetivos         String[]  @default([])
+  vantagens         String[]  @default([])
+  vantagens_ead     String[]  @default([])
+  target_audience   String?
   aprendizados      String[]    @default([])
   professores       Json[]
+  palestrantes      Json[]      @default([])
   coordenacao       Json?
   investimento      Json
+  preco_online      Float?
+  preco_presencial  Float?
+  preco_incompany   Float?
   forma_pagamento   String[]
   programacao       Json[]
   metodologia       String?
@@ -47,6 +55,11 @@ model Course {
   motivos_participar String[]   @default([])
   orientacoes_inscricao String[] @default([])
   contatos          Json?
+  custom_fields     Json?
+  
+  // [NOVO] ONDE GUARDAMOS A ESTRUTURA (O desenho do formulário deste curso)
+  custom_schema     Json?      @default("[]") 
+
   views_count       Int         @default(0)
   clicks_count      Int         @default(0)
   conversions_count Int         @default(0)

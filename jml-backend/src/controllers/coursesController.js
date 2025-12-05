@@ -62,15 +62,21 @@ const getAllCourses = async (req, res) => {
           endereco_completo: true,
           summary: true,
           description: true,
+          apresentacao: true,
           objetivos: true,
           publico_alvo: true,
           aprendizados: true,
+          vantagens: true,
+          vantagens_ead: true,
           programacao: true,
           metodologia: true,
           logistica_detalhes: true,
           carga_horaria: true,
           investimento: true,
           preco_resumido: true,
+          preco_online: true,
+          preco_presencial: true,
+          preco_incompany: true,
           forma_pagamento: true,
           tags: true,
           badges: true,
@@ -79,7 +85,9 @@ const getAllCourses = async (req, res) => {
           motivos_participar: true,
           orientacoes_inscricao: true,
           contatos: true,
-          professores: true,
+          custom_schema: true,
+          custom_fields: true,
+          palestrantes: true,
           coordenacao: true,
           landing_page: true,
           inscricao_url: true,
@@ -374,12 +382,52 @@ const getSearchSuggestions = async (req, res) => {
   }
 };
 
+// 🤖 POST /api/courses/ai-search - Busca inteligente com IA
+const aiSearch = async (req, res) => {
+  try {
+    const { q, empresa, tipo, categoria, segmento } = req.body;
+
+    if (!q || q.trim().length < 2) {
+      return res.apiError('Query muito curta', 400, 'INVALID_QUERY');
+    }
+
+    const aiSearchService = require('../services/aiSearchService');
+
+    const filters = {
+      ...(empresa && { empresa }),
+      ...(tipo && { tipo }),
+      ...(categoria && { categoria }),
+      ...(segmento && { segmento })
+    };
+
+    const searchResults = await aiSearchService.aiSearch(q, filters);
+
+    // 📈 Registrar analytics
+    await prisma.analytics.create({
+      data: {
+        event_type: 'ai_search',
+        search_query: q,
+        filters_used: filters,
+        user_agent: req.get('User-Agent'),
+        ip_address: req.ip
+      }
+    }).catch(() => {}); // Não falhar se analytics der erro
+
+    res.apiResponse(searchResults, `Busca IA concluída: ${searchResults.results.length} resultados relevantes`);
+
+  } catch (error) {
+    console.error('❌ Error in aiSearch:', error);
+    res.apiError('Erro na busca com IA', 500, 'AI_SEARCH_ERROR');
+  }
+};
+
 module.exports = {
   getAllCourses,
   getCourseById,
   getRelatedCourses,
   getCourseStats,
   getSearchSuggestions,
+  aiSearch,
 };
 
 
@@ -401,14 +449,22 @@ const writeSelectableFields = [
   'carga_horaria',
   'summary',
   'description',
+  'apresentacao',
   'objetivos',
   'aprendizados',
   'publico_alvo',
+  'vantagens',
+  'vantagens_ead',
+  'target_audience',
   'nivel',
   'professores',
+  'palestrantes',
   'coordenacao',
   'investimento',
   'preco_resumido',
+  'preco_online',
+  'preco_presencial',
+  'preco_incompany',
   'forma_pagamento',
   'programacao',
   'metodologia',
@@ -424,6 +480,8 @@ const writeSelectableFields = [
   'motivos_participar',
   'orientacoes_inscricao',
   'contatos',
+  'custom_fields',
+  'custom_schema',
   'cor_categoria',
   'icone',
   'imagem_capa',

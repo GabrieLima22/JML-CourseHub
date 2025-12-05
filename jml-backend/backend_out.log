@@ -1,0 +1,6 @@
+JML CourseHub API
+Servidor rodando na porta 3001
+Environment: development
+URL: http://localhost:3001
+Health: /api/health
+Docs: /api

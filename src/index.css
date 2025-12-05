@@ -50,11 +50,11 @@ All colors MUST be HSL.
     --gradient-via: var(--gradient-aurora-via);
     --gradient-to: var(--gradient-aurora-to);
 
-    /* Enhanced Category colors - Novas categorias JML/Conecta */
+    /* Enhanced Category colors - Novas categorias JML/Conecta - Cores Variadas */
     --category-curso-aberto-jml: 270 91% 65%;      /* Roxo vibrante para JML aberto */
     --category-curso-aberto-conecta: 196 70% 52%;   /* Azul para Conecta aberto */
-    --category-curso-incompany-jml: 248 60% 62%;    /* Roxo-azul para JML InCompany */
-    --category-curso-incompany-conecta: 258 83% 65%; /* Roxo claro para Conecta InCompany */
+    --category-curso-incompany-jml: 340 82% 62%;    /* Rosa/Magenta para JML InCompany */
+    --category-curso-incompany-conecta: 180 60% 55%; /* Ciano para Conecta InCompany */
     --category-curso-ead-jml: 155 84% 55%;          /* Verde para EAD JML */
     --category-curso-hibrido-jml: 45 100% 60%;      /* Laranja/dourado para Híbrido JML */
 
@@ -107,11 +107,11 @@ All colors MUST be HSL.
     --gradient-via: var(--gradient-aurora-via);
     --gradient-to: var(--gradient-aurora-to);
 
-    /* Category colors - Dark mode JML/Conecta mais vibrantes */
+    /* Category colors - Dark mode JML/Conecta mais vibrantes - Cores Variadas */
     --category-curso-aberto-jml: 270 91% 72%;      /* Roxo mais vibrante no escuro */
     --category-curso-aberto-conecta: 196 80% 62%;   /* Azul mais vibrante */
-    --category-curso-incompany-jml: 248 70% 70%;    /* Roxo-azul vibrante */
-    --category-curso-incompany-conecta: 258 83% 72%; /* Roxo claro vibrante */
+    --category-curso-incompany-jml: 340 82% 68%;    /* Rosa/Magenta vibrante */
+    --category-curso-incompany-conecta: 180 65% 60%; /* Ciano vibrante */
     --category-curso-ead-jml: 155 84% 55%;          /* Verde vibrante para EAD */
     --category-curso-hibrido-jml: 45 100% 65%;      /* Laranja/dourado mais vibrante no escuro */
 
