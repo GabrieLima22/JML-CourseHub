@@ -186,21 +186,36 @@ export default function Home() {
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[#F8F9FC] dark:bg-[#050505] text-foreground selection:bg-violet-500/30">
       
-      {/* === BACKGROUND ESTILO JML (GRADIENTES) === */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-          {/* Base */}
-          <div className="absolute inset-0 bg-[#F8F9FC] dark:bg-[#02040a]" />
-          
-          {/* Blob Verde (Topo Esquerda) - JML Style */}
-          <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-emerald-400/20 dark:bg-emerald-600/10 blur-[130px] opacity-70" />
-          
-          {/* Blob Azul (Baixo Esquerda) - JML Style */}
-          <div className="absolute bottom-[0%] left-[-5%] w-[45vw] h-[45vw] rounded-full bg-blue-500/20 dark:bg-blue-600/10 blur-[130px] opacity-60" />
-          
-          {/* Blob Roxo (Topo Direita) - JML Style */}
-          <div className="absolute top-[0%] right-[-10%] w-[50vw] h-[60vw] rounded-full bg-violet-500/20 dark:bg-violet-600/10 blur-[140px] opacity-50" />
-      </div>
+     {/* Container das Bolhas */}
+          <div className="absolute inset-0 w-full h-full">
+            
+            {/* BOLHA 1 (Topo Esquerda) */}
+            <div className="absolute top-[-10%] left-[-5%] w-[40rem] h-[40rem] 
+                            bg-violet-400/30 dark:bg-violet-600/20  
+                            rounded-full mix-blend-multiply dark:mix-blend-screen 
+                            filter blur-[100px] opacity-70 animate-blob" />
+            {/* ^ MUDE O 'bg-violet-400/30' PARA OUTRA COR. Ex: 'bg-red-500/30' */}
+            
+            {/* BOLHA 2 (Topo Direita) */}
+            <div className="absolute top-[-10%] right-[10%] w-[35rem] h-[35rem] 
+                            bg-cyan-400/30 dark:bg-blue-600/20 
+                            rounded-full mix-blend-multiply dark:mix-blend-screen 
+                            filter blur-[100px] opacity-70 animate-blob animation-delay-2000" />
+            {/* ^ MUDE O 'bg-cyan-400/30' PARA OUTRA COR. Ex: 'bg-orange-400/30' */}
 
+            {/* BOLHA 3 (Baixo) */}
+            <div className="absolute top-[20%] left-[20%] w-[45rem] h-[45rem] 
+                            bg-pink-300/30 dark:bg-emerald-600/10 
+                            rounded-full mix-blend-multiply dark:mix-blend-screen 
+                            filter blur-[120px] opacity-60 animate-blob animation-delay-4000" />
+            {/* ^ MUDE O 'bg-pink-300/30' PARA OUTRA COR. Ex: 'bg-yellow-300/30' */}
+                            
+             {/* Fundo Base (Opcional, cor bem fraquinha que preenche tudo) */}
+             <div className="absolute bottom-[-20%] right-[-10%] w-[60rem] h-[60rem] 
+                            bg-blue-100/40 dark:bg-indigo-900/10 
+                            rounded-full mix-blend-multiply dark:mix-blend-screen 
+                            filter blur-[150px] opacity-50" />
+          </div>
       <div className="main-content relative z-10 flex min-h-screen flex-col">
         
         {/* === HEADER (EXATAMENTE O SEU CÓDIGO ORIGINAL) === */}
